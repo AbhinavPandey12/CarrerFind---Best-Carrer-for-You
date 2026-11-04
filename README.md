@@ -84,29 +84,24 @@ CareerFind is constructed with a modular, scalable, full-stack architecture prio
 graph TD
     Client["Client Devices (Desktop / Tablet / Mobile)"]
     
-    subgraph "Next.js 14 App Router Framework"
+    subgraph Framework["Next.js 14 App Router Framework"]
         Pages["React 18 Server & Client Components<br/>Tailwind CSS & Glassmorphism Design System"]
         AuthMiddleware["Session Management & RBAC Middleware<br/>HTTP-Only Cookies & Bcrypt Hashing"]
         
-        subgraph "RESTful API Layer"
-            AuthAPI["/api/auth/* (Login, Register, Demo Switch)"]
-            AssessAPI["/api/assessment (Scoring & Archetype Engine)"]
-            CareerAPI["/api/careers/* (Profiles & Bookmarks)"]
-            VideoAPI["/api/videos/* (Curation & Suggestion)"]
-            ShadowAPI["/api/shadowing/* (Booking & Conflict Lock)"]
-            MentorAPI["/api/mentor/* (Slots & Reviews)"]
-            AdminAPI["/api/admin/* (Verifications & Oversight)"]
+        subgraph APISubgraph["RESTful API Layer"]
+            APIs["API Routes<br/>• /api/auth/* (Authentication & Sessions)<br/>• /api/assessment (Career Scoring Engine)<br/>• /api/careers/* (Profiles & Bookmarks)<br/>• /api/videos/* (Curated Workday Videos)<br/>• /api/shadowing/* (Booking & Conflict Lock)<br/>• /api/mentor/* (Availability Slots)<br/>• /api/admin/* (Verification & Moderation)"]
         end
     end
     
-    subgraph "Data & Persistence Layer"
+    subgraph DataLayer["Data & Persistence Layer"]
         Prisma["Prisma ORM 5.22<br/>Type-safe Query Builder"]
         SQLite[("SQLite Embedded Database<br/>dev.db (ACID Compliant)")]
     end
     
     Client <--> Pages
-    Pages <--> RESTful API Layer
-    RESTful API Layer <--> Prisma
+    Pages <--> AuthMiddleware
+    AuthMiddleware <--> APIs
+    APIs <--> Prisma
     Prisma <--> SQLite
 ```
 
@@ -376,8 +371,8 @@ To ensure safety and confidentiality during **in-person job shadowing**:
 
 ### Step 1: Clone Repository
 ```bash
-git clone https://github.com/AbhinavPandey12/CareerFind.git
-cd CareerFind
+git clone https://github.com/AbhinavPandey12/CarrerFind---Best-Carrer-for-You.git
+cd CarrerFind---Best-Carrer-for-You
 ```
 
 ### Step 2: Install Dependencies
