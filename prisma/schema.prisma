@@ -1,0 +1,215 @@
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  role         String    @default("STUDENT") // STUDENT, MENTOR, ADMIN
+  avatarUrl    String?
+  headline     String?
+  bio          String?
+  phone        String?
+  location     String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  studentProfile       StudentProfile?
+  mentorProfile        MentorProfile?
+  assessmentResults    AssessmentResult[]
+  bookingsAsStudent    JobShadowBooking[]  @relation("StudentBookings")
+  savedCareers         SavedCareer[]
+  bookmarkedVideos     BookmarkedVideo[]
+  reportsFiled         PlatformReport[]
+}
+
+model StudentProfile {
+  id                   String   @id @default(cuid())
+  userId               String   @unique
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  academicLevel        String   @default("Undergraduate") // High School, Undergraduate, Graduate, Career Switcher
+  majorOrField         String?
+  targetGraduationYear Int?
+  skillsPossessed      String?  // JSON string
+  preferredWorkMode    String?  // Remote, Hybrid, In-Person
+  preferredLocations   String?
+  interests            String?  // JSON string
+  updatedAt            DateTime @updatedAt
+}
+
+model MentorProfile {
+  id                    String              @id @default(cuid())
+  userId                String              @unique
+  user                  User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  company               String
+  title                 String
+  industry              String
+  experienceYears       Int
+  linkedInUrl           String?
+  verificationStatus    String              @default("PENDING") // PENDING, APPROVED, REJECTED
+  verificationNotes     String?
+  isVerified            Boolean             @default(false)
+  aboutDayInLife        String
+  offersVirtual         Boolean             @default(true)
+  offersInPerson        Boolean             @default(false)
+  inPersonLocation      String?
+  sessionDurationMin    Int                 @default(45)
+  maxStudentsPerSession Int                 @default(1)
+  isPaid                Boolean             @default(false)
+  priceAmount           Float               @default(0)
+  prerequisites         String?
+  rating                Float               @default(5.0)
+  reviewsCount          Int                 @default(0)
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  availabilitySlots     AvailabilitySlot[]
+  shadowBookings        JobShadowBooking[]  @relation("MentorBookings")
+}
+
+model AvailabilitySlot {
+  id              String            @id @default(cuid())
+  mentorProfileId String
+  mentor          MentorProfile     @relation(fields: [mentorProfileId], references: [id], onDelete: Cascade)
+  date            String            // YYYY-MM-DD
+  startTime       String            // HH:MM
+  endTime         String            // HH:MM
+  mode            String            @default("VIRTUAL") // VIRTUAL, IN_PERSON
+  isBooked        Boolean           @default(false)
+  booking         JobShadowBooking?
+}
+
+model Career {
+  id                          String   @id @default(cuid())
+  slug                        String   @unique
+  title                       String
+  category                    String   // "Technology & Engineering", "Business & Management", "Emerging & Other"
+  industry                    String
+  shortDescription            String
+  overview                    String
+  dailyResponsibilities       String   // JSON string array
+  dayInLife                   String   // Detailed narrative of a full workday
+  typicalWorkEnvironment      String   // Remote, Hybrid, Office, Lab, Field
+  requiredEducation           String
+  essentialTechSkills         String   // JSON string array
+  essentialSoftSkills         String   // JSON string array
+  toolsAndTechnologies        String   // JSON string array
+  entrySalaryMin              Int      // USD in thousands (e.g. 85 = $85,000)
+  entrySalaryMax              Int
+  midSalaryMin                Int
+  midSalaryMax                Int
+  seniorSalaryMin             Int
+  seniorSalaryMax             Int
+  learningDifficulty          Int      // 1-10
+  entryJobDifficulty          Int      // 1-10
+  technicalComplexity         Int      // 1-10
+  mathRequirements            Int      // 1-10
+  workPressure                Int      // 1-10
+  workLifeBalance             Int      // 1-10
+  remoteOpportunities         Int      // 1-10
+  careerStability             Int      // 1-10
+  futureDemandScore           Int      // 1-10
+  futureDemandOutlook         String   // e.g. "26% projected 10-year growth (Much faster than average)"
+  growthPotential             Int      // 1-10
+  internationalOpportunities  String   // Detailed text
+  advantages                  String   // JSON string array
+  disadvantages               String   // JSON string array
+  careerProgressionRoadmap    String   // JSON string array of stages
+  iconName                    String   @default("Briefcase")
+  featured                    Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+}
+
+model Video {
+  id              String   @id @default(cuid())
+  title           String
+  youtubeId       String
+  youtubeUrl      String
+  creator         String
+  channelName     String
+  duration        String   // e.g. "12:45"
+  professionSlug  String
+  category        String   // Technology, Business, Emerging, etc.
+  experienceLevel String   // Junior, Mid-Level, Senior, Founder, Executive
+  location        String   // e.g. "San Francisco, CA", "London, UK", "Remote"
+  keyTakeaways    String   // JSON string array
+  description     String
+  isCurated       Boolean  @default(true)
+  viewCount       Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model AssessmentResult {
+  id                 String   @id @default(cuid())
+  userId             String
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  archetypeTitle     String
+  archetypeSubtitle  String
+  answersSnapshot    String   // JSON string of user choices
+  recommendedCareers String   // JSON string array of { careerSlug, score, matchReasons, possessedSkills, missingSkills }
+  createdAt          DateTime @default(now())
+}
+
+model JobShadowBooking {
+  id                  String            @id @default(cuid())
+  studentId           String
+  student             User              @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
+  mentorProfileId     String
+  mentorProfile       MentorProfile     @relation("MentorBookings", fields: [mentorProfileId], references: [id], onDelete: Cascade)
+  slotId              String?           @unique
+  slot                AvailabilitySlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
+  sessionDate         String
+  sessionTime         String
+  sessionMode         String            @default("VIRTUAL") // VIRTUAL, IN_PERSON
+  meetingUrl          String?
+  meetingLocation     String?
+  studentIntroduction String
+  status              String            @default("PENDING") // PENDING, APPROVED, REJECTED, COMPLETED, CANCELLED
+  rejectionReason     String?
+  studentFeedback     String?
+  studentRating       Int?
+  mentorFeedback      String?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+}
+
+model SavedCareer {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  careerSlug String
+  createdAt  DateTime @default(now())
+
+  @@unique([userId, careerSlug])
+}
+
+model BookmarkedVideo {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  videoId   String
+  createdAt DateTime @default(now())
+
+  @@unique([userId, videoId])
+}
+
+model PlatformReport {
+  id             String   @id @default(cuid())
+  reporterId     String
+  reporter       User     @relation(fields: [reporterId], references: [id], onDelete: Cascade)
+  targetType     String   // MENTOR, STUDENT, VIDEO, BOOKING
+  targetId       String
+  targetName     String?
+  reason         String
+  status         String   @default("OPEN") // OPEN, RESOLVED, DISMISSED
+  adminNotes     String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
