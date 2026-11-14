@@ -10,6 +10,11 @@ const nextConfig = {
       'api.dicebear.com'
     ],
   },
+  webpack: (config, { dev, isServer }) => {
+    // Increase chunk load timeout to 5 minutes to prevent ChunkLoadError timeouts on slow compile
+    config.output.chunkLoadTimeout = 300000;
+    return config;
+  },
 };
 
 export default nextConfig;
