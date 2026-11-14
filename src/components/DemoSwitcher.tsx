@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { track, trackError } from '@/lib/telemetry';
 import { GraduationCap, Briefcase, ShieldCheck, ChevronDown, Check } from 'lucide-react';
 
 interface DemoSwitcherProps {
@@ -54,12 +55,14 @@ export default function DemoSwitcher({ currentRole, onRoleChanged }: DemoSwitche
         body: JSON.stringify({ role: persona.roleKey }),
       });
       if (res.ok) {
+        track('demo_persona_switched', { role: persona.roleKey, title: persona.title });
         setIsOpen(false);
         if (onRoleChanged) onRoleChanged();
         router.push(persona.redirect);
         router.refresh();
       }
-    } catch (err) {
+    } catch (err: any) {
+      trackError(err, { component: 'DemoSwitcher', targetRole: persona.roleKey });
       console.error('Failed to switch persona:', err);
     } finally {
       setLoading(false);

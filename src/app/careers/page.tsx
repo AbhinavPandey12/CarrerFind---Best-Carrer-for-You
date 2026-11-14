@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, Suspense } from 'react';
 import CareerCard from '@/components/CareerCard';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Compass,
   Search,
@@ -15,6 +16,7 @@ import {
   Heart,
   BarChart2,
   X,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
@@ -26,6 +28,7 @@ function CareersContent() {
   const [careers, setCareers] = useState<any[]>([]);
   const [savedSlugs, setSavedSlugs] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [minSalary, setMinSalary] = useState<number>(0);
@@ -50,6 +53,7 @@ function CareersContent() {
   const fetchCareers = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const url = new URL('/api/careers', window.location.origin);
       if (selectedCategory !== 'All') {
         url.searchParams.set('category', selectedCategory);
@@ -62,8 +66,16 @@ function CareersContent() {
       const data = await res.json();
       setCareers(data.careers || []);
       setSavedSlugs(data.savedSlugs || []);
-    } catch (e) {
-      console.error(e);
+      track('careers_filter_applied', {
+        category: selectedCategory,
+        search: searchTerm || undefined,
+        minSalary,
+        minWorkLife,
+        resultCount: data.careers?.length || 0,
+      });
+    } catch (e: any) {
+      setFetchError('Failed to load careers. Please refresh or try again.');
+      trackError(e, { component: 'CareersPage', action: 'fetchCareers' });
     } finally {
       setLoading(false);
     }
@@ -83,11 +95,13 @@ function CareersContent() {
       const data = await res.json();
       if (data.saved) {
         setSavedSlugs((prev) => [...prev, slug]);
+        track('career_saved', { slug });
       } else {
         setSavedSlugs((prev) => prev.filter((s) => s !== slug));
+        track('career_unsaved', { slug });
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      trackError(e, { component: 'CareersPage', action: 'handleToggleSave', slug });
     }
   };
 
@@ -203,6 +217,21 @@ function CareersContent() {
       </div>
 
       {/* Careers Grid */}
+      {fetchError && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{fetchError}</span>
+          </div>
+          <button
+            onClick={fetchCareers}
+            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-semibold"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
           {[1, 2, 3, 4, 5, 6].map((i) => (

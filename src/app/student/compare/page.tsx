@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import CareerComparisonVisualizer from '@/components/CareerComparisonVisualizer';
+import { track, trackError } from '@/lib/telemetry';
 import { BarChart3, Compass } from 'lucide-react';
 import Link from 'next/link';
 
@@ -31,7 +32,9 @@ function CompareContent() {
 
         const selected = list.filter((c: any) => slugsToCompare.slice(0, 4).includes(c.slug));
         setComparedCareers(selected.length >= 2 ? selected : list.slice(0, 3));
-      } catch (e) {
+        track('compare_viewed', { initialCount: selected.length });
+      } catch (e: any) {
+        trackError(e, { component: 'ComparePage', action: 'fetchCareers' });
         console.error(e);
       } finally {
         setLoading(false);
@@ -44,12 +47,14 @@ function CompareContent() {
     if (comparedCareers.length >= 4) return;
     const target = allCareers.find((c) => c.slug === slug);
     if (target && !comparedCareers.some((c) => c.slug === slug)) {
+      track('compare_career_added', { slug });
       setComparedCareers([...comparedCareers, target]);
     }
   };
 
   const handleRemoveCareer = (slug: string) => {
     if (comparedCareers.length <= 2) return;
+    track('compare_career_removed', { slug });
     setComparedCareers(comparedCareers.filter((c) => c.slug !== slug));
   };
 

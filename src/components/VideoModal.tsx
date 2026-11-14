@@ -1,6 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect } from 'react';
+import { track } from '@/lib/telemetry';
 import { X, ExternalLink, Bookmark, CheckCircle2, User, Clock, MapPin } from 'lucide-react';
 import Link from 'next/link';
 
@@ -19,6 +20,12 @@ export default function VideoModal({
   isBookmarked = false,
   onToggleBookmark,
 }: VideoModalProps) {
+  useEffect(() => {
+    if (isOpen && video) {
+      track('video_watched', { videoId: video.id, title: video.title, duration: video.duration });
+    }
+  }, [isOpen, video]);
+
   if (!isOpen || !video) return null;
 
   let takeaways: string[] = [];

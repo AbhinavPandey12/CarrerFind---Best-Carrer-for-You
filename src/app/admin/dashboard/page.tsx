@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { track, trackError } from '@/lib/telemetry';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -30,7 +31,9 @@ export default function AdminDashboardPage() {
       const res = await fetch('/api/admin/overview');
       const json = await res.json();
       setData(json);
-    } catch (e) {
+      track('admin_dashboard_viewed', { totalUsers: json.kpis?.totalUsers, pendingVerifications: json.kpis?.pendingVerifications });
+    } catch (e: any) {
+      trackError(e, { component: 'AdminDashboardPage', action: 'fetchOverview' });
       console.error(e);
     } finally {
       setLoading(false);
@@ -53,8 +56,10 @@ export default function AdminDashboardPage() {
           notes: status === 'APPROVED' ? 'Corporate identity & credentials confirmed.' : 'Insufficient verification documentation.',
         }),
       });
+      track('admin_mentor_verified', { mentorProfileId, status });
       fetchOverview();
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'AdminDashboardPage', action: 'verifyMentor', mentorProfileId, status });
       console.error(e);
     } finally {
       setActionLoading(false);
@@ -69,8 +74,10 @@ export default function AdminDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ reportId, status, adminNotes: 'Reviewed and addressed by Trust & Safety team.' }),
       });
+      track('admin_report_resolved', { reportId, status });
       fetchOverview();
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'AdminDashboardPage', action: 'resolveReport', reportId, status });
       console.error(e);
     } finally {
       setActionLoading(false);

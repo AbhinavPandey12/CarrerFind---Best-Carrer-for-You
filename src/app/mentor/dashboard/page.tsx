@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Briefcase,
   ShieldCheck,
@@ -32,7 +33,9 @@ export default function MentorDashboardPage() {
       const res = await fetch('/api/mentor/bookings');
       const json = await res.json();
       setData(json);
-    } catch (e) {
+      track('mentor_dashboard_viewed', { bookingsCount: json.bookings?.length || 0 });
+    } catch (e: any) {
+      trackError(e, { component: 'MentorDashboardPage', action: 'fetchBookings' });
       console.error(e);
     } finally {
       setLoading(false);
@@ -51,8 +54,10 @@ export default function MentorDashboardPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ bookingId, status, rejectionReason }),
       });
+      track('mentor_booking_status_updated', { bookingId, status });
       fetchBookings();
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'MentorDashboardPage', action: 'handleUpdateStatus', bookingId, status });
       console.error(e);
     } finally {
       setActionLoading(false);

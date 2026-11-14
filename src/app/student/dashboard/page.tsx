@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { track, trackError } from '@/lib/telemetry';
 import {
   GraduationCap,
   Sparkles,
@@ -34,7 +35,13 @@ export default function StudentDashboardPage() {
       const res = await fetch('/api/student/dashboard');
       const json = await res.json();
       setData(json);
-    } catch (e) {
+      track('student_dashboard_viewed', {
+        hasAssessment: !!json.assessmentResult,
+        bookingsCount: json.bookings?.length || 0,
+        savedCareersCount: json.savedCareers?.length || 0,
+      });
+    } catch (e: any) {
+      trackError(e, { component: 'StudentDashboard', action: 'fetchDashboard' });
       console.error(e);
     } finally {
       setLoading(false);

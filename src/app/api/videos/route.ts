@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+export const dynamic = 'force-dynamic';
+
+const log = logger('API:Videos');
 
 export async function GET(req: Request) {
+  const start = Date.now();
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
@@ -43,18 +49,39 @@ export async function GET(req: Request) {
       bookmarkedIds = bookmarks.map((b) => b.videoId);
     }
 
+    log.debug('Videos fetched', {
+      count: videos.length,
+      category: category || 'All',
+      search: search || null,
+      bookmarkedCount: bookmarkedIds.length,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({ videos, bookmarkedIds });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof Error && (error.message?.includes('Dynamic server usage') || (error as any)?.digest === 'DYNAMIC_SERVER_USAGE')) {
+      throw error;
+    }
+    log.error('Videos GET failed', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ videos: [], bookmarkedIds: [], error: error?.message || 'Failed to fetch videos' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const start = Date.now();
   try {
-    const body = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      log.warn('Video suggest: invalid JSON body');
+      return NextResponse.json({ error: 'Invalid JSON request body' }, { status: 400 });
+    }
+
     const { title, youtubeUrl, creator, professionSlug, category, experienceLevel, description } = body;
 
     if (!title || !youtubeUrl) {
+      log.warn('Video suggest: missing title or youtubeUrl');
       return NextResponse.json({ error: 'Title and YouTube URL are required' }, { status: 400 });
     }
 
@@ -65,6 +92,7 @@ export async function POST(req: Request) {
       youtubeId = match[1];
     } else {
       youtubeId = 'dQw4w9WgXcQ'; // safe fallback
+      log.warn('Video suggest: failed to extract YouTube ID from URL, using fallback', { youtubeUrl });
     }
 
     const video = await prisma.video.create({
@@ -84,8 +112,11 @@ export async function POST(req: Request) {
       },
     });
 
+    log.info('Video created/suggested successfully', { videoId: video.id, title: video.title, duration_ms: Date.now() - start });
+
     return NextResponse.json({ success: true, video });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Video suggest POST failed', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to submit video' }, { status: 500 });
   }
 }

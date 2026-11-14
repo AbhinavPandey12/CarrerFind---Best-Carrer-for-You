@@ -2,13 +2,26 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcryptjs';
 import { createSessionCookie } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+const log = logger('API:Auth:Register');
 
 export async function POST(req: Request) {
+  const start = Date.now();
   try {
-    const { name, email, password, role, headline, company, title, industry } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      log.warn('Register: invalid JSON body');
+      return NextResponse.json({ success: false, error: 'Invalid JSON request body' }, { status: 400 });
+    }
+
+    const { name, email, password, role, headline, company, title, industry } = body;
 
     if (!name || !email || !password) {
-      return NextResponse.json({ error: 'Name, email, and password are required' }, { status: 400 });
+      log.warn('Register: missing required fields', { hasName: !!name, hasEmail: !!email, hasPassword: !!password });
+      return NextResponse.json({ success: false, error: 'Name, email, and password are required' }, { status: 400 });
     }
 
     const existing = await prisma.user.findUnique({
@@ -16,7 +29,8 @@ export async function POST(req: Request) {
     });
 
     if (existing) {
-      return NextResponse.json({ error: 'An account with this email already exists' }, { status: 400 });
+      log.warn('Register: account with email already exists', { email: email.toLowerCase() });
+      return NextResponse.json({ success: false, error: 'An account with this email already exists' }, { status: 400 });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
@@ -58,6 +72,12 @@ export async function POST(req: Request) {
     }
 
     const cookieHeader = createSessionCookie(user);
+    log.info('Register: account created successfully', {
+      userId: user.id,
+      role: user.role,
+      duration_ms: Date.now() - start,
+    });
+
     const response = NextResponse.json({
       success: true,
       user: {
@@ -72,6 +92,7 @@ export async function POST(req: Request) {
     response.headers.set('Set-Cookie', cookieHeader);
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Register: unexpected error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ success: false, error: error?.message || 'Registration failed' }, { status: 500 });
   }
 }

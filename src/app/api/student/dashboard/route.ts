@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+export const dynamic = 'force-dynamic';
+
+const log = logger('API:Student:Dashboard');
 
 export async function GET() {
+  const start = Date.now();
   try {
     let user = await getCurrentUser();
     if (!user) {
@@ -11,9 +17,11 @@ export async function GET() {
         where: { role: 'STUDENT' },
       });
       user = defaultStudent as any;
+      log.info('Student Dashboard: using demo student fallback', { studentId: user?.id });
     }
 
     if (!user) {
+      log.warn('Student Dashboard: user not found in database');
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
@@ -83,6 +91,15 @@ export async function GET() {
     if (bookings.length > 0) progressScore += 20;
     progressScore = Math.min(100, progressScore);
 
+    log.debug('Student dashboard data loaded', {
+      userId: user.id,
+      savedCareersCount: detailedSavedCareers.length,
+      bookmarkedVideosCount: detailedVideos.length,
+      bookingsCount: bookings.length,
+      progressScore,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({
       user,
       studentProfile,
@@ -94,6 +111,10 @@ export async function GET() {
       progressScore,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof Error && (error.message?.includes('Dynamic server usage') || (error as any)?.digest === 'DYNAMIC_SERVER_USAGE')) {
+      throw error;
+    }
+    log.error('Student Dashboard GET error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to fetch student dashboard data' }, { status: 500 });
   }
 }

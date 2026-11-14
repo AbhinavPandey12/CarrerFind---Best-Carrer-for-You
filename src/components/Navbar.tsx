@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import NextLink from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Compass,
   Menu,
@@ -27,8 +28,8 @@ export default function Navbar() {
       const res = await fetch('/api/auth/me');
       const data = await res.json();
       setCurrentUser(data.user);
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      trackError(e, { component: 'Navbar', action: 'fetchUser' });
     }
   };
 
@@ -37,7 +38,12 @@ export default function Navbar() {
   }, [pathname]);
 
   const handleLogout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    track('user_logged_out', { userId: currentUser?.id, role: currentUser?.role });
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch (e: any) {
+      trackError(e, { component: 'Navbar', action: 'handleLogout' });
+    }
     setCurrentUser(null);
     setUserDropdownOpen(false);
     router.push('/');

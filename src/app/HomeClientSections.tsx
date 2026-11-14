@@ -5,6 +5,7 @@ import Link from 'next/link';
 import CareerCard from '@/components/CareerCard';
 import VideoModal from '@/components/VideoModal';
 import BookingModal from '@/components/BookingModal';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Compass,
   Sparkles,
@@ -50,11 +51,13 @@ export default function HomeClientSections({
       const data = await res.json();
       if (data.saved) {
         setSavedCareers((prev) => [...prev, slug]);
+        track('career_saved_from_home', { slug });
       } else {
         setSavedCareers((prev) => prev.filter((s) => s !== slug));
+        track('career_unsaved_from_home', { slug });
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      trackError(e, { component: 'HomeClientSections', action: 'toggleSaveCareer', slug });
     }
   };
 
@@ -68,11 +71,13 @@ export default function HomeClientSections({
       const data = await res.json();
       if (data.bookmarked) {
         setBookmarkedVideos((prev) => [...prev, videoId]);
+        track('video_bookmarked_from_home', { videoId });
       } else {
         setBookmarkedVideos((prev) => prev.filter((id) => id !== videoId));
+        track('video_unbookmarked_from_home', { videoId });
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      trackError(e, { component: 'HomeClientSections', action: 'toggleBookmarkVideo', videoId });
     }
   };
 
@@ -217,7 +222,10 @@ export default function HomeClientSections({
           {featuredVideos.map((video) => (
             <div
               key={video.id}
-              onClick={() => setSelectedVideo(video)}
+              onClick={() => {
+                track('video_opened_from_home', { videoId: video.id, title: video.title });
+                setSelectedVideo(video);
+              }}
               className="group cursor-pointer rounded-3xl glass-panel border border-slate-800 overflow-hidden hover:border-purple-500/50 transition-all hover:-translate-y-1 flex flex-col justify-between"
             >
               {/* Thumbnail Container */}
@@ -342,7 +350,10 @@ export default function HomeClientSections({
 
                 <div className="mt-5 pt-3 border-t border-slate-800">
                   <button
-                    onClick={() => setSelectedMentor(mentor)}
+                    onClick={() => {
+                      track('booking_modal_opened_from_home', { mentorId: mentor.id, mentorName: mentor.user?.name });
+                      setSelectedMentor(mentor);
+                    }}
                     className="w-full py-2.5 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-1.5"
                   >
                     <Calendar className="w-3.5 h-3.5" />

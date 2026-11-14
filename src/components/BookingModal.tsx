@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import { track, trackError } from '@/lib/telemetry';
 import {
   X,
   Calendar,
@@ -56,6 +57,7 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
 
     try {
       setLoading(true);
+      track('booking_submitted', { mentorId: mentor.id, sessionMode, slotId: selectedSlotId });
       const res = await fetch('/api/shadowing/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -73,9 +75,15 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
       }
 
       setConfirmationData(data.booking);
+      track('booking_confirmed', {
+        mentorId: mentor.id,
+        bookingId: data.booking?.id,
+        sessionMode,
+      });
       if (onSuccess) onSuccess();
     } catch (err: any) {
       setErrorMsg(err.message);
+      trackError(err, { component: 'BookingModal', mentorId: mentor?.id, slotId: selectedSlotId });
     } finally {
       setLoading(false);
     }

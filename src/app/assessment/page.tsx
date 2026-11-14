@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { track, trackError } from '@/lib/telemetry';
 import {
   ASSESSMENT_QUESTIONS,
   AssessmentAnswerState,
@@ -30,22 +31,28 @@ export default function AssessmentPage() {
   const [answers, setAnswers] = useState<AssessmentAnswerState>({
     technicalOrientation: [],
     workMode: [],
-    workLifeBalanceTolerance: [],
-    salaryPriority: [],
+    outputMedium: [],
+    financialStrategy: [],
     mathAnalyticalAptitude: [],
-    creativeDesignAptitude: [],
-    leadershipPeopleAptitude: [],
+    ambiguityTolerance: [],
+    leadershipScope: [],
     helpingAndHumanImpact: [],
+    creativeDesignAptitude: [],
     physicalDexterityTacticalCraft: [],
     governanceLawPublicService: [],
     continuousLearning: [],
+    feedbackHorizon: [],
+    publicVisibility: [],
+    pressureDynamics: [],
     lifestylePainPoints: [],
     existingSkills: [],
     preferredIndustries: [],
-    ambiguityTolerance: [],
+    coreLifeDriver: [],
+    nonNegotiables: [],
   });
 
   const [loading, setLoading] = useState<boolean>(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [resultData, setResultData] = useState<{
     archetypeTitle: string;
     archetypeSubtitle: string;
@@ -108,6 +115,9 @@ export default function AssessmentPage() {
   };
 
   const handleNext = () => {
+    if (currentStepIndex === 0) {
+      track('assessment_started', { totalSteps });
+    }
     if (currentStepIndex < totalSteps - 1) {
       setCurrentStepIndex((prev) => prev + 1);
     } else {
@@ -124,6 +134,7 @@ export default function AssessmentPage() {
   const submitAssessment = async () => {
     try {
       setLoading(true);
+      setErrorMsg(null);
       const res = await fetch('/api/assessment', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -140,16 +151,23 @@ export default function AssessmentPage() {
         archetypeSubtitle: data.archetypeSubtitle,
         topCareers: data.topCareers,
       });
-    } catch (e) {
-      console.error(e);
+      track('assessment_completed', {
+        archetypeTitle: data.archetypeTitle,
+        topCareerCount: data.topCareers?.length || 0,
+      });
+    } catch (e: any) {
+      setErrorMsg(e?.message || 'Failed to calculate recommendations. Please try again.');
+      trackError(e, { component: 'AssessmentPage' });
     } finally {
       setLoading(false);
     }
   };
 
   const handleRestart = () => {
+    track('assessment_restarted');
     setResultData(null);
     setCurrentStepIndex(0);
+    setErrorMsg(null);
   };
 
   return (
@@ -189,6 +207,12 @@ export default function AssessmentPage() {
 
           {/* Current Question Card */}
           <div className="p-4 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+            {errorMsg && (
+              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{errorMsg}</span>
+              </div>
+            )}
             <div className="space-y-1">
               <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
                 Question {currentStepIndex + 1}
@@ -197,6 +221,14 @@ export default function AssessmentPage() {
                 {currentQuestion.title}
               </h2>
               <p className="text-xs sm:text-sm text-slate-400">{currentQuestion.description}</p>
+            </div>
+
+            {/* Multiple Selections Supported Notice */}
+            <div className="flex items-start sm:items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 text-xs">
+              <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5 sm:mt-0" />
+              <p className="leading-relaxed">
+                <strong className="text-white font-semibold">Multiple Selections Supported:</strong> You can select multiple options that match your preferences. The recommendation algorithm properly evaluates and factors all your selected choices into your compatibility matches.
+              </p>
             </div>
 
             {/* Render Question Input Type */}

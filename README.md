@@ -1,4 +1,4 @@
-# 🚀 CareerFind — Career Discovery, Exploration & Job Shadowing Platform
+# 🚀 CareerFind — Comprehensive Career Discovery, Exploration & Job Shadowing Platform
 
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
@@ -8,399 +8,676 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 > ### *"Don't Just Choose a Career. Experience It Before You Commit."*
-> **Core Product Philosophy: Explore. Experience. Evaluate. Choose.**
+> **Core Product Continuum: Explore $\rightarrow$ Experience $\rightarrow$ Evaluate $\rightarrow$ Choose.**
 
 ---
 
 ## 📖 Table of Contents
 
 1. [Executive Summary](#-executive-summary)
-2. [Product Philosophy & Problem Statement](#-product-philosophy--problem-statement)
-3. [Technology Architecture & System Design](#-technology-architecture--system-design)
-4. [UI/UX & Design System](#-uiux--design-system)
-5. [Core Functional Modules](#-core-functional-modules)
-   - [Module 1: Career Discovery & Assessment](#module-1-career-discovery--assessment)
-   - [Module 2: Career Exploration Library (14-Section Deep Profiles)](#module-2-career-exploration-library-14-section-deep-profiles)
-   - [Module 3: "A Day in the Life" – Curated Video Library](#module-3-a-day-in-the-life--curated-video-library)
-   - [Module 4: Professional Networking & Job Shadowing Marketplace](#module-4-professional-networking--job-shadowing-marketplace)
-   - [Module 5: Personalized Student Dashboard](#module-5-personalized-student-dashboard)
-   - [Module 6: Multi-Parameter Career Comparison Tool](#module-6-multi-parameter-career-comparison-tool)
+2. [End-to-End System Architecture & Data Flow](#-end-to-end-system-architecture--data-flow)
+3. [Environment Variables & Dependencies](#-environment-variables--dependencies)
+4. [Database Configuration & Profile Management](#-database-configuration--profile-management)
+   - [Database Setup & Prisma ORM](#database-setup--prisma-orm)
+   - [Entity-Relationship Diagram](#entity-relationship-diagram)
+   - [User Profile Storage & Retrieval](#user-profile-storage--retrieval)
+   - [Job Profile Storage, Retrieval & Management (Adding New Careers)](#job-profile-storage-retrieval--management-adding-new-careers)
+5. [Assessment Engine & Recommendation Algorithm Workflow](#-assessment-engine--recommendation-algorithm-workflow)
+   - [The 20 Assessment Dimensions](#the-20-assessment-dimensions)
+   - [Multi-Selection Scoring Mathematics](#multi-selection-scoring-mathematics)
+   - [Handling 'Not Clear' Fallbacks](#handling-not-clear-fallbacks)
+   - [Lifestyle Avoidance & Non-Negotiable Rules](#lifestyle-avoidance--non-negotiable-rules)
+   - [Archetype Classification & Dynamic Matching](#archetype-classification--dynamic-matching)
+   - [Assessment Submission & Persistence Flow](#assessment-submission--persistence-flow)
+6. [Core Application Modules](#-core-application-modules)
+   - [Module 1: Interactive Career Assessment](#module-1-interactive-career-assessment)
+   - [Module 2: 95-Career Encyclopedia & 5-Tab Profile Experience](#module-2-95-career-encyclopedia--5-tab-profile-experience)
+   - [Module 3: "A Day in the Life" Workday Documentary Library](#module-3-a-day-in-the-life-workday-documentary-library)
+   - [Module 4: Job Shadowing Marketplace & Conflict-Free Booking](#module-4-job-shadowing-marketplace--conflict-free-booking)
+   - [Module 5: Student Hub & Progress Dashboard](#module-5-student-hub--progress-dashboard)
+   - [Module 6: Multi-Career Comparative Evaluation Tool](#module-6-multi-career-comparative-evaluation-tool)
    - [Module 7: Administration & Verification Cockpit](#module-7-administration--verification-cockpit)
-6. [User Personas & 1-Click Demo Switcher](#-user-personas--1-click-demo-switcher)
-7. [Database Schema & Data Models](#-database-schema--data-models)
-8. [API Route Specifications](#-api-route-specifications)
-9. [Trust, Safety & In-Person Protocols](#-trust-safety--in-person-protocols)
-10. [Local Development & Setup Guide](#-local-development--setup-guide)
+7. [Verified API Route Specifications](#-verified-api-route-specifications)
+8. [Trust, Safety & In-Person Protocols](#-trust-safety--in-person-protocols)
+9. [Pre-Configured Demo Personas](#-pre-configured-demo-personas)
+10. [Complete Step-by-Step Local Setup & Execution Guide](#-complete-step-by-step-local-setup--execution-guide)
+11. [Observability, Telemetry & Structured Logging](#-observability-telemetry--structured-logging)
 
 ---
 
 ## 🌟 Executive Summary
 
-**CareerFind** is a modern, full-stack web application engineered to bridge the critical gap between **what students study in university lecture halls and what world-class professionals actually do in their careers every single day**.
+**CareerFind** is a production-grade, full-stack career discovery and experiential shadowing platform designed to eliminate the costly guesswork from education and career decision-making. 
 
-Built as a responsive web application across desktop, tablet, and mobile, CareerFind provides:
-- **An explainable career recommendation engine** based on personal aptitude, work style, mathematical preferences, pressure tolerance, and financial aspirations.
-- **A 14-section exhaustive career encyclopedia** unpacking emerging and core disciplines (*e.g., Forward Deployed Engineering, Physical AI, LLM/AI Research, Product Management, Investment Banking, CleanTech*).
-- **A curated documentary video ecosystem** integrating real YouTube embeds showing genuine working hours and engineering trade-offs.
-- **A high-trust job shadowing marketplace** where verified industry practitioners host students for virtual or in-person observation sessions with automated conflict protection.
-- **Interactive comparative visualizers** evaluating multiple career paths across 8 quantitative and qualitative dimensions simultaneously.
-
----
-
-## 🎯 Product Philosophy & Problem Statement
-
-### The Fundamental Problem
-Higher education delivers theoretical coursework, but students often graduate without ever witnessing:
-- What a **Forward Deployed Engineer (FDE)** actually troubleshoots when deployed on-site with emergency hospital logistics.
-- The real differences between **Academic AI Research** and **Production ML Systems Engineering**.
-- The physical and cognitive reality of **60–80 hour deal weeks** in Wall Street Investment Banking or Strategy Consulting.
-- How **Product Managers** negotiate roadmap tradeoffs without direct authority over software teams.
-
-### The CareerFind Solution: The 4-Stage Continuum
-```mermaid
-graph LR
-    A["1. EXPLORE"] --> B["2. EXPERIENCE"]
-    B --> C["3. EVALUATE"]
-    C --> D["4. CHOOSE"]
-    
-    A -.->|"Assessment & Deep Profiles"| A
-    B -.->|"Day-in-the-Life Videos & 1-on-1 Shadowing"| B
-    C -.->|"Multi-Parameter Comparison Tool"| C
-    D -.->|"Informed, High-Conviction Commitment"| D
-```
-
-1. **EXPLORE:** Identify roles aligned with your natural strengths, work environment preferences, and learning curves.
-2. **EXPERIENCE:** Watch unfiltered workday documentaries and shadow verified industry practitioners inside real corporate environments.
-3. **EVALUATE:** Compare 2 to 4 professions side by side on compensation, work-life balance, and entry barriers.
-4. **CHOOSE:** Make confident academic and career investments based on firsthand reality, not speculative guesswork.
+Instead of forcing students and professionals to rely on idealized job descriptions, CareerFind combines:
+- **An Explainable 20-Question Multi-Select Assessment Engine** that maps personal cognitive strengths, quantitative comfort, work modes, and non-negotiables to compatibility ratings across all careers.
+- **An Exhaustive 95-Profession Career Encyclopedia** spanning 13 industry domains (*Technology & AI, Business & Brand Management, Creative Arts & Cinema, Fashion & Modeling, Athletics & Sports Coaching, Law & Judiciary, Indian Sovereign Government & Civil Services, Railways & PSUs, Medicine, and Engineering*).
+- **A 5-Tab Interactive Profile Experience** on every career page featuring **Overview**, **A Day in the Life** (hour-by-hour chronological schedule, workload split, and documentary videos), **Job Shadowing** (4 learning pillars, verified hosts, and 1-click booking), **Skills & Roadmap**, and **Compensation & Growth**.
+- **A High-Trust Job Shadowing Marketplace** facilitating virtual and on-site observation sessions with verified industry practitioners, protected by database-level double-booking prevention.
+- **Side-by-Side Multi-Parameter Career Comparison** evaluating up to 4 roles across 8 quantitative and qualitative dimensions simultaneously.
 
 ---
 
-## 🏗️ Technology Architecture & System Design
+## 🏗️ End-to-End System Architecture & Data Flow
 
-CareerFind is constructed with a modular, scalable, full-stack architecture prioritizing performance, type safety, and zero external infrastructure friction.
+CareerFind is engineered with a modern, monolithic Next.js App Router architecture that balances server-side rendering performance with rich client-side interactivity.
+
+### High-Level System Architecture
 
 ```mermaid
 graph TD
-    Client["Client Devices (Desktop / Tablet / Mobile)"]
-    
-    subgraph Framework["Next.js 14 App Router Framework"]
-        Pages["React 18 Server & Client Components<br/>Tailwind CSS & Glassmorphism Design System"]
-        AuthMiddleware["Session Management & RBAC Middleware<br/>HTTP-Only Cookies & Bcrypt Hashing"]
+    Client["Client Browser (Desktop / Tablet / Mobile)"]
+
+    subgraph NextServer["Next.js 14 App Router Framework"]
+        RSC["React Server Components (SSR & SEO)<br/>• /careers/[slug]/page.tsx<br/>• /videos/page.tsx<br/>• /page.tsx"]
+        RCC["Client Components ('use client')<br/>• CareerDetailClient.tsx<br/>• AssessmentPage.tsx<br/>• BookingModal.tsx<br/>• CompareTool.tsx"]
         
-        subgraph APISubgraph["RESTful API Layer"]
-            APIs["API Routes<br/>• /api/auth/* (Authentication & Sessions)<br/>• /api/assessment (Career Scoring Engine)<br/>• /api/careers/* (Profiles & Bookmarks)<br/>• /api/videos/* (Curated Workday Videos)<br/>• /api/shadowing/* (Booking & Conflict Lock)<br/>• /api/mentor/* (Availability Slots)<br/>• /api/admin/* (Verification & Moderation)"]
+        Middleware["Session & Auth Layer<br/>• HTTP-Only Cookie ('token')<br/>• JWT Signing & Verification<br/>• Bcrypt Password Hashing"]
+
+        subgraph APILayer["REST API Endpoints (/src/app/api)"]
+            AuthAPI["/api/auth/* (Login, Register, Me, Demo-Switch)"]
+            AssessAPI["/api/assessment (Scoring & Archetype Engine)"]
+            CareersAPI["/api/careers/* (Profiles, Filtering, Bookmarks)"]
+            VideosAPI["/api/videos/* (Curated Videos & Bookmarks)"]
+            ShadowAPI["/api/shadowing/* (Hosts & Transactional Booking)"]
+            MentorAPI["/api/mentor/* (Slots & Booking Approvals)"]
+            AdminAPI["/api/admin/* (KPIs, Verification, Reports)"]
         end
     end
-    
-    subgraph DataLayer["Data & Persistence Layer"]
-        Prisma["Prisma ORM 5.22<br/>Type-safe Query Builder"]
-        SQLite[("SQLite Embedded Database<br/>dev.db (ACID Compliant)")]
+
+    subgraph DataPersistence["Persistence Layer"]
+        PrismaORM["Prisma ORM 5.22 (Type-Safe Query Builder)"]
+        SQLiteDB[("SQLite Database: prisma/dev.db<br/>ACID Transactions & Embedded Storage")]
+        SeedModules["Modular Data Seeders (prisma/data/*.js)<br/>95 Careers across 13 Modules"]
     end
-    
-    Client <--> Pages
-    Pages <--> AuthMiddleware
-    AuthMiddleware <--> APIs
-    APIs <--> Prisma
-    Prisma <--> SQLite
+
+    Client <--> RSC
+    Client <--> RCC
+    RCC <--> APILayer
+    APILayer <--> Middleware
+    APILayer <--> PrismaORM
+    PrismaORM <--> SQLiteDB
+    SeedModules --> PrismaORM
 ```
 
-### Technical Stack Highlights
-- **Framework:** [Next.js 14.2.15](https://nextjs.org/) (App Router architecture with React Server Components for SEO and fast pre-rendering, combined with dynamic Client Components for rich client interactivity).
-- **Language:** [TypeScript 5.x](https://www.typescriptlang.org/) with strict type checking across all data models, API payloads, and UI props.
-- **Styling:** [Tailwind CSS 3.4](https://tailwindcss.com/) with extended theme tokens, arbitrary values, and custom backdrop-blur utilities.
-- **Database & ORM:** [Prisma ORM 5.22](https://www.prisma.io/) backed by **SQLite** (`dev.db`). This makes the repository completely self-contained, requiring zero external database daemon configuration (e.g., PostgreSQL or Docker) to test or run locally.
-- **Visuals & Icons:** [Lucide React](https://lucide.dev/) (consistent, modern SVG icon library).
-- **Security & Auth:** Secure password hashing using `bcryptjs` (salt rounds: 10), HTTP-only lax session cookies, and declarative Role-Based Access Control (RBAC).
-
----
-
-## 🎨 UI/UX & Design System
-
-The user interface follows a **modern, luxury dark SaaS aesthetic** engineered for focus, elegance, and visual delight.
-
-### 1. Color Palette Tokens
-| Token | Hex / HSL | Usage |
-| :--- | :--- | :--- |
-| **Dark Canvas** | `#0b0f19` to `#030712` | Background radial gradients for high-contrast readability. |
-| **Brand Indigo** | `#6366f1` / `#4f46e5` | Primary action buttons, active navigation states, and hero glowing badges. |
-| **Vibrant Purple**| `#a855f7` / `#c084fc` | Video library accents, documentary badges, and gradient text highlights. |
-| **Emerald Host** | `#10b981` / `#059669` | Verified mentor badges, free-tier indicators, and booking confirmations. |
-| **Amber Gold**   | `#f59e0b` / `#fbbf24` | Host star ratings, pending verification queues, and business category badges. |
-| **Rose Alert**   | `#f43f5e` / `#fda4af` | Cancellation alerts, user report flags, and high-pressure career indicators. |
-
-### 2. Design System Components
-- **Glassmorphism Panels (`.glass-panel`):** Multi-layered backdrop blur (`backdrop-filter: blur(16px)`) with subtle borders (`rgba(255, 255, 255, 0.08)`) and inset light reflections.
-- **Gradient Headings (`.gradient-text`):** Smooth typography transitions from slate white into indigo, violet, and soft pink.
-- **Interactive Hover Lifts (`.glass-panel-hover`):** 3D perspective transforms (`translateY(-2px)`) with soft colored glow shadows.
-- **Custom Ergonomic Scrollbars:** Sleek `#27273a` track with `#4338ca` hover response.
-- **Mobile-Responsive Drawer:** Collapsible navigation sheet with touch-friendly tap targets and active route highlighting.
-
----
-
-## ⚙️ Core Functional Modules
-
-### MODULE 1: Career Discovery & Assessment
-Located at [`/assessment`](http://localhost:3000/assessment)
-
-An intelligent, multi-attribute career compatibility engine that evaluates students across 9 critical dimensions rather than simplistic binary questions:
+### Assessment Submission & Recommendation Flow
 
 ```mermaid
-flowchart TD
-    Q1["1. Technical vs Business Orientation (1-10)"] --> Calc
-    Q2["2. Preferred Work Environment (Remote/Hybrid/Onsite/Field)"] --> Calc
-    Q3["3. Work-Life Balance vs High-Intensity Sprinting"] --> Calc
-    Q4["4. Financial Expectations & Equity Upside Priority"] --> Calc
-    Q5["5. Quantitative & Mathematical Rigor Appetite"] --> Calc
-    Q6["6. Comfort with Ambiguity & Early Chaos"] --> Calc
-    Q7["7. Skills Currently Possessed (Multi-select)"] --> Calc
-    Q8["8. Targeted Industry Sectors (AI, Robotics, Fintech, etc.)"] --> Calc
-    
-    Calc["Scoring Engine (src/lib/assessmentEngine.ts)"]
-    
-    Calc --> Arch["Student Archetype<br/>(e.g., 'The Frontier Systems Architect')"]
-    Calc --> Top10["Top 10 Ranked Career Matches<br/>(Compatibility % + Why It Matches)"]
-    Calc --> SkillGap["Skill Gap Matrix<br/>(Possessed Skills vs Skills to Develop)"]
+sequenceDiagram
+    autonumber
+    actor User as Assessment Taker
+    participant UI as Assessment Page (Client)
+    participant API as POST /api/assessment
+    participant Engine as assessmentEngine.ts
+    participant DB as SQLite (via Prisma)
+
+    User->>UI: Selects answers across 20 questions (Supports Multi-Selection & 'Not Clear')
+    User->>UI: Clicks "Complete Assessment"
+    UI->>API: Sends answers payload (AssessmentAnswerState)
+    API->>DB: prisma.career.findMany() (Fetches all 95 profiles)
+    DB-->>API: Returns full career dataset
+    API->>Engine: computeCareerRecommendations(answers, allCareers)
+    Note over Engine: 1. Resolves numeric & work-mode answers<br/>2. Computes closest distance for multi-selects<br/>3. Evaluates 20 dimensions & lifestyle rules<br/>4. Calculates possessed vs missing skills<br/>5. Derives Archetype & top ranked matches
+    Engine-->>API: Returns { archetypeTitle, archetypeSubtitle, topCareers }
+    opt User is Authenticated
+        API->>DB: prisma.assessmentResult.create(...)
+        DB-->>API: Saved result record
+    end
+    API-->>UI: Returns JSON with archetype and ranked careers
+    UI-->>User: Displays animated results with match percentages & "Why Match" rationale
 ```
 
-#### Results Dashboard Highlights:
-- **Archetype Classification:** Identifies cognitive styles such as *The Frontier Systems Architect*, *The High-Conviction Venture Founder*, *The High-Stakes Dealmaker*, or *The Human-Centered Product Innovator*.
-- **Top 10 Ranked Careers:** Displays compatibility percentage (45% to 98%), explainability rationale ("Why this matches your profile"), salary progression preview, learning difficulty, and 1-click comparison buttons.
-- **Explainable Recommendation Note:** Transparently states that scores reflect multi-attribute alignment rather than predictive certainty.
-
----
-
-### MODULE 2: Career Exploration Library (14-Section Deep Profiles)
-Located at [`/careers`](http://localhost:3000/careers) and [`/careers/[slug]`](http://localhost:3000/careers/forward-deployed-engineer)
-
-A comprehensive encyclopedia of modern professions filterable by **Technology & Engineering**, **Business & Management**, and **Emerging & Other Careers**, backed by real-time keyword search, salary sliders, and work-life balance thresholds.
-
-#### The 14 Required Profile Sections on Every Career Page:
-1. **Overview & Key Metrics:** Scope of the role, industry classification, and quick stats ribbon.
-2. **Daily Responsibilities Checklist:** Concrete tasks executed during a standard week.
-3. **A Day in the Life Narrative:** An authentic, hour-by-hour timeline (*09:00 AM standup, 11:00 AM pipeline debugging, 02:00 PM architecture review*).
-4. **Typical Work Environment:** Remote friendliness score (1–10), work pressure index, and field/office distribution.
-5. **Required Education & Qualifications:** Degree requirements, alternative self-taught portfolios, and hiring bar difficulty.
-6. **Essential Technical & Soft Skills:** Tagged skill pills distinguishing coding/math proficiency from cross-functional communication.
-7. **Tools & Technologies Stack:** Real industry software stacks (*e.g., PyTorch, Triton, ROS2, Linear, Figma, Bloomberg Terminal*).
-8. **Salary Progression Spectrum:** Visual breakdown across **Entry-Level (0–2 yrs)**, **Mid-Career (3–5 yrs)**, and **Senior / Principal (6–10+ yrs)** in USD thousands.
-9. **Career Progression Roadmap:** Multi-stage promotion pathway from Associate to Executive Director/Partner.
-10. **Job Market Demand & Future Outlook:** 10-year projected growth percentage and the direct impact of AI automation.
-11. **Key Advantages & Disadvantages:** Objective, balanced pros and cons to eliminate romanticized illusions.
-12. **Work-Life Balance & Pressure Analysis:** Weekly hour commitments and stress realities.
-13. **International Career Opportunities:** Global hub mobility (*Silicon Valley, London, Zurich, Tokyo, Singapore*).
-14. **Real Verified Professionals:** Current mentors practicing this profession with direct 1-click **"Book Job Shadow"** triggers.
-
----
-
-### MODULE 3: "A Day in the Life" – Curated Video Library
-Located at [`/videos`](http://localhost:3000/videos)
-
-A dedicated documentary library integrating legitimate YouTube embeds that demonstrate real workday environments.
-
-- **Legitimate YouTube Embeds:** High-performance, privacy-enhanced video modal (`youtube-nocookie.com`) with clean overlay theater mode.
-- **Curated Career Playlists:** Pre-filtered streams for AI Engineers, Forward Deployed Engineers, Physical AI Robotics Leads, Product Managers, Consultants, and Wall Street Analysts.
-- **Key Takeaways Checklist:** Every video displays curated bullet points summarizing what students should observe (*e.g., how research models translate to production clusters, client communication tactics*).
-- **Personal Watchlist:** 1-click video bookmarking stored persistently in the database.
-- **Community Submission Modal:** Students and professionals can suggest new videos for administrative curation.
-
----
-
-### MODULE 4: Professional Networking & Job Shadowing Marketplace
-Located at [`/shadowing`](http://localhost:3000/shadowing)
-
-The platform's flagship feature connecting students with vetted industry practitioners for observational learning.
-
-- **Verified Host Profiles:** Showcases company, job title, total years of experience, host rating, and verified credentials badge.
-- **Flexible Formats:** Supports **Virtual Shadowing** (remote sprint observation, code reviews, screen-share architecture walk-throughs) and **In-Person Shadowing** (corporate office campus visits).
-- **Real-Time Slot Scheduling:** Mentors publish specific date and time windows.
-- **Double-Booking Conflict Prevention:** Database-level slot locking ensures no two students can book the same mentor slot (returns HTTP 409 Conflict if a collision occurs).
-- **Automated Meeting Room Generation:** Virtual bookings automatically generate secure meeting links (`https://meet.google.com/cfs-[hash]-shadow`).
-- **Student Introduction Requirement:** Students submit their background, questions, and goals before confirming.
-
----
-
-### MODULE 5: Personalized Student Dashboard
-Located at [`/student/dashboard`](http://localhost:3000/student/dashboard)
-
-A centralized hub tracking the student's career preparation journey:
-
-- **Exploration Progress Meter:** Dynamic progress score (0–100%) tracking assessment completion, saved profiles, video watchlists, and attended sessions.
-- **Assessment Results Card:** Current archetype and top recommended careers.
-- **Active Shadowing Sessions:** Scheduled sessions with host avatars, session formats, and direct meeting join links.
-- **Session History & Review Notes:** Access constructive feedback provided by mentors after completed sessions.
-- **Saved Careers & Watchlist:** Direct access to bookmarked careers and videos ([`/student/saved`](http://localhost:3000/student/saved)).
-
----
-
-### MODULE 6: Multi-Parameter Career Comparison Tool
-Located at [`/student/compare`](http://localhost:3000/student/compare)
-
-Allows students to compare **2 to 4 professions simultaneously** across both quantitative metrics and qualitative lifestyle parameters.
-
-#### Quantitative Dimension Comparison (Scale 1–10)
-- Technical Complexity
-- Mathematical Requirements
-- Learning Curve Difficulty
-- First Job Hiring Barrier
-- Work Pressure
-- Work-Life Balance
-- Remote Flexibility
-- Future Demand Score
-
-#### Qualitative Matrix
-- Typical Work Modes (Remote vs. Lab vs. Client Travel)
-- Required Degrees and Accreditations
-- 10-Year Industry Growth Outlook
-- International Career Mobility
-
----
-
-### MODULE 7: Administration & Verification Cockpit
-Located at [`/admin/dashboard`](http://localhost:3000/admin/dashboard)
-
-An oversight interface empowering platform administrators to maintain trust, quality, and safety:
-
-- **Executive KPI Dashboard:** Real-time metrics on Total Users, Verified Mentors, Active Bookings, and Host Acceptance Rates.
-- **Mentor Verification Queue:** Review pending host applications, audit corporate domain emails and licenses, and **Approve** or **Reject** with feedback notes.
-- **Platform Booking Monitor:** Live log of all scheduled shadowing sessions with status tracking.
-- **Safety Reports & Moderation:** Resolve user reports regarding host conduct, attendance, or video quality.
-
----
-
-## 👥 User Personas & 1-Click Demo Switcher
-
-CareerFind features an interactive **Role Switcher** in the navigation header. Clicking any persona instantly switches the active session cookie and redirects you to the corresponding portal.
+### Job Shadowing Booking & Conflict-Locking Flow
 
 ```mermaid
-graph TD
-    DemoSwitcher["Demo Persona Switcher (Navbar)"]
-    DemoSwitcher -->|"Click Student"| Alex["Alex Chen (Student Portal)"]
-    DemoSwitcher -->|"Click Mentor"| Priya["Dr. Priya Sharma (Mentor Portal)"]
-    DemoSwitcher -->|"Click Admin"| Sarah["Sarah Miller (Admin Portal)"]
-```
+sequenceDiagram
+    autonumber
+    actor Student as Student
+    participant Modal as BookingModal (Client)
+    participant API as POST /api/shadowing/book
+    participant DB as SQLite (Prisma Transaction)
+    actor Mentor as Verified Host
 
-### Pre-Seeded Evaluation Accounts
-| Role | Name | Title / Organization | Email | Password |
-| :--- | :--- | :--- | :--- | :--- |
-| 🎓 **Student** | **Alex Chen** | Junior CS & CogSci @ UC Berkeley | `alex.chen@university.edu` | `password123` |
-| 💼 **Mentor** | **Dr. Priya Sharma** | Staff AI Engineer @ Google DeepMind | `priya.sharma@deepmind.com` | `password123` |
-| 💼 **Mentor (FDE)** | **Marcus Vance** | Lead Forward Deployed Engineer @ Palantir | `marcus.vance@palantir.com` | `password123` |
-| 💼 **Mentor (PM)** | **Elena Rostova** | VP of Product @ Stripe | `elena.rostova@stripe.com` | `password123` |
-| 💼 **Mentor (Robotics)**| **David Kim** | Principal Physical AI Lead @ Boston Dynamics | `david.kim@bostondynamics.com` | `password123` |
-| 🛡️ **Admin** | **Sarah Miller** | Platform Director & Head of Trust | `admin@careerfind.com` | `password123` |
+    Student->>Modal: Selects available slot & writes introductory goals
+    Modal->>API: Sends { slotId, mentorProfileId, sessionDate, studentIntroduction }
+    API->>DB: Run interactive transaction: prisma.$transaction(...)
+    DB->>DB: Check if slot isBooked == true
+    alt Slot is already booked (Conflict)
+        DB-->>API: Conflict detected
+        API-->>Modal: HTTP 409 Conflict ("This slot was just booked by another student")
+    else Slot is available
+        DB->>DB: Mark slot.isBooked = true
+        DB->>DB: Create JobShadowBooking record (status: 'PENDING' / 'APPROVED')
+        DB-->>API: Commit transaction
+        API-->>Modal: HTTP 200 OK { bookingId, sessionDetails, meetingUrl }
+        Modal-->>Student: Renders confetti & confirmation details
+        API--)Mentor: Notifies host of incoming booking on /mentor/bookings
+    end
+```
 
 ---
 
-## 🗄️ Database Schema & Data Models
+## 🔐 Environment Variables & Dependencies
 
-The persistence layer is defined in [`prisma/schema.prisma`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/prisma/schema.prisma) and executed against an embedded SQLite database.
+### Environment Variables Configuration
+
+The project operates out of the box with zero required external third-party services. The configuration is loaded via environment variables with safe internal defaults:
+
+| Variable | Required | Default Value | Description |
+| :--- | :--- | :--- | :--- |
+| `DATABASE_URL` | Optional | `"file:./dev.db"` | SQLite connection string used by Prisma. Set to `file:./dev.db` located inside `prisma/`. |
+| `JWT_SECRET` | Optional | `careerfind-super-secret-jwt-key-production` | Secret cryptographic key used to sign and verify JSON Web Tokens in HTTP-only session cookies. |
+| `PORT` | Optional | `3000` | Local HTTP port for the Next.js server. |
+| `NODE_ENV` | Optional | `development` | Runtime environment (`development`, `production`, or `test`). |
+
+To customize these, create a `.env` file in the root directory:
+
+```env
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="your-custom-secure-jwt-secret-here"
+PORT=3000
+NODE_ENV=development
+```
+
+### Dependencies Breakdown
+
+All packages are strictly pinned in [`package.json`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/package.json):
+
+#### Production Dependencies
+- **`next` (`14.2.15`)**: Core React framework utilizing App Router, Server Components, and API routes.
+- **`react` & `react-dom` (`^18.x`)**: Core UI component library.
+- **`@prisma/client` (`^5.22.0`)**: Auto-generated type-safe database client.
+- **`bcryptjs` (`^2.4.3`)**: Password salt generation and hash verification.
+- **`jsonwebtoken` (`^9.0.2`)**: JWT token creation, encoding, and cookie verification.
+- **`lucide-react` (`^0.454.0`)**: Modern SVG iconography.
+- **`clsx` & `tailwind-merge` (`^2.x`)**: Dynamic CSS class composition.
+- **`canvas-confetti` (`^1.9.4`)**: Visual celebratory feedback on assessment completion and shadowing bookings.
+
+#### Development Dependencies
+- **`prisma` (`^5.22.0`)**: Prisma CLI for database migrations, schema pushing, and studio inspector.
+- **`typescript` (`^5.x`)**: Strict compile-time static type analysis.
+- **`tailwindcss` (`^3.4.x`)** & **`postcss`**: Utility-first CSS styling engine.
+- **`@types/*`**: Comprehensive TypeScript definitions for Node, React, Bcrypt, and JWT.
+
+---
+
+## 🗄️ Database Configuration & Profile Management
+
+### Database Setup & Prisma ORM
+
+The application uses an embedded **SQLite** database (`prisma/dev.db`). This makes CareerFind completely self-contained with zero Docker or external database service requirements.
+
+Key Prisma commands:
+```bash
+# Push schema changes to the local SQLite database without creating heavy SQL migration files
+npx prisma db push
+
+# Re-generate the TypeScript Prisma Client after schema changes
+npx prisma generate
+
+# Launch Prisma Studio to visually inspect and edit records in your browser
+npx prisma studio
+```
+
+### Entity-Relationship Diagram
 
 ```mermaid
 erDiagram
     User ||--o| StudentProfile : "has"
     User ||--o| MentorProfile : "has"
-    User ||--o{ AssessmentResult : "generates"
+    User ||--o{ AssessmentResult : "records"
     User ||--o{ JobShadowBooking : "books as student"
-    User ||--o{ SavedCareer : "bookmarks"
-    User ||--o{ BookmarkedVideo : "watches"
-    User ||--o{ PlatformReport : "files"
-    
-    MentorProfile ||--o{ AvailabilitySlot : "publishes"
+    User ||--o{ SavedCareer : "saves"
+    User ||--o{ BookmarkedVideo : "bookmarks"
+    User ||--o{ PlatformReport : "reports"
+
+    MentorProfile ||--o{ AvailabilitySlot : "manages"
     MentorProfile ||--o{ JobShadowBooking : "hosts"
-    AvailabilitySlot ||--o| JobShadowBooking : "locks"
+    AvailabilitySlot ||--o| JobShadowBooking : "reserved by"
+    
+    Career ||--o{ SavedCareer : "saved in"
 ```
 
-### Core Entity Definitions:
-- **`User`**: Base identity storing email, hashed password, role (`STUDENT`, `MENTOR`, `ADMIN`), name, avatar URL, and headline.
-- **`StudentProfile`**: Academic level, major, graduation year, existing skills array, and preferred work modes.
-- **`MentorProfile`**: Company, designation, industry, experience years, verification status (`PENDING`, `APPROVED`, `REJECTED`), daily narrative, session duration, and ratings.
-- **`AvailabilitySlot`**: Mentor ID, date (`YYYY-MM-DD`), start/end times, mode (`VIRTUAL` / `IN_PERSON`), and boolean `isBooked` flag.
-- **`Career`**: 14 profile dimensions including salary spectrums, difficulty meters, roadmap stages, pros/cons, and industry classification.
-- **`Video`**: YouTube ID, creator, duration, profession slug, seniority level, description, and key takeaways.
-- **`JobShadowBooking`**: Student ID, Mentor ID, Slot ID, session date/time, mode, meeting URL, student introduction, and status (`PENDING`, `APPROVED`, `REJECTED`, `COMPLETED`, `CANCELLED`).
-- **`AssessmentResult`**: Snapshot of user answers, calculated archetype, and recommended career ranking.
-- **`PlatformReport`**: Target entity, reporter ID, complaint reason, and resolution status.
+### User Profile Storage & Retrieval
+
+1. **User Registration (`POST /api/auth/register`):**
+   - Receives `name`, `email`, `password`, and `role` (`STUDENT` or `MENTOR`).
+   - Hashes password using `bcrypt.hash(password, 10)`.
+   - Creates the parent `User` record.
+   - If `role === 'STUDENT'`, creates a linked `StudentProfile` storing `academicLevel`, `majorOrField`, `skillsPossessed`, and `preferredWorkMode`.
+   - If `role === 'MENTOR'`, creates a linked `MentorProfile` with `company`, `title`, `industry`, `experienceYears`, starting with `verificationStatus: 'PENDING'`.
+
+2. **Session Authentication & Profile Retrieval:**
+   - On successful login, signs a JWT containing `{ id, email, role }` with a 7-day expiration and sets it as an `HTTP-Only`, `SameSite=Lax` cookie named `token`.
+   - The helper `getCurrentUser()` in [`src/lib/auth.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/auth.ts) decodes the cookie and retrieves the full profile:
+     ```ts
+     const user = await prisma.user.findUnique({
+       where: { id: decoded.id },
+       include: { studentProfile: true, mentorProfile: true },
+     });
+     ```
+   - Allows clean Role-Based Access Control (RBAC) across student, mentor, and administrative routes.
 
 ---
 
-## 📡 API Route Specifications
+### Job Profile Storage, Retrieval & Management (Adding New Careers)
 
-| Method | Endpoint | Description | Role Access |
+All **95 career profiles** in CareerFind are stored in the `Career` table and defined across modular JavaScript data files in [`prisma/data/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/prisma/data/):
+
+| Data Module File | Domain Coverage | Career Count |
+| :--- | :--- | :--- |
+| `techCareers.js` | Core AI, Systems, Software & Cloud Engineering | 8 careers |
+| `newTechCareers.js` | Generative AI, Quantum Computing, Climate Tech, Physical AI | 10 careers |
+| `specialistCareers.js` | Fintech, Big Data, GTM Engineering, AI Product Management | 8 careers |
+| `coreSplitCareers.js` | Full Stack, Frontend, Backend, ML, Data Specialists | 8 careers |
+| `businessCareers.js` | Product Management, Strategy Consulting, Venture Capital | 8 careers |
+| `financeCareers.js` | Investment Banking, Quantitative Trading, Private Equity | 7 careers |
+| `healthCareers.js` | Cardiology, Neurobiology, Clinical Psychology, Biotech | 8 careers |
+| `lawGovCareers.js` | Civil Services (IAS/IPS), Armed Forces, High Court Law, Diplomat | 6 careers |
+| `builtCareers.js` | Civil, Architecture, Mechanical & Renewable Power Systems | 7 careers |
+| `creativeCareers.js` | Film Direction, 3D Animation, Game Design, UX Architecture | 8 careers |
+| `aviationMaritimeCareers.js` | Airline Captains, Aerospace Engineering, Maritime Logistics | 5 careers |
+| `eduHospitalitySportsCareers.js` | Executive Gastronomy, Sports Science & Coaching | 3 careers |
+| `newExtensionCareers.js` | Brand Manager, Athlete, Model, Actor, PSU Executive, Railways | 6 careers |
+| **Total** | **All 13 Sectors Combined** | **95 Careers** |
+
+#### Schema Definition of a Career Profile
+Each career conforms to the `Career` model in `prisma/schema.prisma` across 26 rich fields:
+```prisma
+model Career {
+  id                          String   @id @default(cuid())
+  slug                        String   @unique
+  title                       String
+  category                    String   // e.g. "Technology & Engineering", "Law & Government"
+  industry                    String
+  shortDescription            String
+  overview                    String
+  dailyResponsibilities       String   // JSON string array
+  dayInLife                   String   // Formatted chronological workday schedule
+  typicalWorkEnvironment      String   // Remote, Hybrid, Office, Lab, Field
+  requiredEducation           String
+  essentialTechSkills         String   // JSON string array
+  essentialSoftSkills         String   // JSON string array
+  toolsAndTechnologies        String   // JSON string array
+  entrySalaryMin              Int      // USD in thousands (e.g. 85 = $85,000)
+  entrySalaryMax              Int
+  midSalaryMin                Int
+  midSalaryMax                Int
+  seniorSalaryMin             Int
+  seniorSalaryMax             Int
+  learningDifficulty          Int      // 1-10 scale
+  entryJobDifficulty          Int      // 1-10 scale
+  technicalComplexity         Int      // 1-10 scale
+  mathRequirements            Int      // 1-10 scale
+  workPressure                Int      // 1-10 scale
+  workLifeBalance             Int      // 1-10 scale
+  remoteOpportunities         Int      // 1-10 scale
+  careerStability             Int      // 1-10 scale
+  futureDemandScore           Int      // 1-10 scale
+  futureDemandOutlook         String   // e.g. "26% projected 10-year growth"
+  growthPotential             Int      // 1-10 scale
+  internationalOpportunities  String
+  advantages                  String   // JSON string array
+  disadvantages               String   // JSON string array
+  careerProgressionRoadmap    String   // JSON string array of stages
+  iconName                    String   @default("Briefcase")
+  featured                    Boolean  @default(false)
+  createdAt                   DateTime @default(now())
+}
+```
+
+#### How to Add a New Career Profile to the Backend
+
+To add a new career profile, follow these simple steps:
+
+1. **Add the Career Definition:**
+   Open the relevant file in `prisma/data/` (or create a new module and export it in `prisma/data/index.js`). Define the profile with its unique slug and all 26 fields:
+   ```javascript
+   {
+     slug: "renewable-energy-director",
+     title: "Renewable Energy Director",
+     category: "Engineering & Built Environment",
+     industry: "CleanTech & Energy",
+     shortDescription: "Directing utility-scale solar, wind, and battery energy transition programs.",
+     overview: "Full overview text...",
+     dailyResponsibilities: JSON.stringify(["Grid interconnection modeling", "Turbine procurement", "EPC audits"]),
+     dayInLife: "08:30 AM - Grid telemetry audit\n10:30 AM - EPC contractor standup\n02:00 PM - Environmental regulatory hearing\n05:30 PM - Capital allocation debrief",
+     typicalWorkEnvironment: "Hybrid (Site visits + Remote design)",
+     requiredEducation: "B.Tech in Electrical/Mechanical Engineering + PE License",
+     essentialTechSkills: JSON.stringify(["PSCAD", "Power Systems", "Grid Interconnection"]),
+     essentialSoftSkills: JSON.stringify(["Stakeholder Negotiation", "Risk Mitigation"]),
+     toolsAndTechnologies: JSON.stringify(["ETAP", "MATLAB", "AutoCAD Electrical"]),
+     entrySalaryMin: 80,
+     entrySalaryMax: 110,
+     midSalaryMin: 130,
+     midSalaryMax: 180,
+     seniorSalaryMin: 200,
+     seniorSalaryMax: 290,
+     learningDifficulty: 8,
+     entryJobDifficulty: 7,
+     technicalComplexity: 8,
+     mathRequirements: 8,
+     workPressure: 7,
+     workLifeBalance: 7,
+     remoteOpportunities: 6,
+     careerStability: 9,
+     futureDemandScore: 9,
+     futureDemandOutlook: "32% projected 10-year growth (Much faster than average)",
+     growthPotential: 9,
+     internationalOpportunities: "High global demand across the US, EU, and India.",
+     advantages: JSON.stringify(["High mission fulfillment", "Government-backed incentives"]),
+     disadvantages: JSON.stringify(["Protracted regulatory review cycles"]),
+     careerProgressionRoadmap: JSON.stringify(["Junior Project Engineer", "Lead Systems Engineer", "Engineering Director"]),
+     iconName: "Zap",
+     featured: true,
+   }
+   ```
+
+2. **Sync the Database:**
+   Run the seed script or execute an upsert query:
+   ```bash
+   node prisma/seed.js
+   ```
+   *Alternatively, in production without wiping other tables, use a script with `prisma.career.upsert({ where: { slug: ... }, update: ..., create: ... })`.*
+
+3. **Instant Platform Integration:**
+   Once saved in SQLite:
+   - It is immediately accessible at `/careers/[slug]` with all 5 interactive tabs.
+   - It is dynamically matched in `/assessment` scoring.
+   - It can be filtered, searched, and compared in `/student/compare`.
+   - Mentors and documentary videos are automatically matched using intelligent category fallbacks.
+
+---
+
+## 🧠 Assessment Engine & Recommendation Algorithm Workflow
+
+The Assessment Engine located at [`src/lib/assessmentEngine.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/assessmentEngine.ts) powers the personalized recommendation experience.
+
+### The 20 Assessment Dimensions
+
+Every question has been rewritten in clear, everyday language with no confusing jargon:
+
+1. **Technical & Engineering Orientation (Q1):** Software & AI vs. Physical Engineering vs. Tech Management vs. People/Creative Arts.
+2. **Workplace Environment (Q2):** Fully Remote vs. Hybrid vs. Corporate Office vs. Active Field.
+3. **Medium of Creation (Q3):** Digital Software vs. Physical Builds vs. Creative Arts & Media vs. Public Governance.
+4. **Financial Trajectory (Q4):** High-Risk Equity Upside vs. Corporate Salary & Bonuses vs. Government Stability & Pension vs. Low-Stress Living Wage.
+5. **Quantitative & Analytical Rigor (Q5):** Advanced Math/Algorithms vs. Business Metrics/Spreadsheets vs. Practical Everyday Logic vs. Little/No Math.
+6. **Structure vs. Ambiguity (Q6):** Inventing from Scratch vs. Clear Goals with Freedom vs. Structured Standards vs. Strict Safety SOPs.
+7. **Leadership & Influence Scope (Q7):** Executive Command vs. Creative Direction vs. Mentorship & Coaching vs. Solo Craft Mastery.
+8. **Human Care & Social Welfare (Q8):** Direct Clinical Medicine vs. Teaching & Counseling vs. Community Public Service vs. Commercial Tech.
+9. **Creative Expression & Storytelling (Q9):** Screen Acting & Modeling vs. Brand Strategy vs. Practical UX Design vs. Structured Facts & Law.
+10. **Physical Mastery & Tactical Presence (Q10):** Athletics & On-Camera Poise vs. Hands-On Industrial Craft vs. Active Daily Movement vs. Desk-Bound Computer Work.
+11. **Sovereign Service & Public Sector (Q11):** Civil Services (IAS/IPS) & Defence vs. PSUs & Railways vs. Judicial Courts vs. Private Companies.
+12. **Lifelong Learning & Tech Velocity (Q12):** Fast-Paced Rapid Changes vs. Periodic Updates vs. Stable Foundational Principles vs. Intuitive Human Craft.
+13. **Feedback Cadence & Horizon (Q13):** Immediate Daily Feedback vs. Monthly Sprints vs. Annual Milestones vs. Multi-Year Long-Term Infrastructure.
+14. **Public Visibility & Spotlight (Q14):** On-Camera Public Spotlight vs. Brand Spokesperson vs. Professional Peer Respect vs. Behind-the-Scenes Privacy.
+15. **Pressure Dynamics & Crisis Cadence (Q15):** High-Stakes Live Pressure vs. Deadline-Driven Milestones vs. Organized Predictable Schedules vs. Calm Low-Stress Routine.
+16. **Lifestyle Avoidance Filter (Q16, Multi-Select):** Filters out dealbreaker conditions (*e.g., long commutes, sitting all day, micromanagement, 60+ hour burnout*).
+17. **Current Skillset (Q17, Multi-Select):** 22 practical skills spanning coding, marketing, acting, athletics, law, budgeting, and mechanics.
+18. **Target Industry Sectors (Q18, Multi-Select):** 13 industry domains to boost relevant career matches.
+19. **Core Professional Purpose (Q19):** Public Service & Nation Building vs. Commercial Success vs. Artistic Impact vs. Scientific/Patient Care.
+20. **Life Non-Negotiables & Dealbreakers (Q20, Multi-Select):** Daily Fitness & Health, Scheduled Hours, High Wealth, Family Time, Remote Flexibility, Job Security, Low Stress, etc.
+
+---
+
+### Multi-Selection Scoring Mathematics
+
+Unlike rigid single-choice quizzes, CareerFind's recommendation engine natively supports **multiple selections** on all questions.
+
+When a user selects multiple values for a dimension (e.g., both *Software & AI Development* [value: 9] and *Physical & Civil Engineering* [value: 7]), the scoring engine uses **minimum-distance similarity**:
+
+$$\text{Similarity}(D, T) = \max\left(0, 1 - \frac{\min_{v \in D} |v - T|}{9}\right)$$
+
+Where:
+- $D$ is the set of user-selected values for that dimension.
+- $T$ is the career profile's target value (on a 1–10 scale).
+- $9$ is the maximum possible difference between two scale values.
+
+This mathematical property ensures that selecting multiple interests **fairly rewards** any career that aligns closely with *any* of the user's chosen paths, instead of diluting their score with an artificial average.
+
+### Handling 'Not Clear' Fallbacks
+
+Every single-choice question includes an explicit **"Not Sure / Open to Exploration"** option. When selected:
+- `isNotClear` is set to `true`.
+- The engine assigns a neutral non-penalizing score ($0.75$, or 75% alignment) for that dimension.
+- Undecided students are never penalized for exploring their options.
+
+### Lifestyle Avoidance & Non-Negotiable Rules
+
+The engine applies intelligent positive and negative adjustments based on the user's lifestyle inputs:
+
+1. **Avoidance Penalties:**
+   - Selecting *Sitting at a desk all day* applies a penalty to desk-bound software and finance roles while boosting field, athletic, and healthcare careers.
+   - Selecting *Extreme stress and very long hours* penalizes careers with `workPressure >= 8` (e.g., Investment Banking, Trauma Surgery).
+   - Selecting *Unstable income or layoffs* prioritizes Indian Civil Services, Railways, PSUs, and Healthcare.
+
+2. **Non-Negotiables Boosts:**
+   - Selecting *Daily Fitness & Health* prioritizes careers with healthy work-life balance scores or athletic components.
+   - Selecting *Scheduled & Predictable Hours* rewards roles with low emergency volatility.
+   - Selecting *Remote Work Flexibility* prioritizes careers with high `remoteOpportunities` scores.
+   - Selecting *Job Security & Income Stability* elevates sovereign public sector and institutional careers.
+
+3. **Possessed vs. Missing Skill Gap Analysis:**
+   - Compares user's selected skills in Q17 against the career's `essentialTechSkills` and `toolsAndTechnologies`.
+   - Divides skills into `possessedSkills` (immediate natural advantages) and `missingSkills` (skills to develop), empowering students to craft focused learning roadmaps.
+
+### Archetype Classification & Dynamic Matching
+
+Users are classified into one of 10 overarching archetype personas:
+- **The Frontier Systems Architect:** High technical orientation, deep logic, scalable digital infrastructure.
+- **The Sovereign Public Administrator:** Government leadership, civil governance, national infrastructure, public welfare.
+- **The Creative Brand Visionary:** Brand strategy, visual storytelling, consumer advertising, design direction.
+- **The Elite Tactical Athlete & Performer:** Athletic competition, sports coaching, high-fashion modeling, screen acting.
+- **The Clinical Healer & Human Care Advocate:** Medicine, surgery, counseling, life-saving patient care.
+- **The High-Conviction Venture Founder:** Extreme ambiguity tolerance, commercial ambition, exponential upside.
+- **The Quantitative Capital Allocator:** Advanced mathematics, financial trading, corporate investment.
+- **The Physical & Industrial Builder:** Civil engineering, robotics, plant operations, clean energy.
+- **The Constitutional & Legal Advocate:** Law courts, judicial policy, compliance, regulatory counsel.
+- **The Independent Maker & Specialist:** Solo craft, autonomy, deep specialization.
+
+---
+
+## 📱 Core Application Modules
+
+### MODULE 1: Interactive Career Assessment
+*Route: [`/assessment`](http://localhost:3000/assessment)*
+- Step-by-step 20-question questionnaire wizard with real-time progress indicators.
+- **Prominent Multi-Selection Notice** on every question card confirming that multiple options are supported and factored into compatibility calculations.
+- Instant submission to `POST /api/assessment` returning ranked careers, compatibility percentages, archetype badges, and custom `whyMatch` rationales.
+
+### MODULE 2: 95-Career Encyclopedia & 5-Tab Profile Experience
+*Routes: [`/careers`](http://localhost:3000/careers) and [`/careers/[slug]`](http://localhost:3000/careers/brand-manager)*
+- Filterable directory by 13 industry domains, salary sliders, remote flexibility, and keyword search.
+- **5-Tab Navigation System** on every single profile:
+  1. **Overview:** Executive summary, key metrics ribbon, educational qualifications, advantages & disadvantages.
+  2. **A Day in the Life:** Interactive hour-by-hour chronological schedule, daily execution time-allocation breakdown (Execution, Collaboration, Triage, Strategy), work pressure badge, and relevant Day-in-the-Life video documentaries.
+  3. **Job Shadowing:** 4 core learning pillars (Live Observation, Tool & Workflow Inspection, Unfiltered Q&A Reality Check, Resume & Portfolio Audit), 3-step workflow, verified practitioner cards with 1-click booking, custom host requests, and non-disclosure safety protocols.
+  4. **Skills & Roadmap:** Core technical skills, soft skills, tools stack, and multi-stage career progression roadmap.
+  5. **Compensation & Growth:** Entry, mid, and senior salary progression charts, 10-year projected demand growth, and international opportunities.
+
+### MODULE 3: "A Day in the Life" Workday Documentary Library
+*Route: [`/videos`](http://localhost:3000/videos)*
+- Curated library of 25 authentic video documentaries powered by privacy-enhanced YouTube embeds (`youtube-nocookie.com`).
+- Features duration tags, seniority levels, location badges, and structured key takeaways checklist.
+- Filterable by career category and search keywords, with 1-click personal watchlist bookmarking.
+
+### MODULE 4: Job Shadowing Marketplace & Conflict-Free Booking
+*Route: [`/shadowing`](http://localhost:3000/shadowing)*
+- Connects students with 12 verified industry practitioners across tech, clean energy, culinary arts, brand management, screen acting, athletics, and Indian Railways/government.
+- Real-time availability slot selection for **Virtual** and **In-Person** sessions.
+- Interactive modal booking form requiring students to submit learning goals and background.
+- Protected by Prisma database transactions with slot collision detection to guarantee zero double-bookings.
+
+### MODULE 5: Student Hub & Progress Dashboard
+*Route: [`/student/dashboard`](http://localhost:3000/student/dashboard)*
+- Centralized tracking interface for students.
+- Displays exploration progress percentage, latest assessment archetype, upcoming and completed shadowing sessions, and bookmarked careers and videos.
+
+### MODULE 6: Multi-Career Comparative Evaluation Tool
+*Route: [`/student/compare`](http://localhost:3000/student/compare)*
+- Compare 2 to 4 professions side by side across 8 normalized quantitative dimensions (Technical Complexity, Math Requirements, Learning Curve, Hiring Bar, Pressure, Work-Life Balance, Remote Flexibility, and Future Demand).
+- Qualitative comparison matrix covering work environment, degrees required, salary ranges, and international mobility.
+
+### MODULE 7: Administration & Verification Cockpit
+*Route: [`/admin/dashboard`](http://localhost:3000/admin/dashboard)*
+- Executive KPI cards: Total registered users, verified mentors, active bookings, and platform reports.
+- Mentor verification queue: Review submitted credentials, corporate emails, and approve or reject applications with notes.
+- Moderation reports monitor with 1-click resolution.
+
+---
+
+## 📡 Verified API Route Specifications
+
+Every endpoint listed below is verified against the actual filesystem in [`src/app/api/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/app/api):
+
+| Method | Endpoint | Description | Role / Auth |
 | :--- | :--- | :--- | :--- |
-| `GET` | `/api/auth/me` | Fetch currently authenticated user session | Public / Any |
-| `POST` | `/api/auth/login` | Authenticate with email and password | Public |
-| `POST` | `/api/auth/register` | Register new student or mentor account | Public |
-| `POST` | `/api/auth/logout` | Clear session cookie | Authenticated |
-| `POST` | `/api/auth/demo-switch` | Instant 1-click persona switch | Demo / Any |
-| `POST` | `/api/assessment` | Score questionnaire and return top 10 recommendations | Public / Student |
-| `GET` | `/api/careers` | Filter and search career profiles | Public |
-| `POST` | `/api/careers/save` | Toggle career bookmark | Student |
-| `GET` | `/api/videos` | Query video library with category and role filters | Public |
-| `POST` | `/api/videos` | Submit a community video suggestion | Authenticated |
+| `GET` | `/api/auth/me` | Retrieve currently authenticated user session and profile | Public / Any |
+| `POST` | `/api/auth/login` | Authenticate user with email and password | Public |
+| `POST` | `/api/auth/register` | Create a new student or mentor account | Public |
+| `POST` | `/api/auth/logout` | Clear HTTP-only session cookie | Authenticated |
+| `POST` | `/api/auth/demo-switch` | Instant 1-click persona switch for evaluation | Public / Demo |
+| `POST` | `/api/assessment` | Score 20-question assessment and return ranked recommendations | Public / Student |
+| `GET` | `/api/careers` | Filter, search, and list career profiles | Public |
+| `POST` | `/api/careers/save` | Toggle career bookmark in student profile | Student |
+| `GET` | `/api/videos` | Query curated Day-in-the-Life video library | Public |
+| `POST` | `/api/videos` | Submit community video recommendation | Authenticated |
 | `POST` | `/api/videos/bookmark` | Toggle video watchlist bookmark | Student |
-| `GET` | `/api/shadowing/professionals` | Query verified mentors and available slots | Public |
-| `POST` | `/api/shadowing/book` | Book job shadow slot (with conflict prevention) | Student |
-| `GET` | `/api/mentor/bookings` | View incoming and scheduled sessions | Mentor |
-| `PATCH`| `/api/mentor/bookings` | Approve, reject, or provide feedback on sessions | Mentor |
-| `GET` | `/api/mentor/slots` | Fetch mentor's published time slots | Mentor |
+| `GET` | `/api/shadowing/professionals` | Query verified mentors and published open slots | Public |
+| `POST` | `/api/shadowing/book` | Book a shadowing slot with transaction conflict lock | Student |
+| `GET` | `/api/mentor/bookings` | View incoming and scheduled shadowing sessions | Mentor |
+| `PATCH`| `/api/mentor/bookings` | Approve, reject, or submit feedback on bookings | Mentor |
+| `GET` | `/api/mentor/slots` | Fetch mentor's published availability slots | Mentor |
 | `POST` | `/api/mentor/slots` | Publish a new virtual or in-person time slot | Mentor |
 | `DELETE`| `/api/mentor/slots` | Remove an unbooked time slot | Mentor |
-| `GET` | `/api/student/dashboard` | Aggregate student metrics, bookings, and recommendations | Student |
-| `GET` | `/api/admin/overview` | Fetch platform KPIs, verification queue, and reports | Admin |
-| `POST` | `/api/admin/verify-mentor`| Approve or reject mentor credentials | Admin |
-| `PATCH`| `/api/admin/reports` | Resolve or dismiss platform moderation reports | Admin |
+| `GET` | `/api/student/dashboard` | Aggregate student metrics, bookings, and saved profiles | Student |
+| `GET` | `/api/admin/overview` | Fetch platform KPIs, verification queue, and bookings | Admin |
+| `POST` | `/api/admin/verify-mentor` | Approve or reject mentor verification credentials | Admin |
+| `GET` | `/api/admin/reports` | Fetch open platform moderation reports | Admin |
+| `PATCH`| `/api/admin/reports` | Resolve or dismiss moderation reports | Admin |
 
 ---
 
 ## 🛡️ Trust, Safety & In-Person Protocols
 
-To ensure safety and confidentiality during **in-person job shadowing**:
-1. **Professional Identity Verification:** Mentors must verify their corporate domain email or professional license before their profile is displayed publicly.
-2. **Approved Physical Locations Only:** In-person shadowing takes place exclusively inside registered corporate offices, university laboratories, or verified co-working spaces with visitor badge registration.
-3. **Confidentiality & Non-Disclosure (NDA):** Students agree to an ethical code of conduct committing to protect proprietary company code, client data, and internal meetings.
-4. **Zero-Tolerance Reporting:** Students and mentors have access to a direct reporting channel moderated by Platform Administrators with a 24-hour turnaround SLA.
+To ensure physical and intellectual safety during job shadowing:
+1. **Host Verification Protocol:** Practitioners must provide corporate domain credentials or official professional registration before receiving the verified badge.
+2. **Approved Physical Environments Only:** In-person shadowing takes place exclusively in registered corporate offices, hospitals, studios, or authorized institutional facilities.
+3. **Confidentiality & Non-Disclosure (NDA):** Every booking incorporates a digital code of conduct committing students to safeguard proprietary code, client discussions, and unpublished designs.
+4. **Moderation & Incident Escalation:** Direct reporting channel with rapid administrative review and suspension workflows.
 
 ---
 
-## 💻 Local Development & Setup Guide
+## 👥 Pre-Configured Demo Personas
+
+CareerFind includes a 1-Click Role Switcher in the top navigation bar. Clicking any persona instantly generates the authenticated session cookie and redirects you to the respective experience:
+
+| Persona | Name | Role & Title | Pre-Seeded Email | Password |
+| :--- | :--- | :--- | :--- | :--- |
+| 🎓 **Student** | **Alex Chen** | Undergraduate CS & CogSci @ UC Berkeley | `alex.chen@university.edu` | `password123` |
+| 💼 **AI Mentor** | **Dr. Priya Sharma** | Staff AI Engineer @ Google DeepMind | `priya.sharma@deepmind.com` | `password123` |
+| 💼 **FDE Mentor** | **Marcus Vance** | Lead Forward Deployed Engineer @ Palantir | `marcus.vance@palantir.com` | `password123` |
+| 💼 **Brand Mentor** | **Aarav Mehta** | Global Brand Director @ Unilever Ecosystem | `aarav.brand@unilever.com` | `password123` |
+| 💼 **Actor Mentor** | **Natasha Roy** | Screen Actor & Voice Artist @ Motion Pictures | `natasha.actor@cinema.com` | `password123` |
+| 💼 **Sports Coach**| **Vikram Rathore** | High-Performance Athletic Director | `vikram.coach@athletics.org` | `password123` |
+| 💼 **Railways Host**| **Rajeshwar Singh** | Principal Operations Director Retd. @ IRMS | `rajeshwar.irms@railways.gov.in` | `password123` |
+| 🛡️ **Platform Admin**| **Sarah Miller** | Head of Trust & Safety @ CareerFind | `admin@careerfind.com` | `password123` |
+
+---
+
+## 💻 Complete Step-by-Step Local Setup & Execution Guide
+
+Follow these exact steps to run the complete application from scratch on any computer:
 
 ### Prerequisites
-- [Node.js](https://nodejs.org/) v18.17+ or v20.x or v22.x
-- `npm` v9+ or `pnpm` or `yarn`
+- **Node.js**: `v18.17.0+`, `v20.x`, or `v22.x` ([Download Node.js](https://nodejs.org/))
+- **Package Manager**: `npm` (bundled with Node.js) or `pnpm`
+- **Git**: Installed and available on your PATH
 
-### Step 1: Clone Repository
+### Step 1: Clone the Repository
 ```bash
 git clone https://github.com/AbhinavPandey12/CarrerFind---Best-Carrer-for-You.git
 cd CarrerFind---Best-Carrer-for-You
 ```
 
-### Step 2: Install Dependencies
+### Step 2: Install Project Dependencies
 ```bash
 npm install
 ```
 
-### Step 3: Initialize Database & Seed Realistic Data
+### Step 3: Configure Environment Variables (Optional)
+The project comes with built-in defaults for SQLite and JWT. If you wish to set custom variables, create a `.env` file in the root directory:
 ```bash
-# Push database schema to generate local SQLite dev.db
-npx prisma db push
+# Windows PowerShell
+Set-Content -Path .env -Value 'DATABASE_URL="file:./dev.db"`nJWT_SECRET="careerfind-super-secret-jwt-key-production"`nPORT=3000'
 
-# Run the comprehensive seed script (Careers, Mentors, Slots, Videos, Bookings)
-node prisma/seed.js
+# macOS / Linux
+echo -e 'DATABASE_URL="file:./dev.db"\nJWT_SECRET="careerfind-super-secret-jwt-key-production"\nPORT=3000' > .env
 ```
 
-### Step 4: Run Development Server
+### Step 4: Initialize SQLite Database & Push Prisma Schema
+```bash
+npx prisma db push
+```
+*This command creates the embedded SQLite database file at `prisma/dev.db` with all tables, constraints, and relations.*
+
+### Step 5: Seed Comprehensive Data (Careers, Mentors, Slots, Videos)
+```bash
+node prisma/seed.js
+```
+*This populates the database with:*
+- *95 exhaustive career profiles across 13 industry domains.*
+- *12 verified industry mentors with pre-published virtual and on-site availability slots.*
+- *25 curated Day-in-the-Life video documentaries with key takeaways.*
+- *Pre-seeded admin, student, and mentor test accounts.*
+
+### Step 6: Start the Development Server
 ```bash
 npm run dev
 ```
+Open your browser and navigate to:
+**[http://localhost:3000](http://localhost:3000)**
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
-
-### Step 5: Build for Production (Optional)
+### Step 7: Build for Production & Verify Types
+To verify static type checking and build the production bundle:
 ```bash
+# Run TypeScript static analysis with zero errors
+npx tsc --noEmit
+
+# Compile the optimized production build
 npm run build
+
+# Start the optimized production server
 npm run start
 ```
+
+### Helpful Diagnostic & Inspection Commands
+```bash
+# Open Prisma Studio to browse and edit all SQLite tables visually
+npx prisma studio
+
+# Run Next.js on a custom port if port 3000 is occupied
+npx next dev -p 3001
+```
+
+---
+
+## 📊 Observability, Telemetry & Structured Logging
+
+CareerFind features a unified observability architecture built for production debuggability, error tracking, and scale without external vendor lock-in.
+
+### 1. Server-Side Leveled Logger (`src/lib/logger.ts`)
+- **Structured JSON-Ready Logging**: Emits timestamped, leveled logs (`debug`, `info`, `warn`, `error`) tagged by module name (e.g. `[API:Assessment]`, `[Prisma:SlowQuery]`, `[Auth]`).
+- **Configurable Severity**: Controlled via the `LOG_LEVEL` environment variable (`debug`, `info`, `warn`, `error`). In production, defaults to `info` and higher; in development, captures full `debug` traces.
+- **Safe Error Normalization**: The `formatError(err)` helper cleanly extracts error names, messages, and dev-only stack traces while preventing secret leaks.
+- **Prisma Integration & Slow Query Detection**: Integrated directly into `src/lib/prisma.ts`. Automatically flags and logs any query taking longer than 200ms in development with a `[Prisma:SlowQuery]` warning.
+- **Pluggable Sinks**: Easily point `emit()` in `src/lib/logger.ts` to Datadog, Sentry, Axiom, or Logtail.
+
+### 2. Client-Side Telemetry & Metrics (`src/lib/telemetry.ts`)
+- **Event Tracking**: `track(eventName, properties)` captures user interactions (e.g. `assessment_started`, `booking_submitted`, `career_saved`, `video_opened`).
+- **Error Capturing**: `trackError(error, context)` captures client errors with component context, sanitized for production.
+- **Operation Duration Measurement**: `measure(label, fn)` and `measureSync(label, fn)` measure async and sync function execution times.
+- **Pluggable Analytics**: Pre-configured hooks for PostHog, Mixpanel, Amplitude, or Datadog RUM in `dispatch()`.
 
 ---
 

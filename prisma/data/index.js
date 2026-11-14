@@ -1,4 +1,7 @@
 const techCareers = require('./techCareers');
+const newTechCareers = require('./newTechCareers');
+const specialistCareers = require('./specialistCareers');
+const coreSplitCareers = require('./coreSplitCareers');
 const businessCareers = require('./businessCareers');
 const financeCareers = require('./financeCareers');
 const healthCareers = require('./healthCareers');
@@ -7,8 +10,12 @@ const builtCareers = require('./builtCareers');
 const creativeCareers = require('./creativeCareers');
 const aviationMaritimeCareers = require('./aviationMaritimeCareers');
 const eduHospitalitySportsCareers = require('./eduHospitalitySportsCareers');
+const newExtensionCareers = require('./newExtensionCareers');
 
 const allCareers = [
+  ...coreSplitCareers,
+  ...newTechCareers,
+  ...specialistCareers,
   ...techCareers,
   ...businessCareers,
   ...financeCareers,
@@ -18,6 +25,8 @@ const allCareers = [
   ...creativeCareers,
   ...aviationMaritimeCareers,
   ...eduHospitalitySportsCareers,
+  ...newExtensionCareers,
 ];
 
 module.exports = { allCareers };
+

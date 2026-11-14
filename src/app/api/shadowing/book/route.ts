@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+const log = logger('API:Shadowing:Book');
 
 export async function POST(req: Request) {
+  const start = Date.now();
   try {
     let user = await getCurrentUser();
     if (!user) {
@@ -12,18 +16,30 @@ export async function POST(req: Request) {
       });
       if (defaultStudent) {
         user = defaultStudent as any;
+        log.info('Booking: using default student fallback for unauthenticated demo user', { studentId: user?.id });
       } else {
+        log.warn('Booking: unauthenticated attempt with no default student in DB');
         return NextResponse.json({ error: 'Please log in to book a session.' }, { status: 401 });
       }
     }
 
-    const { mentorProfileId, slotId, sessionMode, studentIntroduction } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      log.warn('Booking: invalid JSON body');
+      return NextResponse.json({ error: 'Invalid JSON request body' }, { status: 400 });
+    }
+
+    const { mentorProfileId, slotId, sessionMode, studentIntroduction } = body;
 
     if (!mentorProfileId || !slotId) {
+      log.warn('Booking: missing mentorProfileId or slotId', { mentorProfileId, slotId });
       return NextResponse.json({ error: 'Mentor and time slot are required.' }, { status: 400 });
     }
 
     if (!studentIntroduction || studentIntroduction.trim().length < 10) {
+      log.warn('Booking: insufficient student introduction length');
       return NextResponse.json(
         { error: 'Please provide a short introduction explaining your background and goals.' },
         { status: 400 }
@@ -37,10 +53,12 @@ export async function POST(req: Request) {
     });
 
     if (!slot) {
+      log.warn('Booking: slot not found', { slotId });
       return NextResponse.json({ error: 'Selected time slot does not exist.' }, { status: 404 });
     }
 
     if (slot.isBooked) {
+      log.warn('Booking conflict: slot already booked', { slotId, mentorProfileId, studentId: user!.id });
       return NextResponse.json(
         { error: 'This time slot was just booked by another student. Please select another slot.' },
         { status: 409 }
@@ -89,12 +107,22 @@ export async function POST(req: Request) {
       },
     });
 
+    log.info('Booking confirmed successfully', {
+      bookingId: booking.id,
+      studentId: user!.id,
+      mentorProfileId,
+      slotId,
+      sessionMode: mode,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({
       success: true,
       booking,
       message: 'Job shadowing session booked successfully! An invitation has been added to your dashboard.',
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Booking failed with unexpected error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to book session' }, { status: 500 });
   }
 }

@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import VideoModal from '@/components/VideoModal';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Video,
   Play,
@@ -16,6 +17,7 @@ import {
   CheckCircle2,
   X,
   ExternalLink,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -23,6 +25,7 @@ export default function VideosPage() {
   const [videos, setVideos] = useState<any[]>([]);
   const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedVideo, setSelectedVideo] = useState<any | null>(null);
 
   // Filters
@@ -39,6 +42,8 @@ export default function VideosPage() {
   const [submitRole, setSubmitRole] = useState<string>('ai-ml-engineer');
   const [submitDesc, setSubmitDesc] = useState<string>('');
   const [submitSuccess, setSubmitSuccess] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   const categories = [
     'All',
@@ -73,6 +78,7 @@ export default function VideosPage() {
   const fetchVideos = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const url = new URL('/api/videos', window.location.origin);
       if (selectedCategory !== 'All') url.searchParams.set('category', selectedCategory);
       if (selectedLevel !== 'All') url.searchParams.set('experienceLevel', selectedLevel);
@@ -83,8 +89,16 @@ export default function VideosPage() {
       const data = await res.json();
       setVideos(data.videos || []);
       setBookmarkedIds(data.bookmarkedIds || []);
-    } catch (e) {
-      console.error(e);
+      track('videos_filter_applied', {
+        category: selectedCategory,
+        level: selectedLevel,
+        playlist: selectedPlaylist,
+        search: searchTerm || undefined,
+        videoCount: data.videos?.length || 0,
+      });
+    } catch (e: any) {
+      setFetchError('Failed to load videos. Please try again.');
+      trackError(e, { component: 'VideosPage', action: 'fetchVideos' });
     } finally {
       setLoading(false);
     }
@@ -104,17 +118,21 @@ export default function VideosPage() {
       const data = await res.json();
       if (data.bookmarked) {
         setBookmarkedIds((prev) => [...prev, videoId]);
+        track('video_bookmarked', { videoId });
       } else {
         setBookmarkedIds((prev) => prev.filter((id) => id !== videoId));
+        track('video_unbookmarked', { videoId });
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      trackError(e, { component: 'VideosPage', action: 'handleToggleBookmark', videoId });
     }
   };
 
   const handleSuggestVideo = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
     try {
+      setSubmitting(true);
       const res = await fetch('/api/videos', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -128,8 +146,10 @@ export default function VideosPage() {
           description: submitDesc,
         }),
       });
+      const data = await res.json();
       if (res.ok) {
         setSubmitSuccess(true);
+        track('video_suggest_submitted', { title: submitTitle, professionSlug: submitRole });
         setTimeout(() => {
           setShowSubmitModal(false);
           setSubmitSuccess(false);
@@ -139,9 +159,14 @@ export default function VideosPage() {
           setSubmitDesc('');
           fetchVideos();
         }, 1500);
+      } else {
+        throw new Error(data.error || 'Failed to submit video');
       }
-    } catch (e) {
-      console.error(e);
+    } catch (e: any) {
+      setSubmitError(e?.message || 'Failed to submit video. Please try again.');
+      trackError(e, { component: 'VideosPage', action: 'handleSuggestVideo' });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -251,6 +276,21 @@ export default function VideosPage() {
       </div>
 
       {/* Video Grid */}
+      {fetchError && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{fetchError}</span>
+          </div>
+          <button
+            onClick={fetchVideos}
+            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-semibold"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 animate-pulse">
           {[1, 2, 3, 4, 5, 6, 7, 8].map((i) => (
@@ -276,7 +316,10 @@ export default function VideosPage() {
               >
                 {/* Thumbnail Container */}
                 <div
-                  onClick={() => setSelectedVideo(video)}
+                  onClick={() => {
+                    track('video_opened', { videoId: video.id, title: video.title });
+                    setSelectedVideo(video);
+                  }}
                   className="relative aspect-video w-full bg-slate-950 cursor-pointer overflow-hidden"
                 >
                   <img
@@ -365,6 +408,12 @@ export default function VideosPage() {
               </div>
             ) : (
               <form onSubmit={handleSuggestVideo} className="space-y-3.5">
+                {submitError && (
+                  <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                    <span>{submitError}</span>
+                  </div>
+                )}
                 <div>
                   <label className="text-xs text-slate-300 font-semibold block mb-1">Video Title</label>
                   <input

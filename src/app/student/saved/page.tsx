@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import CareerCard from '@/components/CareerCard';
 import VideoModal from '@/components/VideoModal';
+import { track, trackError } from '@/lib/telemetry';
 import { Bookmark, Video, Compass, ArrowLeft } from 'lucide-react';
 
 export default function StudentSavedPage() {
@@ -20,7 +21,12 @@ export default function StudentSavedPage() {
         const json = await res.json();
         setSavedCareers(json.savedCareers || []);
         setBookmarkedVideos(json.bookmarkedVideos || []);
-      } catch (e) {
+        track('saved_portfolio_viewed', {
+          savedCareersCount: json.savedCareers?.length || 0,
+          bookmarkedVideosCount: json.bookmarkedVideos?.length || 0,
+        });
+      } catch (e: any) {
+        trackError(e, { component: 'StudentSavedPage', action: 'fetchData' });
         console.error(e);
       } finally {
         setLoading(false);

@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
 import CareerCard from '@/components/CareerCard';
 import HomeClientSections from './HomeClientSections';
+import { logger, formatError } from '@/lib/logger';
 import {
   Compass,
   Sparkles,
@@ -19,32 +20,55 @@ import {
   Star,
 } from 'lucide-react';
 
+const log = logger('Page:Home');
+
 export const revalidate = 0;
 
 export default async function HomePage() {
-  const [featuredCareers, featuredVideos, verifiedMentors] = await Promise.all([
-    prisma.career.findMany({
-      where: { featured: true },
-      take: 6,
-    }),
-    prisma.video.findMany({
-      where: { isCurated: true },
-      take: 4,
-      orderBy: { viewCount: 'desc' },
-    }),
-    prisma.mentorProfile.findMany({
-      where: { isVerified: true },
-      take: 4,
-      include: {
-        user: {
-          select: { name: true, avatarUrl: true, headline: true, location: true },
+  let featuredCareers: any[] = [];
+  let featuredVideos: any[] = [];
+  let verifiedMentors: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      prisma.career.findMany({
+        where: { featured: true },
+        take: 6,
+      }),
+      prisma.video.findMany({
+        where: { isCurated: true },
+        take: 4,
+        orderBy: { viewCount: 'desc' },
+      }),
+      prisma.mentorProfile.findMany({
+        where: { isVerified: true },
+        take: 4,
+        include: {
+          user: {
+            select: { name: true, avatarUrl: true, headline: true, location: true },
+          },
+          availabilitySlots: {
+            where: { isBooked: false },
+          },
         },
-        availabilitySlots: {
-          where: { isBooked: false },
-        },
-      },
-    }),
-  ]);
+      }),
+    ]);
+
+    featuredCareers = results[0];
+    featuredVideos = results[1];
+    verifiedMentors = results[2];
+
+    log.debug('HomePage data loaded', {
+      careersCount: featuredCareers.length,
+      videosCount: featuredVideos.length,
+      mentorsCount: verifiedMentors.length,
+    });
+  } catch (error: any) {
+    log.error('HomePage: failed to load initial data from database', {
+      error: formatError(error),
+    });
+    // Fallbacks remain empty arrays so the page renders gracefully
+  }
 
   return (
     <div className="flex flex-col min-h-screen">

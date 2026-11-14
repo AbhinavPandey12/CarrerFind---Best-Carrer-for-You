@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Calendar,
   Clock,
@@ -30,7 +31,8 @@ export default function MentorAvailabilityPage() {
       const res = await fetch('/api/mentor/slots');
       const json = await res.json();
       setSlots(json.slots || []);
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'MentorAvailabilityPage', action: 'fetchSlots' });
       console.error(e);
     } finally {
       setLoading(false);
@@ -51,9 +53,11 @@ export default function MentorAvailabilityPage() {
         body: JSON.stringify({ date, startTime, endTime, mode }),
       });
       if (res.ok) {
+        track('mentor_slot_created', { date, startTime, endTime, mode });
         fetchSlots();
       }
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'MentorAvailabilityPage', action: 'handleCreateSlot' });
       console.error(e);
     } finally {
       setSaving(false);
@@ -63,8 +67,10 @@ export default function MentorAvailabilityPage() {
   const handleDeleteSlot = async (id: string) => {
     try {
       await fetch(`/api/mentor/slots?id=${id}`, { method: 'DELETE' });
+      track('mentor_slot_deleted', { slotId: id });
       fetchSlots();
-    } catch (e) {
+    } catch (e: any) {
+      trackError(e, { component: 'MentorAvailabilityPage', action: 'handleDeleteSlot', slotId: id });
       console.error(e);
     }
   };

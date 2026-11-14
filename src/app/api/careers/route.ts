@@ -1,8 +1,14 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+export const dynamic = 'force-dynamic';
+
+const log = logger('API:Careers');
 
 export async function GET(req: Request) {
+  const start = Date.now();
   try {
     const { searchParams } = new URL(req.url);
     const category = searchParams.get('category');
@@ -42,11 +48,23 @@ export async function GET(req: Request) {
       savedSlugs = saved.map((s) => s.careerSlug);
     }
 
+    log.debug('Careers fetched', {
+      count: careers.length,
+      category: category || 'All',
+      search: search || null,
+      savedCount: savedSlugs.length,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({
       careers,
       savedSlugs,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    if (error instanceof Error && (error.message?.includes('Dynamic server usage') || (error as any)?.digest === 'DYNAMIC_SERVER_USAGE')) {
+      throw error;
+    }
+    log.error('Careers GET failed', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ careers: [], savedSlugs: [], error: error?.message || 'Failed to fetch careers' }, { status: 500 });
   }
 }

@@ -1,7 +1,11 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { logger, formatError } from '@/lib/logger';
+
+const log = logger('API:Admin:Overview');
 
 export async function GET() {
+  const start = Date.now();
   try {
     const [
       totalUsers,
@@ -48,6 +52,13 @@ export async function GET() {
       }),
     ]);
 
+    log.debug('Admin overview loaded', {
+      totalUsers,
+      pendingVerifications,
+      totalBookings,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({
       kpis: {
         totalUsers,
@@ -63,6 +74,7 @@ export async function GET() {
       reports,
     });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Admin Overview GET error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to fetch admin overview' }, { status: 500 });
   }
 }

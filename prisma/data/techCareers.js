@@ -229,7 +229,7 @@ module.exports = [
   },
   {
     slug: 'physical-ai-engineer',
-    title: 'Physical AI & Autonomous Systems Engineer',
+    title: 'Robotics & Physical AI Engineer',
     category: 'Technology & Engineering',
     industry: 'Robotics & Embodied Intelligence',
     shortDescription: 'Develops AI systems, computer vision, and foundation models that interact with the physical world through robots and sensors.',

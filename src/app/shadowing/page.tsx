@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import BookingModal from '@/components/BookingModal';
+import { track, trackError } from '@/lib/telemetry';
 import {
   Users,
   Search,
@@ -18,12 +19,14 @@ import {
   Building,
   CheckCircle2,
   X,
+  AlertCircle,
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function JobShadowingPage() {
   const [mentors, setMentors] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<any | null>(null);
 
   // Filters
@@ -47,6 +50,7 @@ export default function JobShadowingPage() {
   const fetchMentors = async () => {
     try {
       setLoading(true);
+      setFetchError(null);
       const url = new URL('/api/shadowing/professionals', window.location.origin);
       if (selectedIndustry !== 'All') url.searchParams.set('industry', selectedIndustry);
       if (selectedMode !== 'all') url.searchParams.set('mode', selectedMode);
@@ -56,8 +60,16 @@ export default function JobShadowingPage() {
       const res = await fetch(url.toString());
       const data = await res.json();
       setMentors(data.mentors || []);
-    } catch (e) {
-      console.error(e);
+      track('shadowing_filter_applied', {
+        industry: selectedIndustry,
+        mode: selectedMode,
+        pricing: selectedPricing,
+        search: searchTerm || undefined,
+        mentorCount: data.mentors?.length || 0,
+      });
+    } catch (e: any) {
+      setFetchError('Failed to load mentors. Please try again.');
+      trackError(e, { component: 'JobShadowingPage', action: 'fetchMentors' });
     } finally {
       setLoading(false);
     }
@@ -179,6 +191,21 @@ export default function JobShadowingPage() {
       </div>
 
       {/* Mentors Grid */}
+      {fetchError && (
+        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            <span>{fetchError}</span>
+          </div>
+          <button
+            onClick={fetchMentors}
+            className="px-3 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 font-semibold"
+          >
+            Retry
+          </button>
+        </div>
+      )}
+
       {loading ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
           {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -280,7 +307,10 @@ export default function JobShadowingPage() {
                   </div>
 
                   <button
-                    onClick={() => setSelectedMentor(mentor)}
+                    onClick={() => {
+                      track('booking_modal_opened', { mentorId: mentor.id, mentorName: mentor.user?.name });
+                      setSelectedMentor(mentor);
+                    }}
                     disabled={slots.length === 0}
                     className="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shadow-emerald-600/20 transition-all flex items-center gap-1.5 disabled:opacity-40"
                   >

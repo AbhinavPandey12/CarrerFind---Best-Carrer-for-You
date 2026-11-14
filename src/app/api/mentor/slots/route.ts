@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
+import { logger, formatError } from '@/lib/logger';
+
+const log = logger('API:Mentor:Slots');
 
 export async function GET() {
+  const start = Date.now();
   try {
     let user = await getCurrentUser();
     if (!user) {
@@ -18,6 +22,7 @@ export async function GET() {
     });
 
     if (!mentorProfile) {
+      log.warn('Slots GET: mentor profile not found', { userId: user?.id });
       return NextResponse.json({ error: 'Mentor profile not found' }, { status: 404 });
     }
 
@@ -26,13 +31,17 @@ export async function GET() {
       orderBy: { date: 'asc' },
     });
 
+    log.debug('Slots fetched', { mentorProfileId: mentorProfile.id, count: slots.length, duration_ms: Date.now() - start });
+
     return NextResponse.json({ slots });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Slots GET error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to fetch slots' }, { status: 500 });
   }
 }
 
 export async function POST(req: Request) {
+  const start = Date.now();
   try {
     let user = await getCurrentUser();
     if (!user) {
@@ -48,12 +57,22 @@ export async function POST(req: Request) {
     });
 
     if (!mentorProfile) {
+      log.warn('Slots POST: mentor profile not found', { userId: user?.id });
       return NextResponse.json({ error: 'Mentor profile not found' }, { status: 404 });
     }
 
-    const { date, startTime, endTime, mode } = await req.json();
+    let body: any;
+    try {
+      body = await req.json();
+    } catch {
+      log.warn('Slots POST: invalid JSON');
+      return NextResponse.json({ error: 'Invalid JSON request body' }, { status: 400 });
+    }
+
+    const { date, startTime, endTime, mode } = body;
 
     if (!date || !startTime || !endTime) {
+      log.warn('Slots POST: missing required fields', { hasDate: !!date, hasStartTime: !!startTime, hasEndTime: !!endTime });
       return NextResponse.json({ error: 'Date, start time, and end time are required' }, { status: 400 });
     }
 
@@ -68,18 +87,28 @@ export async function POST(req: Request) {
       },
     });
 
+    log.info('Slot created successfully', {
+      slotId: newSlot.id,
+      mentorProfileId: mentorProfile.id,
+      date,
+      duration_ms: Date.now() - start,
+    });
+
     return NextResponse.json({ success: true, slot: newSlot });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Slots POST error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to create slot' }, { status: 500 });
   }
 }
 
 export async function DELETE(req: Request) {
+  const start = Date.now();
   try {
     const { searchParams } = new URL(req.url);
     const slotId = searchParams.get('id');
 
     if (!slotId) {
+      log.warn('Slots DELETE: missing slotId');
       return NextResponse.json({ error: 'Slot ID is required' }, { status: 400 });
     }
 
@@ -87,8 +116,11 @@ export async function DELETE(req: Request) {
       where: { id: slotId },
     });
 
+    log.info('Slot deleted successfully', { slotId, duration_ms: Date.now() - start });
+
     return NextResponse.json({ success: true });
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    log.error('Slots DELETE error', { error: formatError(error), duration_ms: Date.now() - start });
+    return NextResponse.json({ error: error?.message || 'Failed to delete slot' }, { status: 500 });
   }
 }

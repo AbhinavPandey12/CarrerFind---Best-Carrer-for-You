@@ -20,18 +20,42 @@ export default async function CareerDetailPage({ params }: CareerPageProps) {
     notFound();
   }
 
-  // Fetch related videos
-  const relatedVideos = await prisma.video.findMany({
+  // Fetch related videos (exact slug first, then category fallback, ensuring every profile has videos)
+  let relatedVideos = await prisma.video.findMany({
     where: { professionSlug: slug },
   });
 
-  // Fetch verified mentors in this industry or matching title
-  const relatedMentors = await prisma.mentorProfile.findMany({
+  if (relatedVideos.length === 0) {
+    const categoryPrefix = career.category.split('&')[0].trim();
+    relatedVideos = await prisma.video.findMany({
+      where: {
+        OR: [
+          { category: career.category },
+          { category: { contains: categoryPrefix } },
+        ],
+      },
+      take: 2,
+    });
+  }
+
+  if (relatedVideos.length === 0) {
+    relatedVideos = await prisma.video.findMany({
+      where: { isCurated: true },
+      take: 2,
+    });
+  }
+
+  // Fetch verified mentors in this industry or category, ensuring every profile has mentors
+  const categoryWord = career.category.split('&')[0].trim();
+  const industryWord = career.industry.split(/[,/&]/)[0].trim();
+
+  let relatedMentors = await prisma.mentorProfile.findMany({
     where: {
+      isVerified: true,
       OR: [
-        { industry: { contains: career.industry } },
-        { title: { contains: career.title } },
-        { isVerified: true },
+        { industry: { contains: industryWord } },
+        { industry: { contains: categoryWord } },
+        { title: { contains: career.title.split(/[\s/]/)[0] } },
       ],
     },
     take: 3,
@@ -40,6 +64,17 @@ export default async function CareerDetailPage({ params }: CareerPageProps) {
       availabilitySlots: { where: { isBooked: false } },
     },
   });
+
+  if (relatedMentors.length === 0) {
+    relatedMentors = await prisma.mentorProfile.findMany({
+      where: { isVerified: true },
+      take: 3,
+      include: {
+        user: { select: { id: true, name: true, avatarUrl: true, headline: true, location: true } },
+        availabilitySlots: { where: { isBooked: false } },
+      },
+    });
+  }
 
   return (
     <CareerDetailClient
