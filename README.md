@@ -24,11 +24,13 @@
    - [Job Profile Storage, Retrieval & Management (Adding New Careers)](#job-profile-storage-retrieval--management-adding-new-careers)
 5. [Assessment Engine & Recommendation Algorithm Workflow](#-assessment-engine--recommendation-algorithm-workflow)
    - [The 20 Assessment Dimensions](#the-20-assessment-dimensions)
-   - [Multi-Selection Scoring Mathematics](#multi-selection-scoring-mathematics)
-   - [Handling 'Not Clear' Fallbacks](#handling-not-clear-fallbacks)
-   - [Lifestyle Avoidance & Non-Negotiable Rules](#lifestyle-avoidance--non-negotiable-rules)
-   - [Archetype Classification & Dynamic Matching](#archetype-classification--dynamic-matching)
-   - [Assessment Submission & Persistence Flow](#assessment-submission--persistence-flow)
+   - [End-to-End Recommendation Pipeline Architecture](#end-to-end-recommendation-pipeline-architecture)
+   - [Multi-Selection Scoring Mathematics & Minimum-Distance Formulation](#multi-selection-scoring-mathematics--minimum-distance-formulation)
+   - [Composite Scoring Formula & 5-Component Weights Breakdown](#composite-scoring-formula--5-component-weights-breakdown)
+   - [Contextual Modifiers, Pain Points & Non-Negotiables Engine](#contextual-modifiers-pain-points--non-negotiables-engine)
+   - [The 17 Archetype Profiles & Classification Scoring Matrix](#the-17-archetype-profiles--classification-scoring-matrix)
+   - [Sub-Specialization Tiebreaker & Calibration Engine](#sub-specialization-tiebreaker--calibration-engine)
+   - [Explainability, Skill Gap Analysis & 'Why Match' Synthesis](#explainability-skill-gap-analysis--why-match-synthesis)
 6. [Core Application Modules](#-core-application-modules)
    - [Module 1: Interactive Career Assessment](#module-1-interactive-career-assessment)
    - [Module 2: 95-Career Encyclopedia & 5-Tab Profile Experience](#module-2-95-career-encyclopedia--5-tab-profile-experience)
@@ -391,89 +393,292 @@ To add a new career profile, follow these simple steps:
 
 ## 🧠 Assessment Engine & Recommendation Algorithm Workflow
 
-The Assessment Engine located at [`src/lib/assessmentEngine.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/assessmentEngine.ts) powers the personalized recommendation experience.
+The CareerFind Recommendation Engine ([`src/lib/assessmentEngine.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/assessmentEngine.ts)) implements an **explainable, multi-attribute decision model (MCDM)** combined with **strict constraint programming** and **semantic skill graph mapping**. 
+
+Instead of treating career selection as an arbitrary classification quiz or black-box embedding model, CareerFind evaluates every career against 20 psychological, quantitative, environmental, and ethical dimensions to calculate an exact, transparent alignment profile.
+
+---
+
+### End-to-End Recommendation Pipeline Architecture
+
+```mermaid
+flowchart TD
+    subgraph Inputs["1. Assessment Taker Inputs (20 Dimensions)"]
+        Q_Num["15 Scaled Dimensions<br/>(Technical, Math, Ambiguity, Leadership, etc.)"]
+        Q_Mode["Q2: Physical Work Mode<br/>(Remote, Hybrid, Onsite, Field)"]
+        Q_Multi["4 Multi-Select Batteries<br/>• Q16: Lifestyle Pain Points<br/>• Q17: Current Skillset (22 skills)<br/>• Q18: Target Industry Sectors<br/>• Q20: Non-Negotiable Dealbreakers"]
+    end
+
+    subgraph Normalization["2. Input Normalization & Resolution"]
+        Norm_Num["resolveNumericAnswer()<br/>Multi-values resolved to numeric sets"]
+        Norm_Mode["resolveWorkMode()<br/>String arrays extracted"]
+        Norm_Fall["Not Clear Detection<br/>Assigns neutral 0.75 score"]
+    end
+
+    subgraph Scoring["3. Multi-Vector Scoring Engine (Evaluated per Career)"]
+        subgraph Core["Core Composite Score (100% Normalized)"]
+            C1["Component 1: Domain & Industry Match (35%)"]
+            C2["Component 2: Cognitive Aptitude & Difficulty (30%)<br/>• Tech Complexity (35%)<br/>• Math Rigor (25%)<br/>• Pressure Dynamics (20%)<br/>• Learning Curve (20%)"]
+            C3["Component 3: Work Environment & Setting (15%)"]
+            C4["Component 4: Salary & Wealth Trajectory (10%)"]
+            C5["Component 5: Skill Gap & Ratio Match (10%)"]
+        end
+
+        subgraph Modifiers["Contextual Multipliers & Behavioral Deltas"]
+            M_Affinity["Category Natural Affinities (±5 to ±20 pts)"]
+            M_Pain["Lifestyle Avoidance Filters (±8 to ±18 pts)"]
+            M_Strategy["Financial Strategy Model (±8 to ±18 pts)"]
+            M_Medium["Output Medium & Tangibility (±8 to ±24 pts)"]
+            M_Visibility["Public Spotlight vs Privacy (±14 to ±22 pts)"]
+            M_Feedback["Feedback Horizon Cadence (±12 to ±16 pts)"]
+            M_Driver["Core Professional Purpose (±10 to ±22 pts)"]
+            M_Leadership["Leadership & Scope Delta (±10 to ±15 pts)"]
+            M_NonNeg["Non-Negotiables Guarantee (±16 to ±32 pts)"]
+            M_SubSpec["Sub-Specialization Tiebreaker (±12 to ±26 pts)"]
+        end
+
+        Score_Formula["Total Raw Score = Core Composite + ∑ Deltas"]
+    end
+
+    subgraph Archetypes["4. Archetype Classification"]
+        Arch_Eval["Evaluates 17 Distinct Archetype Profiles"]
+        Arch_Select["Selects top archetype title & personalized narrative"]
+    end
+
+    subgraph Output["5. Calibration, Ranking & Explainability"]
+        Sort["Sort Descending by Total Raw Score"]
+        Top10["Extract Top 10 Best Matching Careers"]
+        Calibrate["Calibrate Compatibility: 98% down to 78%"]
+        Skills["Segment Skills: Possessed vs Missing (Skills to Develop)"]
+        WhyMatch["Synthesize Tailored 'Why Match' Rationale"]
+    end
+
+    Inputs --> Normalization
+    Normalization --> Scoring
+    Normalization --> Archetypes
+    Core --> Score_Formula
+    Modifiers --> Score_Formula
+    Score_Formula --> Sort
+    Arch_Eval --> Arch_Select
+    Sort --> Top10 --> Calibrate --> Skills --> WhyMatch
+```
+
+---
 
 ### The 20 Assessment Dimensions
 
 Every question has been rewritten in clear, everyday language with no confusing jargon:
 
-1. **Technical & Engineering Orientation (Q1):** Software & AI vs. Physical Engineering vs. Tech Management vs. People/Creative Arts.
-2. **Workplace Environment (Q2):** Fully Remote vs. Hybrid vs. Corporate Office vs. Active Field.
-3. **Medium of Creation (Q3):** Digital Software vs. Physical Builds vs. Creative Arts & Media vs. Public Governance.
-4. **Financial Trajectory (Q4):** High-Risk Equity Upside vs. Corporate Salary & Bonuses vs. Government Stability & Pension vs. Low-Stress Living Wage.
-5. **Quantitative & Analytical Rigor (Q5):** Advanced Math/Algorithms vs. Business Metrics/Spreadsheets vs. Practical Everyday Logic vs. Little/No Math.
-6. **Structure vs. Ambiguity (Q6):** Inventing from Scratch vs. Clear Goals with Freedom vs. Structured Standards vs. Strict Safety SOPs.
-7. **Leadership & Influence Scope (Q7):** Executive Command vs. Creative Direction vs. Mentorship & Coaching vs. Solo Craft Mastery.
-8. **Human Care & Social Welfare (Q8):** Direct Clinical Medicine vs. Teaching & Counseling vs. Community Public Service vs. Commercial Tech.
-9. **Creative Expression & Storytelling (Q9):** Screen Acting & Modeling vs. Brand Strategy vs. Practical UX Design vs. Structured Facts & Law.
-10. **Physical Mastery & Tactical Presence (Q10):** Athletics & On-Camera Poise vs. Hands-On Industrial Craft vs. Active Daily Movement vs. Desk-Bound Computer Work.
-11. **Sovereign Service & Public Sector (Q11):** Civil Services (IAS/IPS) & Defence vs. PSUs & Railways vs. Judicial Courts vs. Private Companies.
-12. **Lifelong Learning & Tech Velocity (Q12):** Fast-Paced Rapid Changes vs. Periodic Updates vs. Stable Foundational Principles vs. Intuitive Human Craft.
-13. **Feedback Cadence & Horizon (Q13):** Immediate Daily Feedback vs. Monthly Sprints vs. Annual Milestones vs. Multi-Year Long-Term Infrastructure.
-14. **Public Visibility & Spotlight (Q14):** On-Camera Public Spotlight vs. Brand Spokesperson vs. Professional Peer Respect vs. Behind-the-Scenes Privacy.
-15. **Pressure Dynamics & Crisis Cadence (Q15):** High-Stakes Live Pressure vs. Deadline-Driven Milestones vs. Organized Predictable Schedules vs. Calm Low-Stress Routine.
-16. **Lifestyle Avoidance Filter (Q16, Multi-Select):** Filters out dealbreaker conditions (*e.g., long commutes, sitting all day, micromanagement, 60+ hour burnout*).
-17. **Current Skillset (Q17, Multi-Select):** 22 practical skills spanning coding, marketing, acting, athletics, law, budgeting, and mechanics.
-18. **Target Industry Sectors (Q18, Multi-Select):** 13 industry domains to boost relevant career matches.
-19. **Core Professional Purpose (Q19):** Public Service & Nation Building vs. Commercial Success vs. Artistic Impact vs. Scientific/Patient Care.
-20. **Life Non-Negotiables & Dealbreakers (Q20, Multi-Select):** Daily Fitness & Health, Scheduled Hours, High Wealth, Family Time, Remote Flexibility, Job Security, Low Stress, etc.
+| # | Question Dimension | Internal ID | Data Type | Evaluated Scale / Choices | Core Weight / Purpose |
+| :-: | :--- | :--- | :--- | :--- | :--- |
+| **Q1** | **Technical & Engineering Orientation** | `technicalOrientation` | Scaled Spectrum | 1 (Creative/People) to 9 (Deep Code & AI) | Core Aptitude (35% of Component 2) |
+| **Q2** | **Workplace Environment** | `workMode` | Multi-Choice | `remote`, `hybrid`, `onsite`, `field`, or `not_clear` | Work Setting (15% of Core Composite) |
+| **Q3** | **Output Medium & Tangibility** | `outputMedium` | Scaled Spectrum | 9 (Software), 7 (Physical Builds), 5 (Art/Stage), 2 (Public Law) | Context Modifier ($\pm 8$ to $\pm 24$ pts) |
+| **Q4** | **Financial Trajectory & Wealth Mindset** | `financialStrategy` | Scaled Spectrum | 10 (Equity/Upside), 8 (Corporate), 4 (Gov/PSU), 2 (Living Wage) | Context Modifier ($\pm 8$ to $\pm 18$ pts) |
+| **Q5** | **Quantitative & Analytical Rigor** | `mathAnalyticalAptitude` | Scaled Spectrum | 1 (Little/No Math) to 9 (Advanced Math/Algorithms) | Core Aptitude (25% of Component 2) |
+| **Q6** | **Structure vs. Ambiguity** | `ambiguityTolerance` | Scaled Spectrum | 1 (Strict SOPs) to 9 (Invent from Scratch) | Context Modifier ($\pm 8$ pts) |
+| **Q7** | **Leadership & Influence Scope** | `leadershipScope` | Scaled Spectrum | 9 (Executive Command), 7 (Brand), 5 (Coaching), 2 (Solo Craft) | Context Modifier ($\pm 10$ to $\pm 15$ pts) |
+| **Q8** | **Human Care & Social Welfare** | `helpingAndHumanImpact` | Scaled Spectrum | 1 (Commercial/Tech) to 10 (Clinical Healing) | Healthcare & Social Category Affinity |
+| **Q9** | **Creative Expression & Storytelling** | `creativeDesignAptitude` | Scaled Spectrum | 9 (Cinematic/Screen), 7 (Campaigns), 5 (UX), 2 (Pure Logic) | Creative Category Affinity |
+| **Q10** | **Physical Mastery & Tactical Presence** | `physicalDexterityTacticalCraft`| Scaled Spectrum | 9 (Athletics/Tactical), 7 (Industrial), 4 (Active), 2 (Desk) | Tactile & Active Environment Alignment |
+| **Q11** | **Sovereign Service & Public Sector** | `governanceLawPublicService`| Scaled Spectrum | 10 (Civil Services/Defence), 8 (PSUs/Railways), 6 (Law), 2 (Private)| Sovereign & Legal Category Affinity |
+| **Q12** | **Lifelong Learning & Tech Velocity** | `continuousLearning` | Scaled Spectrum | 1 (Timeless Craft) to 9 (Rapid Tech Paradigm Shifts) | Core Aptitude (20% of Component 2) |
+| **Q13** | **Feedback Cadence & Horizon** | `feedbackHorizon` | Scaled Spectrum | 9 (Immediate Live), 7 (Monthly Sprints), 2 (Multi-Year Legacy) | Context Modifier ($\pm 12$ to $\pm 16$ pts) |
+| **Q14** | **Public Visibility & Spotlight** | `publicVisibility` | Scaled Spectrum | 9 (On-Camera/Runway), 7 (Spokesperson/Civil Leader), 2 (Backstage) | Context Modifier ($\pm 14$ to $\pm 22$ pts) |
+| **Q15** | **Pressure Dynamics & Crisis Cadence** | `pressureDynamics` | Scaled Spectrum | 9 (Live Crisis/Audience) to 2 (Calm Low-Stress Routine) | Core Aptitude (20% of Component 2) |
+| **Q16** | **Lifestyle Avoidance Filter** | `lifestylePainPoints` | Multi-Select List | 11 Dealbreakers (Long commutes, sitting all day, burnout, etc.) | Avoidance Penalties & Relief Boosts |
+| **Q17** | **Current Skillset** | `existingSkills` | Multi-Select List | 22 Practical Competencies (Coding, acting, athletics, CAD, etc.) | Skill Gap & Domain Bonuses |
+| **Q18** | **Target Industry Sectors** | `preferredIndustries` | Multi-Select List | 13 Distinct Industry Domains | Domain Match (35% of Core Composite) |
+| **Q19** | **Core Professional Purpose** | `coreLifeDriver` | Scaled Spectrum | 10 (Nation Building), 8 (Wealth), 6 (Artistic Truth), 4 (Healing) | Context Modifier ($\pm 10$ to $\pm 22$ pts) |
+| **Q20** | **Life Non-Negotiables & Dealbreakers**| `nonNegotiables` | Multi-Select List | 12 Hard Standards (Daily fitness, family time, remote freedom, etc.) | Priority Guarantee ($\pm 16$ to $\pm 32$ pts) |
 
 ---
 
-### Multi-Selection Scoring Mathematics
+### Multi-Selection Scoring Mathematics & Minimum-Distance Formulation
 
-Unlike rigid single-choice quizzes, CareerFind's recommendation engine natively supports **multiple selections** on all questions.
+Traditional career quizzes force users into a single choice per question or average their selections. Averages create the **"Averaging Fallacy"**: if a student loves *Software & AI Development* (scale 9) and *People & Creative Arts* (scale 2), an arithmetic average yields $5.5$ (middle management), an outcome that satisfies neither of their genuine passions!
 
-When a user selects multiple values for a dimension (e.g., both *Software & AI Development* [value: 9] and *Physical & Civil Engineering* [value: 7]), the scoring engine uses **minimum-distance similarity**:
+CareerFind completely eliminates this flaw using a **minimum-distance similarity metric**:
 
 $$\text{Similarity}(D, T) = \max\left(0, 1 - \frac{\min_{v \in D} |v - T|}{9}\right)$$
 
 Where:
-- $D$ is the set of user-selected values for that dimension.
-- $T$ is the career profile's target value (on a 1–10 scale).
-- $9$ is the maximum possible difference between two scale values.
+- $D \subseteq \{1, 2, \dots, 10\}$ is the non-empty set of values selected by the user for that question.
+- $T \in [1, 10]$ is the career profile's target rating on that dimension.
+- $\min_{v \in D} |v - T|$ calculates the shortest distance between the career's requirements and **any** of the user's selected interests.
+- $9$ is the normalization constant representing the maximum possible distance on a 1–10 scale.
 
-This mathematical property ensures that selecting multiple interests **fairly rewards** any career that aligns closely with *any* of the user's chosen paths, instead of diluting their score with an artificial average.
+#### Mathematical Properties & Advantages:
+1. **Convex Envelope Guarantee**: $\text{Similarity}(D, T) \in [0, 1]$. An exact match on any selected choice yields $\text{Similarity} = 1.0$ ($100\%$).
+2. **Fair Multi-Interest Rewarding**: A student selecting both Software ($9$) and Cinema ($2$) receives $1.0$ when evaluated against AI Engineer ($T=9$) **and** $1.0$ when evaluated against Film Actor ($T=2$). Both careers are fairly rewarded without dilution.
+3. **Graceful Distance Degradation**: A career with $T=7$ evaluated against $D=\{9\}$ yields:
+   $$1 - \frac{|9 - 7|}{9} = 1 - \frac{2}{9} \approx 0.778 \quad (77.8\% \text{ match})$$
 
-### Handling 'Not Clear' Fallbacks
-
-Every single-choice question includes an explicit **"Not Sure / Open to Exploration"** option. When selected:
+#### Handling 'Not Sure / Open to Exploration' (`not_clear`)
+Every single-choice question provides an explicit *"Not Sure / Open"* option. When selected:
 - `isNotClear` is set to `true`.
-- The engine assigns a neutral non-penalizing score ($0.75$, or 75% alignment) for that dimension.
-- Undecided students are never penalized for exploring their options.
+- The engine applies a neutral, non-penalizing baseline alignment:
+  $$\text{Similarity}(\text{not\_clear}, T) = 0.75 \quad (75\%)$$
+- Exploratory and undecided students are never penalized for keeping their options open.
 
-### Lifestyle Avoidance & Non-Negotiable Rules
+---
 
-The engine applies intelligent positive and negative adjustments based on the user's lifestyle inputs:
+### Composite Scoring Formula & 5-Component Weights Breakdown
 
-1. **Avoidance Penalties:**
-   - Selecting *Sitting at a desk all day* applies a penalty to desk-bound software and finance roles while boosting field, athletic, and healthcare careers.
-   - Selecting *Extreme stress and very long hours* penalizes careers with `workPressure >= 8` (e.g., Investment Banking, Trauma Surgery).
-   - Selecting *Unstable income or layoffs* prioritizes Indian Civil Services, Railways, PSUs, and Healthcare.
+Every career in the 95-career encyclopedia is evaluated against the user's normalized answers using the master composite formula:
 
-2. **Non-Negotiables Boosts:**
-   - Selecting *Daily Fitness & Health* prioritizes careers with healthy work-life balance scores or athletic components.
-   - Selecting *Scheduled & Predictable Hours* rewards roles with low emergency volatility.
-   - Selecting *Remote Work Flexibility* prioritizes careers with high `remoteOpportunities` scores.
-   - Selecting *Job Security & Income Stability* elevates sovereign public sector and institutional careers.
+$$\text{Total Raw Score} = S_{\text{composite}} + 0.9 \cdot \Delta_{\text{affinity}} + \Delta_{\text{pain}} + \Delta_{\text{ambiguity}} + \Delta_{\text{skills}} + \Delta_{\text{finance}} + \Delta_{\text{medium}} + \Delta_{\text{visibility}} + \Delta_{\text{feedback}} + \Delta_{\text{driver}} + \Delta_{\text{leadership}} + \Delta_{\text{non-negotiables}} + \Delta_{\text{subspec}}$$
 
-3. **Possessed vs. Missing Skill Gap Analysis:**
-   - Compares user's selected skills in Q17 against the career's `essentialTechSkills` and `toolsAndTechnologies`.
-   - Divides skills into `possessedSkills` (immediate natural advantages) and `missingSkills` (skills to develop), empowering students to craft focused learning roadmaps.
+#### The Core Composite Score ($S_{\text{composite}}$)
+The core composite score is normalized on a 0–100 scale across 5 distinct components:
 
-### Archetype Classification & Dynamic Matching
+$$S_{\text{composite}} = 0.35 \cdot S_{\text{domain}} + 0.30 \cdot S_{\text{aptitude}} + 0.15 \cdot S_{\text{workmode}} + 0.10 \cdot S_{\text{salary}} + 0.10 \cdot S_{\text{skills\_ratio}}$$
 
-Users are classified into one of 10 overarching archetype personas:
-- **The Frontier Systems Architect:** High technical orientation, deep logic, scalable digital infrastructure.
-- **The Sovereign Public Administrator:** Government leadership, civil governance, national infrastructure, public welfare.
-- **The Creative Brand Visionary:** Brand strategy, visual storytelling, consumer advertising, design direction.
-- **The Elite Tactical Athlete & Performer:** Athletic competition, sports coaching, high-fashion modeling, screen acting.
-- **The Clinical Healer & Human Care Advocate:** Medicine, surgery, counseling, life-saving patient care.
-- **The High-Conviction Venture Founder:** Extreme ambiguity tolerance, commercial ambition, exponential upside.
-- **The Quantitative Capital Allocator:** Advanced mathematics, financial trading, corporate investment.
-- **The Physical & Industrial Builder:** Civil engineering, robotics, plant operations, clean energy.
-- **The Constitutional & Legal Advocate:** Law courts, judicial policy, compliance, regulatory counsel.
-- **The Independent Maker & Specialist:** Solo craft, autonomy, deep specialization.
+```
+┌────────────────────────────────────────────────────────────────────────┐
+│                   CORE COMPOSITE WEIGHT DISTRIBUTION                   │
+├──────────────────────────────┬────────┬────────────────────────────────┤
+│ Component                    │ Weight │ Evaluates                      │
+├──────────────────────────────┼────────┼────────────────────────────────┤
+│ 1. Domain & Industry Match   │  35%   │ Q18 Preferred Target Sectors   │
+│ 2. Core Cognitive Aptitudes  │  30%   │ Q1 Tech, Q5 Math, Q15 Pressure,│
+│                              │        │ Q12 Continuous Learning        │
+│ 3. Work Environment & Mode   │  15%   │ Q2 Remote, Hybrid, Field, Site │
+│ 4. Salary Trajectory         │  10%   │ Q4 Senior Compensation Ceiling │
+│ 5. Skill Gap Ratio           │  10%   │ Q17 Possessed vs Required      │
+└──────────────────────────────┴────────┴────────────────────────────────┘
+```
+
+#### Detailed Breakdown of the 5 Core Components:
+
+1. **Component 1: Industry & Domain Match ($S_{\text{domain}}$, Weight: 35%)**
+   - If the user selected target industries in Q18:
+     - Exact domain match (e.g., user selected *Cinema* and career is *Film Artist*): $S_{\text{domain}} = 100$.
+     - Explicit mismatch (user picked *Technology* only, career is in *Culinary*): $S_{\text{domain}} = 18$ (significant deprioritization).
+   - If the user left industry preferences open: $S_{\text{domain}} = 55$ (neutral baseline allowing all 95 careers to compete on raw aptitude).
+
+2. **Component 2: Core Cognitive Aptitudes & Difficulty ($S_{\text{aptitude}}$, Weight: 30%)**
+   - Measures multi-dimensional cognitive alignment between the student's comfort and the profession's demands:
+     $$S_{\text{aptitude}} = 100 \cdot \left(0.35 \cdot \text{Sim}_{\text{tech}} + 0.25 \cdot \text{Sim}_{\text{math}} + 0.20 \cdot \text{Sim}_{\text{pressure}} + 0.20 \cdot \text{Sim}_{\text{learning}}\right)$$
+   - Prevents placing math-averse candidates into quantitative finance, or low-ambiguity candidates into early-stage startup engineering.
+
+3. **Component 3: Work Environment & Setting ($S_{\text{workmode}}$, Weight: 15%)**
+   - Maps the career's `remoteOpportunities` rating ($1–10$) against the student's preferred modes in Q2:
+     - **Remote Preference**: $S_{\text{workmode}} = 100$ if `remoteOpportunities >= 8`; $75$ if $\ge 6$; $15$ if $\le 2$ (e.g. airline pilot, surgeon).
+     - **Hybrid Preference**: $S_{\text{workmode}} = 100$ for balanced careers ($4 \le \text{remoteOpp} \le 8$); $65$ otherwise.
+     - **Onsite / Corporate Preference**: $S_{\text{workmode}} = 95$ for corporate headquarters, law firms, and finance floors.
+     - **Active Field Preference**: $S_{\text{workmode}} = 100$ for careers in *Aviation, Sports, Construction, Culinary, Medicine, and Maritime*.
+
+4. **Component 4: Salary & Wealth Trajectory ($S_{\text{salary}}$, Weight: 10%)**
+   - Compares the career's `seniorSalaryMax` against the financial strategy in Q4:
+     - High Earning Upside ($\ge 9$): $100$ if senior pay $\ge \$300\text{k}$; $80$ if $\ge \$220\text{k}$; $40$ if low ceiling.
+     - Government & Stability ($\le 4$): Rewards high-stability public careers ($95$ points for public sector, medicine, research).
+     - Balanced ($5–8$): Optimal scores ($95$ points) for senior pay in the $\$180\text{k}–\$300\text{k}$ band.
+
+5. **Component 5: Skill Gap & Ratio Match ($S_{\text{skills\_ratio}}$, Weight: 10%)**
+   - Tokenizes the career's `essentialTechSkills` array and executes word-boundary fuzzy matching against the user's selected skills in Q17.
+   - Calculates the match ratio:
+     $$\text{SkillRatio} = \frac{|\text{Possessed Skills}|}{|\text{Essential Tech Skills}|}$$
+   - Generates an immediate baseline score ($S_{\text{skills\_ratio}} = \text{SkillRatio} \times 100$).
+
+---
+
+### Contextual Modifiers, Pain Points & Non-Negotiables Engine
+
+Beyond the baseline composite, the algorithm applies fine-grained contextual modifiers that reflect authentic real-world trade-offs:
+
+#### 1. Category Natural Affinities ($\Delta_{\text{affinity}}$, Scaled by $0.9$)
+Directly amplifies or suppresses specific career sectors based on targeted question responses:
+- **Medicine & Healthcare**: Direct boost from Helping & Human Impact ($(\text{helping} - 5) \times 8$).
+- **Technology & Engineering**: Amplified by Technical Orientation ($(\text{tech} - 5) \times 9$) and Math ($(\text{math} - 5) \times 4$).
+- **Creative & Media**: Amplified by Creative Design Aptitude ($(\text{creative} - 5) \times 10$) and Public Visibility ($(\text{visibility} - 5) \times 4$).
+- **Law & Government**: Driven by Governance & Sovereign Service ($(\text{governance} - 5) \times 9$).
+- **Sports & Fitness / Aviation**: Driven by Physical Mastery & Tactical Presence ($(\text{physical} - 5) \times 9$).
+
+#### 2. Lifestyle Avoidance Filters ($\Delta_{\text{pain}}$, Q16)
+Applies targeted penalties or relief boosts based on dealbreakers to avoid:
+- *Sitting at a desk all day*: **$+16$ pts** for active field careers (Aviation, Sports, Built Environment, Culinary); **$-16$ pts** for desk-bound software and finance roles.
+- *Extreme stress & 60+ hour burnout*: **$+10$ pts** for high-WLB careers; **$-14$ pts** for high-pressure roles (`workPressure >= 8`, e.g., Investment Banking, Trauma Surgery).
+- *Constant travel away from family*: **$-18$ pts** for pilots and merchant navy; **$+6$ pts** for remote roles.
+- *Unstable income & layoffs*: **$+8$ pts** for sovereign civil service, healthcare, and high-stability PSUs; **$-10$ pts** for startup founders and day traders.
+
+#### 3. Output Medium, Visibility & Life Purpose Modifiers
+- **Output Medium ($\Delta_{\text{medium}}$)**: Boosts software roles for digital builders ($+14$), industrial plants and PSUs for physical engineering ($+24$), and national rail networks for public logistics ($+24$).
+- **Public Visibility ($\Delta_{\text{visibility}}$)**: Rewards actors, models, and athletes with **$+20$ pts** when seeking the spotlight; applies **$-15$ pts** to backstage roles (DevOps, Data Engineers, Actuaries).
+- **Core Life Purpose ($\Delta_{\text{driver}}$)**: Rewards sovereign public administration with **$+22$ pts** when the primary driver is nation building; rewards creative entertainment with **$+20$ pts** for artistic impact.
+
+#### 4. The Non-Negotiables Guarantee System ($\Delta_{\text{non-negotiables}}$, Q20)
+Non-negotiables represent strict personal requirements. When a career violates a non-negotiable standard, severe penalties ensure it drops out of the top recommendations:
+
+| Non-Negotiable Standard | Required Career Threshold | Fulfilled Boost | Violation Penalty |
+| :--- | :--- | :-: | :-: |
+| **Daily Fitness & Health** | `workLifeBalance >= 6` & `workPressure <= 7` | **$+16$ pts** | **$-26$ pts** |
+| **Scheduled & Predictable Hours** | Predictable schedule; low emergency volatility | **$+18$ pts** | **$-30$ pts** (Surgeons, Bankers) |
+| **High Earning Potential** | `seniorSalaryMax >= $250k` or `entryMax >= $115k` | **$+22$ pts** | **$-25$ pts** (Capped salaries) |
+| **Family & Personal Time** | `workLifeBalance >= 7` & `workPressure <= 6` | **$+18$ pts** | **$-30$ pts** (Pilots, Bankers) |
+| **Remote Work Flexibility** | `remoteOpportunities >= 8` (or $\ge 6$ for hybrid) | **$+22$ pts** | **$-32$ pts** (Strict physical sites) |
+| **Job Security & Stability** | `careerStability >= 8` (PSUs, Civil Services, Health)| **$+16$ pts** | **$-22$ pts** (Founders, Traders) |
+| **Ethical Social Impact** | Medicine, Climate Tech, Education, Public Defence | **$+18$ pts** | Neutral |
+| **Intellectual Autonomy** | High creative/problem-solving freedom | **$+15$ pts** | **$-12$ pts** (Strict compliance) |
+| **Low Stress & Calm Culture** | `workLifeBalance >= 7` & `workPressure <= 5` | **$+18$ pts** | **$-26$ pts** (`workPressure >= 8`) |
+| **Minimal Travel** | Rooted local schedule | **$+10$ pts** | **$-28$ pts** (Aviation, Field Consulting)|
+
+---
+
+### The 17 Archetype Profiles & Classification Scoring Matrix
+
+The algorithm evaluates 17 distinct archetype profiles simultaneously using weighted composite indicators. The highest scoring profile defines the user's primary career identity:
+
+| Archetype Key | Archetype Title | Dominant Drivers & Scoring Formula |
+| :--- | :--- | :--- |
+| `systems` | **The Frontier Systems Architect** | $\text{Tech} \times 3.2 + \text{Math} \times 1.8 + \text{Learning} \times 1.2 + \text{TechIndustry}(+24) + \text{CodingSkills}(+16)$ |
+| `sovereign_leader`| **The Sovereign Administrator & Nation Builder** | $\text{Gov} \times 3.8 + \text{Driver} \times 2.2 + \text{OutputMedium}(+15) + \text{GovIndustry}(+28) + \text{AdminSkills}(+18)$ |
+| `brand_architect` | **The Brand Architect & Consumer Visionary** | $\text{Creative} \times 2.5 + \text{Leadership} \times 2.5 + \text{Visibility} \times 1.8 + \text{BizIndustry}(+26) + \text{BrandSkills}(+18)$ |
+| `screen_artist` | **The Cinematic Screen Artist & Magnetic Performer**| $\text{Creative} \times 3.2 + \text{Visibility} \times 2.5 + \text{Physical} \times 1.8 + \text{CinemaIndustry}(+28) + \text{ActingSkills}(+20)$ |
+| `healer` | **The Compassionate Clinical Healer** | $\text{Helping} \times 4.0 + \text{Physical} \times 1.2 + \text{HealthIndustry}(+28) + \text{MedicalSkills}(+18)$ |
+| `tactical` | **The High-Precision Tactical Operator** | $\text{Physical} \times 3.5 + \text{Pressure} \times 1.2 + \text{AviationIndustry}(+28) + \text{NavSkills}(+18)$ |
+| `justice` | **The Guardian of Justice & Sovereign Policy** | $\text{Gov} \times 4.0 + \text{Leadership} \times 1.5 + \text{LawIndustry}(+28) + \text{LegalSkills}(+16)$ |
+| `capital` | **The Quantitative Capital Allocator** | $\text{Math} \times 2.8 + \text{Finance} \times 2.2 + \text{FinanceIndustry}(+26) + \text{FinanceSkills}(+18)$ |
+| `creative` | **The Expressive Storyteller & Creative Visionary** | $\text{Creative} \times 4.2 + \text{Ambiguity} \times 1.5 + \text{CreativeIndustry}(+28) + \text{ArtSkills}(+18)$ |
+| `founder` | **The High-Conviction Venture Founder** | $\text{Ambiguity} \times 3.0 + \text{Finance} \times 1.8 + \text{Leadership} \times 2.0 + \text{BizIndustry}(+15)$ |
+| `dealmaker` | **The Strategic Commercial Dealmaker** | $\text{Leadership} \times 3.5 + \text{Finance} \times 1.5 + \text{BizIndustry}(+26) + \text{SalesSkills}(+18)$ |
+| `builder` | **The Master Builder & Infrastructure Architect** | $\text{Physical} \times 2.5 + \text{Math} \times 2.0 + \text{BuiltIndustry}(+28) + \text{CADSkills}(+18)$ |
+| `craftsman` | **The Master Craftsman & Performance Optimizer** | $\text{Physical} \times 3.2 + \text{Creative} \times 1.5 + \text{SportsIndustry}(+28) + \text{FitnessSkills}(+18)$ |
+| `academic` | **The Knowledge Pioneer & Academic Mentor** | $\text{Learning} \times 2.8 + \text{Helping} \times 2.0 + \text{EduIndustry}(+28) + \text{ResearchSkills}(+18)$ |
+| `ai_builder` | **The Independent AI Builder & Maker** | $\text{Tech} \times 2.0 + \text{Ambiguity} \times 2.5 + \text{Finance} \times 1.5 + \text{TechIndustry}(+15) + \text{CodeSkills}(+14)$ |
+| `mission_engineer`| **The Mission-Driven Climate & Systems Engineer** | $\text{Driver} \times 2.5 + \text{Tech} \times 1.8 + \text{Math} \times 1.5 + \text{CleanTechIndustry}(+18) + \text{EngSkills}(+12)$ |
+| `public_servant` | **The Dedicated Public Servant & Policy Leader** | $\text{Gov} \times 3.5 + \text{Driver} \times 2.0 + \text{Leadership} \times 1.5 + \text{GovIndustry}(+28) + \text{PolicySkills}(+16)$ |
+
+---
+
+### Sub-Specialization Tiebreaker & Calibration Engine
+
+To prevent "clustering" where all careers in a broad category receive identical scores, CareerFind includes a **micro-specialization discriminator** ($\Delta_{\text{subspec}}$):
+
+- **Technology Sub-specialization**: Distinguishes *Data Scientists* (boosted by statistics + algorithms) from *Cloud Architects* (boosted by distributed electronics + systems) and *DevOps / SRE* (boosted by algorithms + infrastructure) and *Cybersecurity Analysts* (boosted by defensive algorithms and security protocols).
+- **Finance Sub-specialization**: Distinguishes *Actuaries* (boosted by mathematical probability and high stability) from *Investment Bankers* (boosted by financial modeling and high deal velocity) and *Quantitative Traders* (boosted by algorithms and risk appetite).
+- **Business Sub-specialization**: Distinguishes *Brand Managers* (boosted by brand strategy and creative design) from *Supply Chain Directors* (boosted by logistics planning and quantitative workflows).
+
+#### Score Calibration & Percentage Graduation
+After sorting all 95 careers by `totalRawScore` descending, the top 10 positions are calibrated into intuitive, realistic match percentages:
+
+$$\text{CompatibilityScore}(i) = \max\left(68, \min\left(98, \text{round}\left(98 - i \cdot 2.2\right)\right)\right)$$
+
+Where $i \in \{0, 1, \dots, 9\}$ is the index in the ranked list. This produces a smooth, graduated compatibility spread from **98% (Rank #1)** down to **78% (Rank #10)**.
+
+---
+
+### Explainability, Skill Gap Analysis & 'Why Match' Synthesis
+
+CareerFind is committed to **transparent, explainable recommendations**. Every result returned to the student includes:
+
+1. **Dynamically Synthesized 'Why Match' Rationale**:
+   - If non-negotiables were satisfied: `"Protects your non-negotiables (daily fitness & health routines and predictable scheduled hours) while aligning with your technology & engineering aptitudes."`
+   - If specialized craft matched: `"Directly channels your commitment to sovereign governance, large-scale transportation logistics, and commanding Indian Railways infrastructure."`
+
+2. **Actionable Skill Gap Breakdown**:
+   - `possessedSkills`: Skills the student already has that give them an immediate natural advantage.
+   - `missingSkills`: Top 4 high-leverage skills required by the industry that the student needs to develop, empowering them to create targeted learning roadmaps.
 
 ---
 
