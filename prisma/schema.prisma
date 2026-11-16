@@ -75,15 +75,19 @@ model MentorProfile {
 }
 
 model AvailabilitySlot {
-  id              String            @id @default(cuid())
+  id              String             @id @default(cuid())
   mentorProfileId String
-  mentor          MentorProfile     @relation(fields: [mentorProfileId], references: [id], onDelete: Cascade)
-  date            String            // YYYY-MM-DD
-  startTime       String            // HH:MM
-  endTime         String            // HH:MM
-  mode            String            @default("VIRTUAL") // VIRTUAL, IN_PERSON
-  isBooked        Boolean           @default(false)
-  booking         JobShadowBooking?
+  mentor          MentorProfile      @relation(fields: [mentorProfileId], references: [id], onDelete: Cascade)
+  date            String             // YYYY-MM-DD
+  startTime       String             // HH:MM
+  endTime         String             // HH:MM
+  mode            String             @default("VIRTUAL") // VIRTUAL, IN_PERSON
+  sessionType     String             @default("ONE_ON_ONE") // ONE_ON_ONE, WEBINAR, SEMINAR
+  location        String?            // Physical location, or "Virtual" / "Offline"
+  meetingLink     String?            // Google Meet link or meeting ID
+  maxStudents     Int                @default(1) // Up to 50 students
+  isBooked        Boolean            @default(false)
+  bookings        JobShadowBooking[]
 }
 
 model Career {
@@ -163,11 +167,12 @@ model JobShadowBooking {
   student             User              @relation("StudentBookings", fields: [studentId], references: [id], onDelete: Cascade)
   mentorProfileId     String
   mentorProfile       MentorProfile     @relation("MentorBookings", fields: [mentorProfileId], references: [id], onDelete: Cascade)
-  slotId              String?           @unique
+  slotId              String?
   slot                AvailabilitySlot? @relation(fields: [slotId], references: [id], onDelete: SetNull)
   sessionDate         String
   sessionTime         String
   sessionMode         String            @default("VIRTUAL") // VIRTUAL, IN_PERSON
+  sessionType         String?           @default("ONE_ON_ONE") // ONE_ON_ONE, WEBINAR, SEMINAR
   meetingUrl          String?
   meetingLocation     String?
   studentIntroduction String

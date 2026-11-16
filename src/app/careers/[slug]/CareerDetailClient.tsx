@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import VideoModal from '@/components/VideoModal';
 import BookingModal from '@/components/BookingModal';
 import { track, trackError } from '@/lib/telemetry';
@@ -102,6 +103,7 @@ export default function CareerDetailClient({
   relatedVideos,
   relatedMentors,
 }: CareerDetailClientProps) {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [selectedVideo, setSelectedVideo] = useState<any | null>(null);
   const [selectedMentor, setSelectedMentor] = useState<any | null>(null);
@@ -202,13 +204,19 @@ export default function CareerDetailClient({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16 space-y-10">
       {/* Navigation Breadcrumb */}
       <div className="flex items-center justify-between">
-        <Link
-          href="/careers"
-          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors"
+        <button
+          onClick={() => {
+            if (typeof window !== 'undefined' && window.history.length > 1) {
+              router.back();
+            } else {
+              router.push('/careers');
+            }
+          }}
+          className="inline-flex items-center gap-2 text-xs font-semibold text-slate-400 hover:text-white transition-colors cursor-pointer"
         >
           <ArrowLeft className="w-4 h-4" />
-          <span>Back to All Careers</span>
-        </Link>
+          <span>Back</span>
+        </button>
 
         <div className="flex items-center gap-2">
           <button

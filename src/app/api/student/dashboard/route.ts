@@ -65,9 +65,8 @@ export async function GET() {
       }),
       prisma.mentorProfile.findMany({
         where: { isVerified: true },
-        take: 4,
         include: {
-          user: { select: { name: true, avatarUrl: true, headline: true, location: true } },
+          user: { select: { id: true, name: true, avatarUrl: true, headline: true, location: true } },
           availabilitySlots: { where: { isBooked: false } },
         },
       }),
@@ -76,6 +75,71 @@ export async function GET() {
     // Map saved careers with career details
     const savedCareerSlugs = savedCareers.map((s) => s.careerSlug);
     const detailedSavedCareers = allCareers.filter((c) => savedCareerSlugs.includes(c.slug));
+
+    // Recommendation engine for job shadowing mentors based on assessment results
+    let recommendedCareersList: any[] = [];
+    if (assessmentResult?.recommendedCareers) {
+      try {
+        recommendedCareersList = JSON.parse(assessmentResult.recommendedCareers);
+      } catch {
+        recommendedCareersList = [];
+      }
+    }
+
+    const stopWords = new Set(['and', 'or', 'of', 'the', 'in', 'to', 'for', 'a', 'an', '&', 'engineer', 'specialist']);
+
+    const scoredMentors = featuredMentors.map((mentor) => {
+      let score = 0;
+      let matchedCareerTitle: string | null = null;
+      const mentorSearchCorpus = `${mentor.title} ${mentor.industry} ${mentor.company} ${mentor.aboutDayInLife || ''}`.toLowerCase();
+
+      // Check against student's assessment recommended careers
+      for (let i = 0; i < recommendedCareersList.length; i++) {
+        const rec = recommendedCareersList[i];
+        // Priority weight decays with ranking
+        const rankWeight = Math.max(10, 100 - i * 20);
+
+        const careerSlugWords = (rec.careerSlug || '')
+          .toLowerCase()
+          .split('-')
+          .filter((w: string) => w.length > 2 && !stopWords.has(w));
+
+        const careerTitleWords = (rec.title || '')
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((w: string) => w.length > 2 && !stopWords.has(w));
+
+        const wordsToMatch = Array.from(new Set([...careerSlugWords, ...careerTitleWords]));
+
+        let matchesForThisCareer = 0;
+        for (const word of wordsToMatch) {
+          if (mentorSearchCorpus.includes(word)) {
+            matchesForThisCareer++;
+          }
+        }
+
+        if (matchesForThisCareer > 0) {
+          score += rankWeight * matchesForThisCareer;
+          if (!matchedCareerTitle) {
+            matchedCareerTitle = rec.title || rec.careerSlug;
+          }
+        }
+      }
+
+      return {
+        ...mentor,
+        recommendationScore: score,
+        matchedCareerTitle,
+      };
+    });
+
+    // Sort by recommendation score first, then rating
+    scoredMentors.sort((a, b) => {
+      if (b.recommendationScore !== a.recommendationScore) {
+        return b.recommendationScore - a.recommendationScore;
+      }
+      return (b.rating || 0) - (a.rating || 0);
+    });
 
     // Map bookmarked videos
     const videoIds = bookmarkedVideos.map((b) => b.videoId);
@@ -107,7 +171,7 @@ export async function GET() {
       savedCareers: detailedSavedCareers,
       bookmarkedVideos: detailedVideos,
       bookings,
-      featuredMentors,
+      featuredMentors: scoredMentors,
       progressScore,
     });
   } catch (error: any) {

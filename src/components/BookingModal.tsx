@@ -13,6 +13,7 @@ import {
   AlertCircle,
   Sparkles,
   ExternalLink,
+  Users,
 } from 'lucide-react';
 import Link from 'next/link';
 
@@ -34,7 +35,27 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
 
   if (!isOpen || !mentor) return null;
 
-  const slots = mentor.availabilitySlots || [];
+  const allSlots = mentor.availabilitySlots || [];
+
+  // Requirement 4: Session Type Filtering
+  // - If a student selects in-person, show only in-person and seminar dates.
+  // - If a student selects virtual, show only virtual and webinar dates.
+  const filteredSlots = allSlots.filter((slot: any) => {
+    if (slot.isBooked) return false;
+    const mode = (slot.mode || '').toUpperCase();
+    const type = (slot.sessionType || '').toUpperCase();
+    if (sessionMode === 'IN_PERSON') {
+      return mode === 'IN_PERSON' || type === 'SEMINAR';
+    } else {
+      return mode === 'VIRTUAL' || type === 'WEBINAR' || (!mode && !type);
+    }
+  });
+
+  const handleModeChange = (newMode: 'VIRTUAL' | 'IN_PERSON') => {
+    setSessionMode(newMode);
+    setSelectedSlotId('');
+    setErrorMsg(null);
+  };
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,9 +76,17 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
       return;
     }
 
+    const chosenSlot = allSlots.find((s: any) => s.id === selectedSlotId);
+
     try {
       setLoading(true);
-      track('booking_submitted', { mentorId: mentor.id, sessionMode, slotId: selectedSlotId });
+      track('booking_submitted', {
+        mentorId: mentor.id,
+        sessionMode,
+        sessionType: chosenSlot?.sessionType,
+        slotId: selectedSlotId,
+      });
+
       const res = await fetch('/api/shadowing/book', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -65,6 +94,7 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
           mentorProfileId: mentor.id,
           slotId: selectedSlotId,
           sessionMode,
+          sessionType: chosenSlot?.sessionType || (sessionMode === 'IN_PERSON' ? 'IN_PERSON' : 'VIRTUAL'),
           studentIntroduction,
         }),
       });
@@ -148,21 +178,27 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
                   </span>
                 </div>
                 <div className="flex justify-between py-1 border-b border-slate-700/60">
-                  <span className="text-slate-400">Format:</span>
-                  <span className="font-semibold text-indigo-300">
-                    {confirmationData.sessionMode === 'VIRTUAL' ? 'Virtual (Video Call)' : 'In-Person Shadowing'}
+                  <span className="text-slate-400">Session Type:</span>
+                  <span className="font-semibold text-indigo-300 capitalize">
+                    {confirmationData.sessionType === 'WEBINAR'
+                      ? 'Webinar (Virtual)'
+                      : confirmationData.sessionType === 'SEMINAR'
+                      ? 'Seminar (In-Person)'
+                      : confirmationData.sessionMode === 'VIRTUAL'
+                      ? 'Virtual 1-on-1'
+                      : 'In-Person 1-on-1'}
                   </span>
                 </div>
                 {confirmationData.meetingUrl && (
-                  <div className="flex justify-between py-1 items-center">
-                    <span className="text-slate-400">Meeting Room:</span>
+                  <div className="flex justify-between py-1 items-center border-b border-slate-700/60">
+                    <span className="text-slate-400">Google Meet Link:</span>
                     <a
-                      href={confirmationData.meetingUrl}
+                      href={confirmationData.meetingUrl.startsWith('http') ? confirmationData.meetingUrl : `https://${confirmationData.meetingUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-indigo-400 hover:underline font-mono text-[11px] flex items-center gap-1"
                     >
-                      Join Link <ExternalLink className="w-3 h-3" />
+                      Join Meeting <ExternalLink className="w-3 h-3" />
                     </a>
                   </div>
                 )}
@@ -203,44 +239,42 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
               {/* Mode Selection */}
               <div>
                 <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-2">
-                  Session Mode
+                  Session Mode (Filtering Dates)
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                   <button
                     type="button"
-                    disabled={!mentor.offersVirtual}
-                    onClick={() => setSessionMode('VIRTUAL')}
+                    onClick={() => handleModeChange('VIRTUAL')}
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       sessionMode === 'VIRTUAL'
                         ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm shadow-indigo-500/10'
                         : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-800'
-                    } ${!mentor.offersVirtual ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    }`}
                   >
                     <div className="flex items-center gap-2 font-semibold text-xs mb-1">
                       <Video className="w-4 h-4 text-indigo-400" />
-                      <span>Virtual Shadowing</span>
+                      <span>Virtual & Webinar</span>
                     </div>
                     <p className="text-[11px] text-slate-400">
-                      Join screen-sharing, code reviews, or team sprints remotely.
+                      Shows virtual 1-on-1 calls and group webinars.
                     </p>
                   </button>
 
                   <button
                     type="button"
-                    disabled={!mentor.offersInPerson}
-                    onClick={() => setSessionMode('IN_PERSON')}
+                    onClick={() => handleModeChange('IN_PERSON')}
                     className={`p-3 rounded-2xl border text-left transition-all ${
                       sessionMode === 'IN_PERSON'
                         ? 'bg-indigo-600/20 border-indigo-500 text-white shadow-sm shadow-indigo-500/10'
                         : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-800'
-                    } ${!mentor.offersInPerson ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    }`}
                   >
                     <div className="flex items-center gap-2 font-semibold text-xs mb-1">
                       <MapPin className="w-4 h-4 text-emerald-400" />
-                      <span>In-Person Shadowing</span>
+                      <span>In-Person & Seminar</span>
                     </div>
                     <p className="text-[11px] text-slate-400">
-                      {mentor.inPersonLocation ? mentor.inPersonLocation : 'Corporate campus / lab visit'}
+                      Shows in-person visits and physical seminars.
                     </p>
                   </button>
                 </div>
@@ -248,43 +282,84 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
 
               {/* Slot Selection */}
               <div>
-                <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block mb-2">
-                  Select Available Time Slot
-                </label>
-                {slots.length === 0 ? (
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-xs font-semibold text-slate-300 uppercase tracking-wider block">
+                    Available Dates ({filteredSlots.length})
+                  </label>
+                  <span className="text-[10px] text-slate-400">
+                    Showing {sessionMode === 'IN_PERSON' ? 'in-person & seminar dates' : 'virtual & webinar dates'}
+                  </span>
+                </div>
+
+                {filteredSlots.length === 0 ? (
                   <div className="p-4 rounded-xl bg-slate-800/60 border border-slate-700 text-center text-xs text-slate-400">
-                    No available time slots listed right now. Check back soon or request a new slot.
+                    No available {sessionMode === 'IN_PERSON' ? 'in-person or seminar' : 'virtual or webinar'} slots listed for this mentor right now.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-48 overflow-y-auto pr-1">
-                    {slots.map((slot: any) => {
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-1">
+                    {filteredSlots.map((slot: any) => {
                       const isSelected = selectedSlotId === slot.id;
+                      const isWebinar = slot.sessionType === 'WEBINAR';
+                      const isSeminar = slot.sessionType === 'SEMINAR';
                       return (
                         <button
                           key={slot.id}
                           type="button"
                           onClick={() => setSelectedSlotId(slot.id)}
-                          className={`p-3 rounded-xl border text-left transition-all flex items-center justify-between ${
+                          className={`p-3 rounded-xl border text-left transition-all flex flex-col gap-1.5 ${
                             isSelected
                               ? 'bg-indigo-600/30 border-indigo-400 text-white ring-1 ring-indigo-400'
                               : 'bg-slate-800/60 border-slate-700 text-slate-300 hover:bg-slate-800 hover:border-slate-600'
                           }`}
                         >
-                          <div className="space-y-0.5">
-                            <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center gap-1.5 text-xs font-bold text-white">
                               <Calendar className="w-3.5 h-3.5 text-indigo-400" />
                               <span>{slot.date}</span>
                             </div>
-                            <div className="flex items-center gap-1 text-[11px] text-slate-400">
+                            <span
+                              className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                isWebinar
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                  : isSeminar
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  : slot.mode === 'IN_PERSON'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                              }`}
+                            >
+                              {isWebinar
+                                ? 'Webinar'
+                                : isSeminar
+                                ? 'Seminar'
+                                : slot.mode === 'IN_PERSON'
+                                ? 'In-Person'
+                                : 'Virtual'}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between text-[11px] text-slate-400 w-full">
+                            <div className="flex items-center gap-1 font-mono">
                               <Clock className="w-3 h-3" />
                               <span>
                                 {slot.startTime} - {slot.endTime}
                               </span>
                             </div>
+
+                            {(isWebinar || isSeminar) && (
+                              <span className="flex items-center gap-1 text-[10px] text-slate-300">
+                                <Users className="w-3 h-3 text-indigo-400" />
+                                <span>Max {slot.maxStudents || 50}</span>
+                              </span>
+                            )}
                           </div>
-                          <span className="text-[10px] px-2 py-0.5 rounded bg-slate-800 border border-slate-700 text-slate-300">
-                            {slot.mode}
-                          </span>
+
+                          {slot.location && (
+                            <div className="text-[10px] text-slate-400 flex items-center gap-1 truncate">
+                              <MapPin className="w-3 h-3 text-slate-500 shrink-0" />
+                              <span className="truncate">{slot.location}</span>
+                            </div>
+                          )}
                         </button>
                       );
                     })}
@@ -305,7 +380,7 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
                   required
                   value={studentIntroduction}
                   onChange={(e) => setStudentIntroduction(e.target.value)}
-                  placeholder="e.g. I am a 3rd-year CS student passionate about distributed systems. I would love to observe how you triage production incidents and design data architectures..."
+                  placeholder="e.g. I am an undergraduate student passionate about this career path. I would love to observe your daily workflow and learn about career opportunities..."
                   className="w-full px-3.5 py-2.5 rounded-xl bg-slate-950/80 border border-slate-700 text-slate-100 placeholder-slate-500 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
@@ -339,7 +414,7 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
                 </button>
                 <button
                   type="submit"
-                  disabled={loading || slots.length === 0}
+                  disabled={loading || filteredSlots.length === 0}
                   className="px-6 py-2.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/30 transition-all flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {loading ? (
@@ -347,7 +422,7 @@ export default function BookingModal({ mentor, isOpen, onClose, onSuccess }: Boo
                   ) : (
                     <>
                       <Sparkles className="w-3.5 h-3.5" />
-                      <span>Confirm & Book Job Shadow</span>
+                      <span>Confirm & Book Session</span>
                     </>
                   )}
                 </button>

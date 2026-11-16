@@ -22,9 +22,15 @@ export async function GET(req: Request) {
     }
 
     if (mode === 'virtual') {
-      where.offersVirtual = true;
+      where.OR = [
+        { offersVirtual: true },
+        { availabilitySlots: { some: { OR: [{ mode: 'VIRTUAL' }, { sessionType: 'WEBINAR' }] } } },
+      ];
     } else if (mode === 'in_person') {
-      where.offersInPerson = true;
+      where.OR = [
+        { offersInPerson: true },
+        { availabilitySlots: { some: { OR: [{ mode: 'IN_PERSON' }, { sessionType: 'SEMINAR' }] } } },
+      ];
     }
 
     if (isPaid === 'free') {

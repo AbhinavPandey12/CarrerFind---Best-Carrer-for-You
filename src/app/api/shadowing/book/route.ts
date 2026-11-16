@@ -73,15 +73,16 @@ export async function POST(req: Request) {
 
     // Create booking
     const mode = sessionMode || slot.mode || 'VIRTUAL';
+    const sessionType = slot.sessionType || (mode === 'IN_PERSON' ? 'IN_PERSON' : 'VIRTUAL');
     const randomHash = Math.random().toString(36).substring(2, 7);
     const meetingUrl =
-      mode === 'VIRTUAL'
-        ? `https://meet.google.com/cfs-${randomHash}-shadow`
+      (mode === 'VIRTUAL' || sessionType === 'WEBINAR')
+        ? (slot.meetingLink || `https://meet.google.com/cfs-${randomHash}-shadow`)
         : null;
     const meetingLocation =
-      mode === 'IN_PERSON'
-        ? slot.mentor.inPersonLocation || `${slot.mentor.company} Headquarters`
-        : null;
+      (mode === 'IN_PERSON' || sessionType === 'SEMINAR')
+        ? (slot.location || slot.mentor.inPersonLocation || `${slot.mentor.company} Headquarters`)
+        : (slot.location || null);
 
     const booking = await prisma.jobShadowBooking.create({
       data: {
@@ -91,6 +92,7 @@ export async function POST(req: Request) {
         sessionDate: slot.date,
         sessionTime: `${slot.startTime} - ${slot.endTime}`,
         sessionMode: mode,
+        sessionType,
         meetingUrl,
         meetingLocation,
         studentIntroduction,

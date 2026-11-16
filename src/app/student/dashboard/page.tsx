@@ -21,6 +21,8 @@ import {
   Video as VideoIcon,
   ChevronRight,
   User,
+  Trash2,
+  AlertCircle,
 } from 'lucide-react';
 import BookingModal from '@/components/BookingModal';
 
@@ -28,6 +30,54 @@ export default function StudentDashboardPage() {
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [selectedMentor, setSelectedMentor] = useState<any | null>(null);
+  const [cancellingBookingId, setCancellingBookingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
+
+  const isSessionWithinThreeDays = (sessionDate: string, sessionTime?: string) => {
+    try {
+      const [year, month, day] = sessionDate.split('-').map(Number);
+      let hours = 0;
+      let minutes = 0;
+      if (sessionTime) {
+        const match = sessionTime.match(/(\d{1,2}):(\d{2})/);
+        if (match) {
+          hours = parseInt(match[1], 10);
+          minutes = parseInt(match[2], 10);
+        }
+      }
+      const sessionDateTime = new Date(year, month - 1, day, hours, minutes);
+      const now = new Date();
+      const diffMs = sessionDateTime.getTime() - now.getTime();
+      const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+      return diffMs <= threeDaysMs;
+    } catch {
+      return true;
+    }
+  };
+
+  const handleCancelBooking = async (bookingId: string) => {
+    if (!window.confirm('Are you sure you want to cancel and delete this job shadowing session?')) {
+      return;
+    }
+    try {
+      setCancellingBookingId(bookingId);
+      setCancelError(null);
+      const res = await fetch(`/api/student/bookings?id=${bookingId}`, {
+        method: 'DELETE',
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        throw new Error(json.error || 'Failed to cancel session');
+      }
+      track('student_booking_cancelled', { bookingId });
+      fetchDashboard();
+    } catch (err: any) {
+      setCancelError(err.message || 'Failed to cancel session');
+      console.error(err);
+    } finally {
+      setCancellingBookingId(null);
+    }
+  };
 
   const fetchDashboard = async () => {
     try {
@@ -229,6 +279,13 @@ export default function StudentDashboardPage() {
               </Link>
             </div>
 
+            {cancelError && (
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+                <span>{cancelError}</span>
+              </div>
+            )}
+
             {upcomingBookings.length === 0 ? (
               <div className="text-center py-8 rounded-2xl bg-slate-900/40 border border-slate-800/80 space-y-2">
                 <p className="text-xs text-slate-400">No upcoming shadowing sessions scheduled.</p>
@@ -241,60 +298,109 @@ export default function StudentDashboardPage() {
               </div>
             ) : (
               <div className="space-y-3">
-                {upcomingBookings.map((b: any) => (
-                  <div
-                    key={b.id}
-                    className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-                  >
-                    <div className="flex items-center gap-3.5">
-                      <img
-                        src={b.mentorProfile?.user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
-                        alt={b.mentorProfile?.user?.name}
-                        className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
-                      />
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <h4 className="text-xs sm:text-sm font-bold text-white">
-                            {b.mentorProfile?.user?.name}
-                          </h4>
-                          <span
-                            className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
-                              b.status === 'APPROVED'
-                                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
-                                : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                {upcomingBookings.map((b: any) => {
+                  const withinThreeDays = isSessionWithinThreeDays(b.sessionDate, b.sessionTime);
+                  return (
+                    <div
+                      key={b.id}
+                      className="p-4 sm:p-5 rounded-2xl bg-slate-900/70 border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <img
+                          src={b.mentorProfile?.user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
+                          alt={b.mentorProfile?.user?.name}
+                          className="w-12 h-12 rounded-2xl object-cover border border-slate-700"
+                        />
+                        <div className="space-y-0.5">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-xs sm:text-sm font-bold text-white">
+                              {b.mentorProfile?.user?.name}
+                            </h4>
+                            <span
+                              className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                b.status === 'APPROVED'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                              }`}
+                            >
+                              {b.status}
+                            </span>
+                            <span
+                              className={`text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                b.sessionType === 'WEBINAR'
+                                  ? 'bg-purple-500/20 text-purple-300 border border-purple-500/30'
+                                  : b.sessionType === 'SEMINAR'
+                                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                                  : b.sessionMode === 'IN_PERSON'
+                                  ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30'
+                                  : 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                              }`}
+                            >
+                              {b.sessionType === 'WEBINAR'
+                                ? 'Webinar'
+                                : b.sessionType === 'SEMINAR'
+                                ? 'Seminar'
+                                : b.sessionMode === 'IN_PERSON'
+                                ? 'In-Person'
+                                : 'Virtual'}
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-slate-400">
+                            {b.mentorProfile?.title} @ {b.mentorProfile?.company}
+                          </p>
+                          <p className="text-[11px] text-indigo-300 font-medium">
+                            {b.sessionDate} • {b.sessionTime}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2.5 self-stretch sm:self-center justify-end">
+                        {b.meetingUrl ? (
+                          <a
+                            href={b.meetingUrl.startsWith('http') ? b.meetingUrl : `https://${b.meetingUrl}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm flex items-center justify-center gap-1.5"
+                          >
+                            <span>Join Meeting</span>
+                            <ExternalLink className="w-3.5 h-3.5" />
+                          </a>
+                        ) : (
+                          <span className="text-[11px] text-slate-400">
+                            {b.meetingLocation || 'Location details sent to email'}
+                          </span>
+                        )}
+
+                        {/* Cancellation button: disabled within 3 days */}
+                        <div className="flex flex-col items-end">
+                          <button
+                            type="button"
+                            disabled={withinThreeDays || cancellingBookingId === b.id}
+                            onClick={() => handleCancelBooking(b.id)}
+                            title={
+                              withinThreeDays
+                                ? 'Deletion is allowed only up to 3 days before the session date'
+                                : 'Cancel and delete this job shadowing session'
+                            }
+                            className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all ${
+                              withinThreeDays
+                                ? 'opacity-40 cursor-not-allowed bg-slate-800/60 text-slate-500 border border-slate-700/60'
+                                : 'bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/30'
                             }`}
                           >
-                            {b.status}
-                          </span>
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>{cancellingBookingId === b.id ? 'Cancelling...' : 'Cancel Session'}</span>
+                          </button>
+                          {withinThreeDays && (
+                            <span className="text-[9px] text-slate-500 font-medium mt-0.5">
+                              Disabled (&le; 3 days away)
+                            </span>
+                          )}
                         </div>
-                        <p className="text-[11px] text-slate-400">
-                          {b.mentorProfile?.title} @ {b.mentorProfile?.company}
-                        </p>
-                        <p className="text-[11px] text-indigo-300 font-medium">
-                          {b.sessionDate} • {b.sessionTime} ({b.sessionMode})
-                        </p>
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 self-stretch sm:self-center justify-end sm:justify-start">
-                      {b.meetingUrl ? (
-                        <a
-                          href={b.meetingUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm flex items-center justify-center gap-1.5 w-full sm:w-auto"
-                        >
-                          <span>Join Meeting</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
-                        </a>
-                      ) : (
-                        <span className="text-[11px] text-slate-400">
-                          {b.meetingLocation || 'Location details sent to email'}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>
@@ -419,29 +525,38 @@ export default function StudentDashboardPage() {
             </div>
 
             <div className="space-y-3">
-              {featuredMentors.slice(0, 3).map((m: any) => (
+              {featuredMentors.slice(0, 4).map((m: any) => (
                 <div
                   key={m.id}
-                  className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex items-center justify-between gap-3"
+                  className="p-3.5 rounded-2xl bg-slate-900/60 border border-slate-800 flex flex-col gap-2.5"
                 >
-                  <div className="flex items-center gap-2.5">
-                    <img
-                      src={m.user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
-                      alt={m.user?.name}
-                      className="w-10 h-10 rounded-xl object-cover border border-slate-700"
-                    />
-                    <div>
-                      <h4 className="text-xs font-bold text-white">{m.user?.name}</h4>
-                      <p className="text-[10px] text-slate-400">{m.title} @ {m.company}</p>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <img
+                        src={m.user?.avatarUrl || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&auto=format&fit=crop&q=80'}
+                        alt={m.user?.name}
+                        className="w-10 h-10 rounded-xl object-cover border border-slate-700"
+                      />
+                      <div>
+                        <h4 className="text-xs font-bold text-white">{m.user?.name}</h4>
+                        <p className="text-[10px] text-slate-400">{m.title} @ {m.company}</p>
+                      </div>
                     </div>
+
+                    <button
+                      onClick={() => setSelectedMentor(m)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm shrink-0"
+                    >
+                      Shadow
+                    </button>
                   </div>
 
-                  <button
-                    onClick={() => setSelectedMentor(m)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-sm"
-                  >
-                    Shadow
-                  </button>
+                  {m.matchedCareerTitle && (
+                    <div className="flex items-center gap-1.5 text-[10px] font-medium text-emerald-300 bg-emerald-950/40 border border-emerald-500/20 px-2.5 py-1 rounded-xl">
+                      <Sparkles className="w-3 h-3 text-emerald-400 shrink-0" />
+                      <span className="truncate">Matches assessment: <strong>{m.matchedCareerTitle}</strong></span>
+                    </div>
+                  )}
                 </div>
               ))}
             </div>

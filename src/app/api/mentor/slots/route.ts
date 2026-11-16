@@ -69,12 +69,33 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid JSON request body' }, { status: 400 });
     }
 
-    const { date, startTime, endTime, mode } = body;
+    const { date, startTime, endTime, mode, sessionType, location, meetingLink, maxStudents } = body;
 
     if (!date || !startTime || !endTime) {
       log.warn('Slots POST: missing required fields', { hasDate: !!date, hasStartTime: !!startTime, hasEndTime: !!endTime });
       return NextResponse.json({ error: 'Date, start time, and end time are required' }, { status: 400 });
     }
+
+    const effectiveType = sessionType === 'WEBINAR' || sessionType === 'SEMINAR' ? sessionType : 'ONE_ON_ONE';
+    const effectiveMode = (sessionType === 'WEBINAR' ? 'VIRTUAL' : sessionType === 'SEMINAR' ? 'IN_PERSON' : mode || 'VIRTUAL').toUpperCase();
+
+    // If session is virtual, require Google Meet link or meeting ID
+    if (effectiveMode === 'VIRTUAL' || effectiveType === 'WEBINAR') {
+      if (!meetingLink || typeof meetingLink !== 'string' || !meetingLink.trim()) {
+        log.warn('Slots POST: missing required Google Meet link or meeting ID for virtual session');
+        return NextResponse.json({ error: 'Google Meet link or meeting ID is required for virtual sessions' }, { status: 400 });
+      }
+    }
+
+    // Max students (up to 50 for webinar / seminar)
+    let parsedMaxStudents = 1;
+    if (effectiveType === 'WEBINAR' || effectiveType === 'SEMINAR') {
+      parsedMaxStudents = Math.min(50, Math.max(1, parseInt(maxStudents, 10) || 50));
+    }
+
+    const effectiveLocation = location && location.trim()
+      ? location.trim()
+      : (effectiveMode === 'VIRTUAL' ? 'Virtual' : 'In-Person / Offline');
 
     const newSlot = await prisma.availabilitySlot.create({
       data: {
@@ -82,7 +103,11 @@ export async function POST(req: Request) {
         date,
         startTime,
         endTime,
-        mode: mode || 'VIRTUAL',
+        mode: effectiveMode,
+        sessionType: effectiveType,
+        location: effectiveLocation,
+        meetingLink: meetingLink ? meetingLink.trim() : null,
+        maxStudents: parsedMaxStudents,
         isBooked: false,
       },
     });
