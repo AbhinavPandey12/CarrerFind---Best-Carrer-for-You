@@ -196,26 +196,19 @@ export default function AssessmentPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-16">
+    <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${!resultData ? 'py-4 sm:py-6' : 'py-10 sm:py-16'}`}>
       {!resultData ? (
         /* WIZARD QUESTIONNAIRE */
-        <div className="max-w-3xl mx-auto space-y-8">
-          {/* Header */}
-          <div className="text-center space-y-2">
-            <div className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full glass-panel border border-indigo-500/30 text-indigo-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Intelligent Career Recommendation Engine</span>
-            </div>
-            <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
-              Interactive Career Assessment
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
-              Answer {totalSteps} targeted questions across technical systems, patient care, public governance, creative arts, and tactical operations to discover your personalized compatibility.
+        <div className="max-w-3xl mx-auto space-y-3 sm:space-y-4">
+          {/* Header - Single short, concise one-line description */}
+          <div className="text-center">
+            <p className="text-xs sm:text-sm text-slate-400 max-w-xl mx-auto">
+              Answer {totalSteps} focused questions to discover your personalized career matches and detailed compatibility analysis.
             </p>
           </div>
 
           {/* Progress Bar */}
-          <div className="p-4 rounded-2xl glass-panel border border-slate-800 space-y-2">
+          <div className="p-3 sm:p-3.5 rounded-xl glass-panel border border-slate-800 space-y-1.5">
             <div className="flex items-center justify-between text-xs text-slate-300">
               <span className="font-semibold text-white">
                 Step {currentStepIndex + 1} of {totalSteps}: {currentQuestion.category}
@@ -231,35 +224,35 @@ export default function AssessmentPage() {
           </div>
 
           {/* Current Question Card */}
-          <div className="p-4 sm:p-8 md:p-10 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+          <div className="p-4 sm:p-6 rounded-2xl glass-panel border border-slate-800 space-y-4 animate-in fade-in zoom-in-95 duration-200">
             {errorMsg && (
-              <div className="p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
+              <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
                 <span>{errorMsg}</span>
               </div>
             )}
             <div className="space-y-1">
-              <span className="text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
-                Question {currentStepIndex + 1}
+              <span className="text-[10px] sm:text-[11px] font-bold text-indigo-400 uppercase tracking-wider block">
+                Question {currentStepIndex + 1} of {totalSteps}
               </span>
-              <h2 className="text-lg sm:text-2xl font-bold text-white leading-snug">
+              <h2 className="text-base sm:text-xl font-bold text-white leading-snug">
                 {currentQuestion.title}
               </h2>
-              <p className="text-xs sm:text-sm text-slate-400">{currentQuestion.description}</p>
+              <p className="text-xs text-slate-400">{currentQuestion.description}</p>
             </div>
 
             {/* Multiple Selections Supported Notice */}
-            <div className="flex items-start sm:items-center gap-2.5 px-3.5 py-2.5 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 text-xs">
-              <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5 sm:mt-0" />
-              <p className="leading-relaxed">
-                <strong className="text-white font-semibold">Multiple Selections Supported:</strong> You can select multiple options that match your preferences. The recommendation algorithm properly evaluates and factors all your selected choices into your compatibility matches.
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-indigo-950/40 border border-indigo-500/20 text-indigo-200 text-xs">
+              <CheckCircle2 className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+              <p className="text-[11px] text-indigo-300 leading-normal">
+                <strong className="text-white font-semibold">Multiple selections supported:</strong> Select all options that match your preferences.
               </p>
             </div>
 
             {/* Render Question Input Type */}
             {currentQuestion.isMultiSelect ? (
               /* Multi Select Pills */
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                 {currentQuestion.skills?.map((item) => {
                   const key = currentQuestion.id as keyof AssessmentAnswerState;
                   const isChecked = ((answers[key] as string[]) || []).includes(item);
@@ -268,7 +261,7 @@ export default function AssessmentPage() {
                       key={item}
                       type="button"
                       onClick={() => handleMultiSelectToggle(item)}
-                      className={`p-3.5 rounded-2xl border text-left text-xs font-medium transition-all flex items-center justify-between ${
+                      className={`p-2.5 sm:p-3 rounded-xl border text-left text-xs font-medium transition-all flex items-center justify-between ${
                         isChecked
                           ? 'bg-indigo-600/30 border-indigo-400 text-white ring-1 ring-indigo-400'
                           : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
@@ -282,7 +275,7 @@ export default function AssessmentPage() {
               </div>
             ) : (
               /* Option Cards (Multi-Select & Not Clear Supported) */
-              <div className="space-y-3 pt-2">
+              <div className="space-y-2 pt-1">
                 {currentQuestion.options?.map((opt: any) => {
                   const currentVal = answers[currentQuestion.id as keyof AssessmentAnswerState];
                   const isSelected = Array.isArray(currentVal)
@@ -293,26 +286,26 @@ export default function AssessmentPage() {
                       key={opt.label}
                       type="button"
                       onClick={() => handleSingleSelect(opt.value)}
-                      className={`w-full p-4 rounded-2xl border text-left transition-all flex items-start justify-between ${
+                      className={`w-full p-2.5 sm:p-3 rounded-xl border text-left transition-all flex items-start justify-between ${
                         isSelected
                           ? 'bg-indigo-600/25 border-indigo-400 text-white ring-1 ring-indigo-400 shadow-md shadow-indigo-500/10'
                           : 'bg-slate-900/60 border-slate-800 text-slate-300 hover:bg-slate-800 hover:border-slate-700'
                       }`}
                     >
-                      <div className="space-y-1">
-                        <span className="text-xs sm:text-sm font-bold text-white block">
+                      <div className="space-y-0.5">
+                        <span className="text-xs sm:text-sm font-semibold text-white block">
                           {opt.label}
                         </span>
-                        <p className="text-[11px] sm:text-xs text-slate-400 leading-relaxed">
+                        <p className="text-[11px] sm:text-xs text-slate-400 leading-snug">
                           {opt.description}
                         </p>
                       </div>
                       <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ${
+                        className={`w-4 h-4 rounded-full border flex items-center justify-center shrink-0 mt-0.5 ml-2 ${
                           isSelected ? 'border-indigo-400 bg-indigo-500' : 'border-slate-700'
                         }`}
                       >
-                        {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
                       </div>
                     </button>
                   );
@@ -321,14 +314,14 @@ export default function AssessmentPage() {
             )}
 
             {/* Navigation Buttons */}
-            <div className="flex items-center justify-between pt-6 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
               <button
                 type="button"
                 onClick={handleBack}
                 disabled={currentStepIndex === 0}
-                className="px-4 py-2.5 rounded-xl text-xs font-medium text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5"
+                className="px-3.5 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed flex items-center gap-1.5"
               >
-                <ArrowLeft className="w-4 h-4" />
+                <ArrowLeft className="w-3.5 h-3.5" />
                 <span>Previous</span>
               </button>
 
@@ -336,19 +329,19 @@ export default function AssessmentPage() {
                 type="button"
                 onClick={handleNext}
                 disabled={loading}
-                className="px-6 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 hover:scale-[1.02]"
+                className="px-5 py-2 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/30 transition-all flex items-center gap-2 hover:scale-[1.02]"
               >
                 {loading ? (
                   <span>Computing Alignment...</span>
                 ) : currentStepIndex === totalSteps - 1 ? (
                   <>
-                    <Sparkles className="w-4 h-4" />
+                    <Sparkles className="w-3.5 h-3.5" />
                     <span>Generate Career Matches</span>
                   </>
                 ) : (
                   <>
                     <span>Next Question</span>
-                    <ArrowRight className="w-4 h-4" />
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </>
                 )}
               </button>
