@@ -39,6 +39,7 @@ export default function AssessmentPage() {
     helpingAndHumanImpact: [],
     creativeDesignAptitude: [],
     physicalDexterityTacticalCraft: [],
+    technicalPracticalBalance: [],
     governanceLawPublicService: [],
     continuousLearning: [],
     feedbackHorizon: [],

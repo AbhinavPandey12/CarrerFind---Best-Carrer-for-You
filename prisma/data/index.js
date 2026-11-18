@@ -11,6 +11,7 @@ const creativeCareers = require('./creativeCareers');
 const aviationMaritimeCareers = require('./aviationMaritimeCareers');
 const eduHospitalitySportsCareers = require('./eduHospitalitySportsCareers');
 const newExtensionCareers = require('./newExtensionCareers');
+const newRolesCareers = require('./newRolesCareers');
 
 const allCareers = [
   ...coreSplitCareers,
@@ -26,6 +27,7 @@ const allCareers = [
   ...aviationMaritimeCareers,
   ...eduHospitalitySportsCareers,
   ...newExtensionCareers,
+  ...newRolesCareers,
 ];
 
 module.exports = { allCareers };

@@ -62,6 +62,13 @@ export default function VideosPage() {
   const playlists = [
     { id: 'all', title: 'All Documentaries' },
     { id: 'ai-ml-engineer', title: 'AI & Machine Learning' },
+    { id: 'industrial-automation-controls-engineer', title: 'Industrial Automation & Controls' },
+    { id: 'forward-deployed-ai-robotics-engineer', title: 'Forward Deployed AI & Robotics' },
+    { id: 'renewable-energy-project-developer', title: 'Renewable Energy Development' },
+    { id: 'medical-technology-application-specialist', title: 'MedTech Application Specialist' },
+    { id: 'smart-buildings-energy-automation-consultant', title: 'Smart Buildings & Energy' },
+    { id: 'ai-product-manager', title: 'AI Product Management' },
+    { id: 'forward-deployed-engineer', title: 'Forward Deployed Engineer (FDE)' },
     { id: 'doctor-physician', title: 'Inpatient Medicine' },
     { id: 'surgeon', title: 'Trauma & General Surgery' },
     { id: 'airline-pilot', title: 'Commercial Airline Cockpit' },

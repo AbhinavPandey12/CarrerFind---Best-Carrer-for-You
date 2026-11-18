@@ -38,12 +38,14 @@ export default function JobShadowingPage() {
   const industries = [
     'All',
     'Artificial Intelligence',
-    'Medicine & Healthcare',
+    'Industrial Automation, Controls & Robotics',
+    'Renewable Energy & CleanTech',
+    'Medicine & Medical Technology',
+    'Smart Buildings, Building Automation & Energy',
+    'Enterprise Software',
     'Aviation & Maritime',
     'Law & Government',
-    'Enterprise Software',
     'Finance & Investment Banking',
-    'CleanTech & Energy Systems',
     'Hospitality & Food',
   ];
 

@@ -1,5 +1,5 @@
 export interface AssessmentAnswerState {
-  // 20 Unique, Insightful Dimensions
+  // 21 Unique, Insightful Dimensions
   technicalOrientation: number | number[] | 'not_clear'; // Q1: 1 (Human/Creative) to 9 (Deep Software & AI)
   workMode: string | string[] | 'not_clear'; // Q2: 'remote' | 'hybrid' | 'onsite' | 'field'
   outputMedium?: number | number[] | 'not_clear'; // Q3: 9 (Digital Software) | 7 (Physical Builds) | 5 (Human Performance/Art) | 2 (Sovereign/Public)
@@ -10,16 +10,17 @@ export interface AssessmentAnswerState {
   helpingAndHumanImpact: number | number[] | 'not_clear'; // Q8: 1 (Commercial/Tech) to 10 (Clinical Healing)
   creativeDesignAptitude: number | number[] | 'not_clear'; // Q9: 9 (Cinematic/Runway) | 7 (Brand/Campaigns) | 5 (UX/Design) | 2 (Logic)
   physicalDexterityTacticalCraft: number | number[] | 'not_clear'; // Q10: 9 (Athletics/Modeling/Tactical) | 7 (Industrial Craft) | 4 (Active) | 2 (Desk)
-  governanceLawPublicService: number | number[] | 'not_clear'; // Q11: 10 (Civil Services/Defence) | 8 (PSUs/Railways) | 6 (Law) | 2 (Private)
-  continuousLearning: number | number[] | 'not_clear'; // Q12: 1 (Timeless Craft) to 9 (Fast Tech Shift)
-  feedbackHorizon?: number | number[] | 'not_clear'; // Q13: 9 (Immediate Real-Time Live) | 7 (Monthly Sprints/Campaigns) | 5 (Medium) | 2 (Multi-Year Legacy)
-  publicVisibility?: number | number[] | 'not_clear'; // Q14: 9 (Center Stage/Screen/Runway) | 7 (Brand Figurehead/Civil Leader) | 5 (Peer) | 2 (Backstage)
-  pressureDynamics?: number | number[] | 'not_clear'; // Q15: 9 (Live Crisis/Audience) | 7 (Campaign Deadlines) | 4 (Steady Cadence) | 2 (Calm)
-  lifestylePainPoints: string[]; // Q16: Pain points to avoid (multi-select)
-  existingSkills: string[]; // Q17: Current skills (multi-select)
-  preferredIndustries: string[]; // Q18: Target sectors (multi-select)
-  coreLifeDriver?: number | number[] | 'not_clear'; // Q19: 10 (Sovereign Nation-Building) | 8 (Brand Commercial) | 6 (Artistic Truth) | 4 (Social/Healing)
-  nonNegotiables?: string[]; // Q20: Dealbreakers & priorities (multi-select)
+  technicalPracticalBalance?: number | number[] | 'not_clear'; // Q11: 1 (100% Practical) | 3 (30% Tech / 70% Practical) | 6 (60% Tech / 40% Practical) | 7 (70% Tech / 30% Practical) | 9 (100% Technical)
+  governanceLawPublicService: number | number[] | 'not_clear'; // Q12: 10 (Civil Services/Defence) | 8 (PSUs/Railways) | 6 (Law) | 2 (Private)
+  continuousLearning: number | number[] | 'not_clear'; // Q13: 1 (Timeless Craft) to 9 (Fast Tech Shift)
+  feedbackHorizon?: number | number[] | 'not_clear'; // Q14: 9 (Immediate Real-Time Live) | 7 (Monthly Sprints/Campaigns) | 5 (Medium) | 2 (Multi-Year Legacy)
+  publicVisibility?: number | number[] | 'not_clear'; // Q15: 9 (Center Stage/Screen/Runway) | 7 (Brand Figurehead/Civil Leader) | 5 (Peer) | 2 (Backstage)
+  pressureDynamics?: number | number[] | 'not_clear'; // Q16: 9 (Live Crisis/Audience) | 7 (Campaign Deadlines) | 4 (Steady Cadence) | 2 (Calm)
+  lifestylePainPoints: string[]; // Q17: Pain points to avoid (multi-select)
+  existingSkills: string[]; // Q18: Current skills (multi-select)
+  preferredIndustries: string[]; // Q19: Target sectors (multi-select)
+  coreLifeDriver?: number | number[] | 'not_clear'; // Q20: 10 (Sovereign Nation-Building) | 8 (Brand Commercial) | 6 (Artistic Truth) | 4 (Social/Healing)
+  nonNegotiables?: string[]; // Q21: Dealbreakers & priorities (multi-select)
 
   // Backward-compatibility aliases for legacy fields
   workLifeBalanceTolerance?: number | number[] | 'not_clear';
@@ -58,326 +59,353 @@ export const ASSESSMENT_QUESTIONS = [
   {
     id: 'technicalOrientation',
     step: 1,
-    category: 'Technical & Engineering Orientation',
-    title: 'How deep into technical, software, or engineering systems do you want your daily work to be?',
-    description: 'Do you prefer coding algorithms, designing physical machines, connecting tech with business, or working primarily with people, creative arts, or public service?',
+    category: 'Technical & Software Depth',
+    title: 'How much do you want your daily work to involve technical, software, or engineering systems?',
+    description: 'Think about what you enjoy spending most of your time doing. Choose the option that best reflects your preferences and strengths.',
     options: [
-      { label: 'Software & AI Development', value: 9, description: 'Writing computer code, building web and mobile apps, or creating artificial intelligence systems.' },
-      { label: 'Physical & Civil Engineering', value: 7, description: 'Designing and constructing physical structures, machines, bridges, power plants, and electronics.' },
-      { label: 'Technology Strategy & Product Management', value: 5, description: 'Guiding how tech products are built, managing projects, and connecting business goals with technical teams.' },
-      { label: 'People, Creative Arts & Public Service', value: 2, description: 'Focusing on human care, creative performance, brand storytelling, athletics, law, or public governance.' },
-      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I want to explore both technical and non-technical career paths.' },
+      { label: 'Software, Coding & Artificial Intelligence', value: 9, description: 'Building software applications, writing code, designing web platforms, or developing artificial intelligence systems.' },
+      { label: 'Physical Machines & Infrastructure Engineering', value: 7, description: 'Designing, building, or maintaining physical equipment, electronics, industrial machines, buildings, and infrastructure.' },
+      { label: 'Technology Planning & Product Management', value: 5, description: 'Guiding what technology products should do, coordinating project goals, and connecting business needs with technical teams without coding yourself.' },
+      { label: 'People, Creative Arts & Public Service', value: 2, description: 'Working primarily with people, healthcare, creative arts, media, athletics, legal guidance, or community public service.' },
+      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I want to explore a combination of technical and non-technical career pathways.' },
     ],
   },
   {
     id: 'workMode',
     step: 2,
-    category: 'Work Environment',
-    title: 'What is your ideal physical workplace setting and daily work mode?',
-    description: 'Where do you picture yourself operating at your highest energy and fulfillment?',
+    category: 'Work Environment & Setting',
+    title: 'What type of daily physical work environment do you prefer?',
+    description: 'Consider where you feel most productive, comfortable, and focused during a regular work week.',
     options: [
-      { label: 'Fully Remote (Work from Home or Anywhere)', value: 'remote', description: 'Working on a laptop from home or anywhere in the world with flexible daily scheduling.' },
-      { label: 'Hybrid (Mix of Office and Remote)', value: 'hybrid', description: 'Splitting the week between working with colleagues in an office and working quietly from home.' },
-      { label: 'Full-Time Office or Corporate Workplace', value: 'onsite', description: 'Working on-site every day in a corporate office, design studio, or company headquarters.' },
-      { label: 'Active Field or On-Site Environment', value: 'field', description: 'Working on your feet in film studios, sports facilities, hospitals, construction sites, or train stations.' },
-      { label: 'Not Sure / Flexible', value: 'not_clear', description: 'I am open and comfortable with different workplace settings.' },
+      { label: 'Fully Remote (Work from Home or Anywhere)', value: 'remote', description: 'Working entirely from home or any location using your computer and internet, with no required office commute.' },
+      { label: 'Hybrid (Mix of Office and Remote)', value: 'hybrid', description: 'Spending 2 to 3 days in a shared workplace collaborating with team members and 2 to 3 days working quietly from home.' },
+      { label: 'Full-Time On-Site Office or Corporate Workplace', value: 'onsite', description: 'Working on-site every day in a designated corporate office, design studio, clinic, or organization headquarters.' },
+      { label: 'Active Fieldwork or On-Site Physical Setting', value: 'field', description: 'Working on your feet across dynamic environments such as factories, construction sites, hospitals, client locations, or outdoors.' },
+      { label: 'Not Sure / Adaptable to Any Setting', value: 'not_clear', description: 'I am flexible and comfortable working in any physical environment.' },
     ],
   },
   {
     id: 'outputMedium',
     step: 3,
-    category: 'Output & Medium of Creation',
-    title: 'What is the primary medium or tangible artifact you want to create and deliver?',
-    description: 'When you look back on your day\'s work, what tangible outcome makes you feel most proud?',
+    category: 'Work Outcomes & Deliverables',
+    title: 'At the end of a successful workday, what kind of tangible result would make you feel most proud and satisfied?',
+    description: 'Think about what you would be most proud to point to at the end of a project as something you helped create.',
     options: [
-      { label: 'Digital Software & Applications', value: 9, description: 'Building websites, mobile applications, software tools, databases, or AI models.' },
-      { label: 'Physical Builds & Machinery', value: 7, description: 'Constructing buildings, roads, bridges, industrial machines, or physical consumer hardware.' },
-      { label: 'Creative Arts & Live Performance', value: 5, description: 'Screen acting, modeling, athletic achievements, artwork, or creative media content.' },
-      { label: 'Public Administration & Public Welfare', value: 2, description: 'Administering public laws, city operations, national railway systems, or citizen welfare programs.' },
-      { label: 'Not Sure / Multiple Formats', value: 'not_clear', description: 'I am interested in creating more than one type of work product.' },
+      { label: 'Digital Software & Applications', value: 9, description: 'Websites, mobile apps, digital services, databases, or AI systems that people interact with on screens.' },
+      { label: 'Physical Builds & Real-World Hardware', value: 7, description: 'Tangible physical items you can touch, like buildings, clean energy installations, industrial machinery, or electronic devices.' },
+      { label: 'Creative Content, Media & Live Performance', value: 5, description: 'Video entertainment, dramatic performances, fashion presentations, published writing, or artistic design work.' },
+      { label: 'Public Policies, Services & Community Welfare', value: 2, description: 'Measurable improvements in public transportation, community healthcare, government administration, or legal protections for citizens.' },
+      { label: 'Not Sure / Multiple Formats', value: 'not_clear', description: 'I find several different types of work outcomes equally rewarding and meaningful.' },
     ],
   },
   {
     id: 'financialStrategy',
     step: 4,
-    category: 'Financial Trajectory & Wealth Mindset',
-    title: 'Which financial model and income trajectory best matches your aspirations?',
-    description: 'Different careers build wealth through completely different mechanisms. What suits your risk and lifestyle preferences?',
+    category: 'Income Model & Financial Strategy',
+    title: 'Which income and financial model best matches your personal career goals?',
+    description: 'Different professions build wealth in distinct ways. Select the financial model that best fits your appetite for risk and long-term security.',
     options: [
-      { label: 'High-Risk with High Earning Upside', value: 10, description: 'Higher initial uncertainty with potential for large financial gains through business equity, royalties, or bonuses.' },
-      { label: 'High Corporate Salary & Bonuses', value: 8, description: 'Reliable high salary with strong annual performance bonuses in established private companies.' },
-      { label: 'Government Pay & Guaranteed Job Security', value: 4, description: 'Stable civil service or public sector career with fixed salary scales, pension, and lifetime job security.' },
-      { label: 'Steady Living Wage with Low Stress', value: 2, description: 'Predictable, comfortable pay that prioritizes low stress, balanced hours, and peace of mind.' },
-      { label: 'Not Sure / Still Evaluating', value: 'not_clear', description: 'I am still deciding how to balance high earning potential against job stability.' },
+      { label: 'High-Risk with High Earning Upside', value: 10, description: 'Higher initial uncertainty in exchange for the potential to earn significantly more through business equity, stock options, royalties, or large bonuses.' },
+      { label: 'High Corporate Salary & Regular Bonuses', value: 8, description: 'A consistently strong base salary at established companies, supplemented by predictable annual performance bonuses.' },
+      { label: 'Guaranteed Government Pay & Lifetime Security', value: 4, description: 'Stable, predictable public-sector pay scales with comprehensive benefits, retirement pensions, and strong long-term job security.' },
+      { label: 'Steady Living Wage with Low Stress', value: 2, description: 'A dependable, comfortable monthly income that covers your needs while keeping work hours and financial pressure low.' },
+      { label: 'Not Sure / Still Evaluating', value: 'not_clear', description: 'I am still deciding how to balance high earning potential against job stability and risk.' },
     ],
   },
   {
     id: 'mathAnalyticalAptitude',
     step: 5,
     category: 'Quantitative & Analytical Rigor',
-    title: 'How much mathematics, quantitative modeling, and data analytics do you want in your role?',
-    description: 'How comfortable and enthusiastic are you working with statistical formulas, numbers, and quantitative datasets?',
+    title: 'How much mathematics, data analysis, and quantitative modeling do you want in your daily work?',
+    description: 'Be honest about your comfort and interest in working with numbers, formulas, calculations, and analytical problem-solving.',
     options: [
-      { label: 'Advanced Math & Statistical Modeling', value: 9, description: 'Solving complex equations, working with data formulas, financial models, and mathematical algorithms.' },
-      { label: 'Practical Business Math & Budgeting', value: 7, description: 'Reviewing sales figures, managing team budgets, analyzing charts, and organizing spreadsheets.' },
-      { label: 'Practical Everyday Logic', value: 5, description: 'Using step-by-step reasoning, basic arithmetic, and common sense to solve everyday work problems.' },
-      { label: 'Little to No Mathematics', value: 2, description: 'Focusing primarily on verbal communication, writing, creative performance, human care, or physical skills.' },
-      { label: 'Not Sure / Open to Basic Math', value: 'not_clear', description: 'I can do basic math but want to explore different roles before deciding.' },
+      { label: 'Advanced Mathematics & Statistical Modeling', value: 9, description: 'Solving complex equations, applying statistical formulas, building financial models, or working with mathematical algorithms regularly.' },
+      { label: 'Practical Business Math & Data Spreadsheets', value: 7, description: 'Analyzing performance metrics, interpreting charts and graphs, tracking budgets, and working comfortably with spreadsheets.' },
+      { label: 'Everyday Logic & Practical Reasoning', value: 5, description: 'Using step-by-step reasoning, basic arithmetic, and common sense to make good decisions without heavy math.' },
+      { label: 'Minimal to No Mathematics Required', value: 2, description: 'Focusing primarily on verbal communication, interpersonal interaction, creative expression, human care, or physical activity.' },
+      { label: 'Not Sure / Open to Basic Math', value: 'not_clear', description: 'I can handle everyday math but want to explore different career paths before deciding.' },
     ],
   },
   {
     id: 'ambiguityTolerance',
     step: 6,
-    category: 'Structure vs Ambiguity',
-    title: 'How comfortable are you with ambiguity versus strict rules and safety protocols?',
-    description: 'Do you prefer exploring uncharted territory without a playbook, or operating within well-defined, safety-critical guidelines?',
+    category: 'Structure vs. Open Ambiguity',
+    title: 'How comfortable are you working with unclear directions versus strict rules and safety protocols?',
+    description: 'Some roles require figuring out solutions with no instruction manual, while others rely on established checklists and safety guidelines.',
     options: [
-      { label: 'Inventing from Scratch with High Freedom', value: 9, description: 'Tackling open-ended challenges where there is no manual or step-by-step guide to follow.' },
-      { label: 'Clear Goals with Freedom in Method', value: 6, description: 'You are given a clear target to achieve, but have full freedom in how you choose to achieve it.' },
-      { label: 'Structured Standards & Proven Workflows', value: 4, description: 'Following established company procedures, standard templates, and clear supervisor guidance.' },
-      { label: 'Strict Safety Rules & Checklists', value: 2, description: 'Following exact safety checklists where zero mistakes are allowed (e.g., healthcare, railways, aviation).' },
-      { label: 'Not Sure / Adaptable', value: 'not_clear', description: 'I am comfortable working in both structured and flexible work environments.' },
+      { label: 'High Freedom — Inventing Solutions from Scratch', value: 9, description: 'Figuring out what to do when there is no established playbook, experimenting with new approaches, and creating solutions from scratch.' },
+      { label: 'Clear Goals with Freedom in Your Method', value: 6, description: 'You are given a specific objective to reach, but you have the flexibility to choose the best way to get there.' },
+      { label: 'Structured Guidelines & Proven Procedures', value: 4, description: 'Following established company processes, proven templates, and clear supervisor guidance with predictable expectations.' },
+      { label: 'Strict Safety Checklists & Exact Protocols', value: 2, description: 'Following exact, mandatory safety rules and regulations where mistakes must be prevented (e.g., healthcare, aviation, railways).' },
+      { label: 'Not Sure / Adaptable', value: 'not_clear', description: 'I can work comfortably in both flexible, creative settings and structured, rule-guided environments.' },
     ],
   },
   {
     id: 'leadershipScope',
     step: 7,
     category: 'Leadership & Influence Scope',
-    title: 'What style of leadership, influence, and interpersonal scope brings out your best?',
-    description: 'How do you envision leading, influencing, or contributing within an organization?',
+    title: 'How do you most prefer to contribute within an organization — leading others or working independently?',
+    description: 'Think about whether you are energized by directing teams, guiding creative vision, helping individuals, or focusing on your own craft.',
     options: [
-      { label: 'Executive & Department Leadership', value: 9, description: 'Leading large teams, overseeing departments, or directing public administration programs.' },
-      { label: 'Creative & Campaign Direction', value: 7, description: 'Guiding the creative style, visual branding, or marketing vision for projects and products.' },
-      { label: 'Coaching, Teaching & Mentoring', value: 5, description: 'Guiding individuals one-on-one, coaching athletes or students, and helping others develop.' },
-      { label: 'Independent Specialist', value: 2, description: 'Focusing on your own individual work—such as writing code, designing, research, or performing—without managing people.' },
-      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I am happy to lead others or focus on my own independent work.' },
+      { label: 'Leading Large Teams & Departments', value: 9, description: 'Setting direction for large groups, making executive decisions, and taking responsibility for entire team or organizational outcomes.' },
+      { label: 'Guiding Creative, Brand or Strategic Direction', value: 7, description: 'Defining the vision, strategy, or creative style of projects and campaigns without directly managing many direct reports day-to-day.' },
+      { label: 'Coaching, Teaching & Personal Mentoring', value: 5, description: 'Helping individuals learn and grow through one-on-one coaching, instruction, personal guidance, or training.' },
+      { label: 'Independent Specialist Focus', value: 2, description: 'Concentrating on your own individual technical, creative, or analytical craft without managing or supervising others.' },
+      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I am happy to lead others or focus on independent specialist work depending on the role.' },
     ],
   },
   {
     id: 'helpingAndHumanImpact',
     step: 8,
     category: 'Human Care & Social Welfare',
-    title: 'How central is direct human care, physical healing, or personal patient welfare in your work?',
-    description: 'How important is it that your daily work directly heals, protects, or improves individual human lives?',
+    title: 'How central is direct human care and personal impact in the work you want to do?',
+    description: 'Consider how important it is that your daily efforts directly help, heal, or support individual human beings face-to-face.',
     options: [
-      { label: 'Direct Medical & Patient Care', value: 10, description: 'Diagnosing illnesses, performing clinical treatments, nursing, or emergency life-saving response.' },
-      { label: 'Teaching, Counseling & Personal Guidance', value: 7, description: 'Educating students, fitness coaching, therapy, or helping people improve their daily lives.' },
-      { label: 'Public Service & Community Benefit', value: 5, description: 'Improving public transport, public health, local city services, or community welfare initiatives.' },
-      { label: 'Commercial, Creative, or Tech Systems', value: 2, description: 'Building software tools, business products, entertainment, or commercial services.' },
-      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I care about helping others, but am flexible on whether it is direct patient care or broader work.' },
+      { label: 'Direct Clinical Care & Patient Healing', value: 10, description: 'Diagnosing health issues, providing medical treatment, nursing patients, or responding to healthcare emergencies directly.' },
+      { label: 'Teaching, Counseling & Personal Development', value: 7, description: 'Educating students, counseling individuals, coaching fitness, or helping people overcome personal challenges.' },
+      { label: 'Community Welfare & Public Service', value: 5, description: 'Improving public transit, community infrastructure, civic services, or social welfare programs that benefit the wider public.' },
+      { label: 'Indirect Impact via Products, Tech or Commercial Systems', value: 2, description: 'Building software, consumer products, businesses, or entertainment where the benefit to people happens through technology or commerce.' },
+      { label: 'Not Sure / Open to Both', value: 'not_clear', description: 'I care about making a positive difference, whether through direct personal service or through products and systems.' },
     ],
   },
   {
     id: 'creativeDesignAptitude',
     step: 9,
     category: 'Creative Expression & Brand Storytelling',
-    title: 'How drawn are you to artistic expression, cinematic performance, fashion aesthetics, or brand storytelling?',
-    description: 'How significant is visual beauty, narrative drama, or brand design in what you want to do?',
+    title: 'How drawn are you to artistic expression, visual design, or storytelling in your career?',
+    description: 'Think about how much visual aesthetics, narrative communication, or creative presentation matter to your work satisfaction.',
     options: [
-      { label: 'Acting, Modeling & Live Performance', value: 9, description: 'Expressing characters on camera, walking high-fashion runways, or live artistic performance.' },
-      { label: 'Brand Strategy & Visual Storytelling', value: 7, description: 'Creating advertising campaigns, product branding, media stories, and visual identities.' },
-      { label: 'Practical Design & User Experience', value: 5, description: 'Designing easy-to-use software apps, websites, physical products, or architectural spaces.' },
-      { label: 'Objective Facts, Law & Structured Sciences', value: 2, description: 'Focusing on data facts, legal rules, engineering requirements, or financial accounting.' },
-      { label: 'Not Sure / Exploring', value: 'not_clear', description: 'I appreciate creative work, but also enjoy logical and structured tasks.' },
+      { label: 'Performing Arts, Modeling & Screen Expression', value: 9, description: 'Expressing emotion and presence on camera, performing on stage, walking fashion runways, or creating dramatic performances.' },
+      { label: 'Brand Storytelling & Creative Marketing', value: 7, description: 'Developing advertising campaigns, brand identities, media narratives, and compelling content that connects with audiences.' },
+      { label: 'Practical Design & User Experience', value: 5, description: 'Designing practical, user-friendly digital apps, websites, physical products, architecture, or everyday spaces.' },
+      { label: 'Objective Facts, Law & Technical Science', value: 2, description: 'Focusing primarily on objective data, engineering specifications, legal rules, or financial precision rather than artistic design.' },
+      { label: 'Not Sure / Exploring Both', value: 'not_clear', description: 'I enjoy visual creativity but also appreciate structured, logical problem-solving.' },
     ],
   },
   {
     id: 'physicalDexterityTacticalCraft',
     step: 10,
     category: 'Physical Mastery & Tactical Presence',
-    title: 'How much do you value physical athleticism, bodily presence, or tactical hands-on mastery?',
-    description: 'Some careers demand athletic conditioning, on-camera poise, or operating heavy machinery. What suits your physical preferences?',
+    title: 'How much physical movement, athletic stamina, or hands-on dexterity do you want in your job?',
+    description: 'Some careers require athletic conditioning, physical poise, or operating machinery, while others are primarily desk-based mental work.',
     options: [
-      { label: 'Athletics, Modeling & Physical Performance', value: 9, description: 'Competing in professional sports, fitness coaching, runway modeling, or on-camera presence.' },
-      { label: 'Hands-On Technical & Industrial Work', value: 7, description: 'Operating machinery, performing culinary cooking, mechanical repairs, or physical construction.' },
-      { label: 'Active Daily Movement', value: 4, description: 'Walking around, visiting client offices, inspecting job sites, or moving between workspaces.' },
-      { label: 'Desk-Based Computer Work', value: 2, description: 'Comfortable sitting at a computer desk, analyzing documents, writing, and researching.' },
-      { label: 'Not Sure / Comfortable Either Way', value: 'not_clear', description: 'I can easily adapt to both desk-based work and physically active roles.' },
+      { label: 'High Athleticism & Physical Performance', value: 9, description: 'Professional sports, athletic fitness coaching, runway modeling, dance, or physical performance demanding peak conditioning.' },
+      { label: 'Hands-On Technical & Industrial Operations', value: 7, description: 'Operating machinery, repairing physical equipment, installing systems, culinary cooking, or active construction work.' },
+      { label: 'Active Daily Movement Across Locations', value: 4, description: 'Moving around frequently — inspecting job sites, visiting clients, walking hospital wards, or traveling between facilities.' },
+      { label: 'Desk-Based Computer & Analytical Work', value: 2, description: 'Comfortably seated at a workstation for most of the day, researching, writing, coding, designing, or analyzing data.' },
+      { label: 'Not Sure / Adaptable to Either', value: 'not_clear', description: 'I can easily adapt to both desk-based roles and physically active environments.' },
+    ],
+  },
+  {
+    id: 'technicalPracticalBalance',
+    step: 11,
+    category: 'Technical vs. Practical Work Balance',
+    title: 'How much technical and practical work would you prefer in your job?',
+    description: 'Technical work involves software development, programming, engineering design, and analysis. Practical work involves hands-on activities, fieldwork, operating equipment, and working with physical systems.',
+    options: [
+      { label: '100% Practical', value: 1, description: 'I prefer hands-on activities, fieldwork, operating equipment, implementation, and working directly with physical systems.' },
+      { label: '100% Technical', value: 9, description: 'I prefer software development, programming, engineering design, technical analysis, and solving problems using technology.' },
+      { label: '70% Technical – 30% Practical', value: 7, description: 'I prefer predominantly technical work, with some hands-on implementation and practical activities.' },
+      { label: '60% Technical – 40% Practical', value: 6, description: 'I prefer a relatively balanced role, with slightly more technical work than practical activities.' },
+      { label: '30% Technical – 70% Practical', value: 3, description: 'I prefer predominantly practical, hands-on work, with some technical analysis and problem-solving.' },
+      { label: 'Not Sure / Still Evaluating', value: 'not_clear', description: 'I am open to different combinations and have not decided on my preferred balance yet.' },
     ],
   },
   {
     id: 'governanceLawPublicService',
-    step: 11,
+    step: 12,
     category: 'Sovereign Service & Public Sector',
-    title: 'How drawn are you to Indian Government service, public sector enterprises (PSUs), Railways, or sovereign administration?',
-    description: 'Do you aspire to serve national public institutions with state authority, or do you prefer private corporate and creative industries?',
+    title: 'How strongly are you drawn to government institutions, public sector enterprises, or legal administration?',
+    description: 'Consider whether serving national public institutions with state authority appeals to you, or whether you prefer private and commercial businesses.',
     options: [
-      { label: 'Civil Services, Police & Armed Forces', value: 10, description: 'Serving the nation through public administration (IAS/IPS), foreign services, or defense forces.' },
-      { label: 'Public Sector Enterprises (PSUs) & Indian Railways', value: 8, description: 'Managing state-owned energy companies, infrastructure enterprises, or national railway operations.' },
-      { label: 'Law Courts & Legal Services', value: 6, description: 'Practicing law in courts, legal compliance, dispute resolution, or judicial service.' },
-      { label: 'Private Companies & Creative Agencies', value: 2, description: 'Working in private businesses, tech startups, advertising agencies, or media entertainment.' },
-      { label: 'Not Sure / Exploring Both', value: 'not_clear', description: 'I want to explore careers in both government institutions and the private sector.' },
+      { label: 'Civil Services, Police & Armed Forces', value: 10, description: 'Serving the country through civil administration (IAS, IPS, IFS), law enforcement, border security, or national defense.' },
+      { label: 'Public Sector Enterprises (PSUs) & Indian Railways', value: 8, description: 'Managing operations in state-owned energy corporations (ONGC, IOCL, NTPC) or nationwide railway logistics networks.' },
+      { label: 'Legal Practice, Courts & Judicial Services', value: 6, description: 'Practicing law in courts, managing corporate legal compliance, dispute resolution, or judicial service.' },
+      { label: 'Private Industry, Startups & Commercial Enterprises', value: 2, description: 'Working in private companies, technology firms, consulting agencies, creative businesses, or commercial startups.' },
+      { label: 'Not Sure / Exploring Both', value: 'not_clear', description: 'I want to explore career possibilities in both public government institutions and the private commercial sector.' },
     ],
   },
   {
     id: 'continuousLearning',
-    step: 12,
+    step: 13,
     category: 'Lifelong Learning & Skill Evolution',
-    title: 'How rapidly are you willing for your professional skills to evolve and require study?',
-    description: 'Some fields require studying new frameworks and tools every year, while others rely on timeless foundational mastery. Where do you stand?',
+    title: 'How rapidly are you willing for your professional skills and tools to change over time?',
+    description: 'Some industries require learning new software tools and methods every few months, while others rest on deep, timeless foundational knowledge.',
     options: [
-      { label: 'Fast-Paced Constant Learning', value: 9, description: 'Eagerly learning new software tools, AI advancements, and changing industry trends every few months.' },
-      { label: 'Periodic Professional Updates', value: 7, description: 'Keeping skills sharp through periodic training courses, new certifications, and industry reading.' },
-      { label: 'Deep Foundational Knowledge', value: 4, description: 'Relying on deep core fundamentals in medicine, engineering, law, or public administration that evolve slowly.' },
-      { label: 'Hands-On Intuitive Craft', value: 2, description: 'Sharpening personal human talent, physical conditioning, acting, or artistic technique over time.' },
-      { label: 'Not Sure / Balanced', value: 'not_clear', description: 'I am willing to study whatever new skills my job requires.' },
+      { label: 'Rapid Continuous Learning (Every Few Months)', value: 9, description: 'Constantly learning new software frameworks, AI tools, emerging technologies, and fast-shifting industry trends.' },
+      { label: 'Periodic Professional Updates (Every 1–2 Years)', value: 7, description: 'Keeping your professional knowledge fresh through periodic training courses, new certifications, and industry developments.' },
+      { label: 'Deep Foundational Mastery (Evolves Slowly)', value: 4, description: 'Mastering established principles in medicine, law, civil engineering, or public governance that remain steady over decades.' },
+      { label: 'Hands-On Practice & Intuitive Craft', value: 2, description: 'Refining personal human talent, physical conditioning, artistic expression, or trade craft through regular practice rather than academic study.' },
+      { label: 'Not Sure / Adaptable to Any Learning Pace', value: 'not_clear', description: 'I am willing and able to study whatever new skills my chosen career path demands.' },
     ],
   },
   {
     id: 'feedbackHorizon',
-    step: 13,
+    step: 14,
     category: 'Feedback Cadence & Horizon of Impact',
-    title: 'What pace of feedback and operational timeline gives you the greatest sense of momentum?',
-    description: 'Do you crave real-time adrenaline with immediate results, or do you thrive on multi-year institutional projects?',
+    title: 'How quickly do you like to see the tangible results of your work?',
+    description: 'Think about the timeframe of progress that gives you the greatest sense of momentum and job satisfaction.',
     options: [
-      { label: 'Immediate Real-Time Feedback', value: 9, description: 'Seeing results right away—such as during a sports match, a film take, or a daily trading session.' },
-      { label: 'Monthly Project Sprints', value: 7, description: 'Working on deliverables that launch in a few weeks or months, such as marketing campaigns or app updates.' },
-      { label: 'Annual Project Milestones', value: 5, description: 'Leading projects that take 6 to 18 months, such as launching a new product line or building project.' },
-      { label: 'Multi-Year Long-Term Impact', value: 2, description: 'Building major public infrastructure, nationwide railway systems, or long-term policy reforms.' },
-      { label: 'Not Sure / Adaptable', value: 'not_clear', description: 'I work well with both quick daily feedback and long-term project schedules.' },
+      { label: 'Immediate Same-Day Results (Hours to Days)', value: 9, description: 'Seeing the outcome of your actions right away — during a completed medical procedure, a sports match, a sales call, or a day of trading.' },
+      { label: 'Short-Term Monthly Sprints (Weeks to Months)', value: 7, description: 'Working on projects that complete within several weeks — like shipping a software feature, completing a marketing campaign, or finishing a client audit.' },
+      { label: 'Medium-Term Annual Milestones (6 to 18 Months)', value: 5, description: 'Leading initiatives that take around a year to develop and launch — such as introducing a new product line, building an energy installation, or completing an academic year.' },
+      { label: 'Long-Term Multi-Year Impact (2+ Years)', value: 2, description: 'Contributing to large-scale, enduring transformations — such as national infrastructure, major railway expansions, public policy reforms, or long-term clinical research.' },
+      { label: 'Not Sure / Adaptable to Any Timeline', value: 'not_clear', description: 'I stay motivated working on both quick daily tasks and long-term multi-year initiatives.' },
     ],
   },
   {
     id: 'publicVisibility',
-    step: 14,
+    step: 15,
     category: 'Public Visibility & Spotlight',
     title: 'How much public visibility, media attention, or audience spotlight do you want in your career?',
-    description: 'Do you thrive on being front-and-center in public media, or do you prefer high impact behind the scenes?',
+    description: 'Consider how visible you want to be to the public, media, or your broader industry community.',
     options: [
-      { label: 'In Front of the Camera & Public Spotlight', value: 9, description: 'Working in the public eye as an actor, professional athlete, fashion model, or media host.' },
-      { label: 'Prominent Organization or Brand Spokesperson', value: 7, description: 'Representing a major consumer brand, public agency, or corporate department as a visible leader.' },
-      { label: 'Respected within Professional Circles', value: 5, description: 'Known and respected by colleagues, clients, and industry peers without broad public media fame.' },
-      { label: 'Behind-the-Scenes Privacy', value: 2, description: 'Working quietly on code, research, data, or technical systems with complete personal privacy.' },
-      { label: 'Not Sure / Flexible', value: 'not_clear', description: 'I am comfortable with either public visibility or behind-the-scenes work.' },
+      { label: 'In Front of the Camera & Public Spotlight', value: 9, description: 'Regularly seen by the public — as an actor, professional athlete, fashion model, broadcast journalist, or public media personality.' },
+      { label: 'Recognized Organization Leader or Spokesperson', value: 7, description: 'Visible as a senior executive, brand leader, government official, or spokesperson representing your organization to the public and press.' },
+      { label: 'Respected within Professional Circles', value: 5, description: 'Well-known and respected by colleagues, clients, and industry peers, but with personal privacy outside of work.' },
+      { label: 'Behind-the-Scenes Privacy', value: 2, description: 'Doing high-impact work quietly on code, design, engineering, data, or technical systems with complete personal privacy and no public exposure.' },
+      { label: 'Not Sure / Flexible', value: 'not_clear', description: 'I am comfortable with either public visibility or behind-the-scenes work depending on the role.' },
     ],
   },
   {
     id: 'pressureDynamics',
-    step: 15,
+    step: 16,
     category: 'Pressure Environment & Crisis Cadence',
-    title: 'What kind of pressure environment brings out your sharpest focus and highest performance?',
-    description: 'How do you prefer handling high-stakes moments, deadlines, and operational challenges?',
+    title: 'What type of workplace pace and pressure environment helps you perform at your best?',
+    description: 'Think about how you respond to deadlines, unexpected challenges, and fast-moving situations.',
     options: [
-      { label: 'High-Stakes Live Pressure', value: 9, description: 'Thriving in moments where quick decisions matter immediately—live sports, film cameras, or emergency care.' },
-      { label: 'Target-Driven Project Deadlines', value: 7, description: 'Focusing best when working against upcoming project launch dates, client deliveries, or campaigns.' },
-      { label: 'Organized & Predictable Pace', value: 4, description: 'Preferring structured milestones planned well in advance with clear schedules and minimal surprises.' },
-      { label: 'Calm Routine with Low Stress', value: 2, description: 'Working in a calm, steady environment with low workplace anxiety and strictly no crisis emergencies.' },
-      { label: 'Not Sure / Adaptable', value: 'not_clear', description: 'I can handle different pressure levels depending on the team and situation.' },
+      { label: 'High-Stakes Live Pressure (Decisions in Real Time)', value: 9, description: 'Performing at your sharpest when immediate, split-second decisions matter — in emergency medicine, live sports, flight operations, or critical plant incidents.' },
+      { label: 'Target-Driven Project Deadlines & Milestones', value: 7, description: 'Motivated by firm target dates, upcoming product launches, client delivery commitments, and scheduled project milestones.' },
+      { label: 'Structured, Predictable Work Schedule', value: 4, description: 'Working at a steady, organized pace planned well in advance with clear priorities and minimal surprise crises.' },
+      { label: 'Calm Routine with Low Workplace Stress', value: 2, description: 'Performing best in a relaxed, low-anxiety work atmosphere with manageable workloads, stable hours, and no emergencies.' },
+      { label: 'Not Sure / Adaptable', value: 'not_clear', description: 'I can handle different pressure levels effectively depending on team support and the situation.' },
     ],
   },
   {
     id: 'lifestylePainPoints',
-    step: 16,
+    step: 17,
     category: 'Lifestyle Preferences & Avoidance Filter',
-    title: 'What bothers you most about typical jobs or the kind of lifestyle you want to strictly avoid?',
-    description: 'Select all work conditions you want to avoid — this helps us steer you away from careers that would frustrate or burn you out.',
+    title: 'Which work conditions or job frustrations do you want to strictly avoid? (Select all that apply)',
+    description: 'Choose any work factors that you know would drain your energy, frustrate you, or lead to burnout. We will use this to steer you away from mismatched careers.',
     isMultiSelect: true,
     skills: [
-      'Long daily commuting in heavy traffic',
-      'Sitting still at a desk all day long',
-      'Lack of appreciation or credit for my work',
-      'Strict micromanagement with no independence',
-      'Working in isolation with very little human contact',
-      'High stress, constant emergencies, and 60+ hour work weeks',
-      'Feeling that my work makes no meaningful difference',
-      'Low pay compared to the effort and skill required',
-      'No clear path for promotions or career growth',
-      'Doing the exact same repetitive tasks every single day',
-      'Too much rigid bureaucracy and red tape',
-      'Frequent travel that keeps me away from home and family',
-      'Unstable income or fear of sudden layoffs',
-      'Working night shifts or unpredictable irregular hours',
+      'Long daily commuting in heavy traffic (1+ hours each way every day)',
+      'Sitting still at a desk for 8+ hours a day with little physical movement',
+      'Doing the same repetitive tasks every single day with no variety',
+      'Working in isolation with very little human interaction or teamwork',
+      'Strict micromanagement and no freedom to make my own decisions',
+      'Excessive bureaucracy, red tape, and slow approval processes',
+      'Constant high-stress emergencies and 60+ hour work weeks regularly',
+      'Low pay that does not reflect the effort and skill required',
+      'No clear path for promotions or career advancement over time',
+      'Work that makes no meaningful difference or contribution to the world',
+      'Frequent travel away from home that disrupts family and personal life',
+      'Unstable income, job insecurity, or risk of sudden layoffs',
+      'Working night shifts or unpredictable irregular hours regularly',
+      'Lack of appreciation or recognition for my work and contributions',
     ],
   },
   {
     id: 'existingSkills',
-    step: 17,
+    step: 18,
     category: 'Current Skillset & Practical Foundations',
-    title: 'Which of the following skills do you already possess or are actively studying?',
-    description: 'Select all skills that apply to help us match your natural strengths with fitting career pathways.',
+    title: 'Which of the following skills do you already have or are actively developing? (Select all that apply)',
+    description: 'Select all areas where you have coursework, project experience, self-study, or natural ability. This helps match you with careers where your strengths give you an advantage.',
     isMultiSelect: true,
     skills: [
-      'Brand Marketing, Advertising & Social Media',
-      'Film Acting, Dramatic Arts & Voice Over',
-      'Fashion Modeling, Posing & Personal Grooming',
-      'Sports Training, Fitness & Athletic Conditioning',
-      'Public Administration, Civil Governance & Policy',
-      'Industrial Manufacturing, Machinery & Plant Operations',
-      'Railway Logistics & Transportation Systems',
-      'Computer Programming & Software Development',
-      'Math, Statistics & Logical Problem Solving',
-      'Website Building & App Design',
+      'Computer Programming & Software Development (Python, Java, JavaScript, C++, etc.)',
+      'Mathematics, Statistics & Quantitative Problem Solving',
+      'Website Building, App Design & UI/UX Development',
+      'Data Analysis, SQL, Spreadsheets & Business Intelligence',
+      'Electronics, Circuit Wiring, Hardware Repair & Microcontrollers',
+      '3D CAD, Mechanical Modeling & Engineering Design (AutoCAD, SolidWorks)',
+      'PLC Programming, Industrial Automation & SCADA Systems',
+      'Robotics, Robot Operating Systems (ROS) & Hardware Integration',
+      'Clean Energy, Solar/Wind Power & Environmental Systems',
+      'Medical Devices, Biomedical Technology & Hospital Systems',
+      'Smart Buildings, Building Automation (BAS/BMS) & HVAC Systems',
+      'Product Management, Feature Roadmapping & User Experience',
+      'Enterprise Client Solutions, Technical Integration & Customer Engineering',
       'Business Budgeting, Finance & Accounting',
-      'Biology, Anatomy & Medical Knowledge',
-      'Patient Care, First Aid & Nursing',
-      'Law, Legal Research & Public Debating',
-      'Creative Writing, Journalism & Content Creation',
-      '3D CAD, Architecture & Mechanical Modeling',
-      'Electronics, Circuit Wiring & Hardware Repair',
-      'Aviation, Piloting & Navigation',
-      'Sales, Client Negotiation & Pitching',
-      'Team Leadership & Project Management',
-      'Cooking & Culinary Arts',
-      'Graphic Design, UI/UX & Visual Art',
+      'Sales, Client Negotiation & Commercial Pitching',
+      'Team Leadership, Project Management & Strategic Planning',
+      'Brand Marketing, Advertising, Social Media & Digital Campaigns',
+      'Creative Writing, Journalism, Blogging & Content Creation',
+      'Graphic Design, Illustration & Visual Art',
+      'Biology, Anatomy & Medical/Life Sciences Knowledge',
+      'Patient Care, First Aid, Nursing & Clinical Support',
+      'Law, Legal Research, Contract Review & Public Debating',
+      'Public Administration, Civil Governance & Public Policy',
+      'Industrial Manufacturing, Machinery & Plant Operations',
+      'Railway Logistics & Transportation Systems Operations',
+      'Film Acting, Dramatic Arts, Voice Performance & Stage Work',
+      'Fashion Modeling, Runway Posing & Personal Grooming',
+      'Sports Training, Fitness Coaching & Athletic Conditioning',
+      'Aviation, Piloting & Aeronautical Navigation',
+      'Cooking, Culinary Arts & Restaurant Kitchen Management',
     ],
   },
   {
     id: 'preferredIndustries',
-    step: 18,
+    step: 19,
     category: 'Target Industry Sectors',
-    title: 'Which industry domains are you most genuinely curious to explore?',
-    description: 'Select all sectors that spark your genuine interest.',
+    title: 'Which industry fields or sectors are you most curious to explore? (Select all that apply)',
+    description: 'Select all areas that spark your genuine interest. Choosing multiple options allows us to compare possibilities across different fields.',
     isMultiSelect: true,
     skills: [
-      'Technology & Software',
-      'Business, Marketing & Management',
+      'Technology & Software Development (Apps, Cloud, AI, Cybersecurity)',
+      'Industrial Automation, Controls & Robotics',
+      'Renewable Energy, CleanTech & Sustainability',
+      'Medical Devices, Healthcare Technology & Biomedical Engineering',
+      'Smart Buildings, Building Automation & Energy Management',
+      'Business Strategy, Product Management & Corporate Leadership',
       'Indian Government & Public Sector (Civil Services, PSUs, Railways, Defence)',
       'Cinema, Entertainment & Creative Arts',
       'Fashion & Commercial Modeling',
-      'Sports, Athletics & Fitness',
-      'Medicine & Healthcare',
-      'Finance, Banking & Accounting',
-      'Law & Judicial Services',
-      'Engineering, Architecture & Construction',
-      'Aviation, Logistics & Transport',
-      'Hospitality & Culinary Arts',
-      'Education, Teaching & Research',
+      'Sports, Athletics & Physical Fitness',
+      'Medicine, Surgery & Clinical Healthcare',
+      'Finance, Banking, Investment & Accounting',
+      'Law, Judiciary & Legal Services',
+      'Civil Engineering, Architecture & Built Environment',
+      'Aviation, Aerospace & Maritime Operations',
+      'Hospitality, Culinary Arts & Food Service',
+      'Education, Teaching & Academic Research',
     ],
   },
   {
     id: 'coreLifeDriver',
-    step: 19,
+    step: 20,
     category: 'Core Professional Purpose',
-    title: 'At your core, what primary driver gives you the deepest sense of professional worth?',
-    description: 'When you reflect on your life\'s work, which of these values matters most to your identity?',
+    title: 'At your core, what primary purpose gives you the deepest sense of professional fulfillment?',
+    description: 'When you reflect on what you want your career to stand for, which core purpose matters most to your identity?',
     options: [
-      { label: 'Public Service & Nation Building', value: 10, description: 'Serving the country through government leadership, national infrastructure, public railways, or defense.' },
-      { label: 'Commercial Success & Wealth Creation', value: 8, description: 'Building popular consumer brands, growing profitable businesses, and achieving financial independence.' },
-      { label: 'Artistic Expression & Cultural Reach', value: 6, description: 'Inspiring audiences through film acting, fashion modeling, athletic achievement, or creative storytelling.' },
-      { label: 'Healing Others & Advancing Knowledge', value: 4, description: 'Caring for patients, teaching students, advancing scientific discoveries, or protecting the environment.' },
-      { label: 'Not Sure / Balanced Blend', value: 'not_clear', description: 'I am motivated by a combination of these values and want to explore multiple paths.' },
+      { label: 'Public Service, National Growth & Civic Duty', value: 10, description: 'Serving your nation through government administration, public infrastructure, national security, or civic welfare.' },
+      { label: 'Commercial Success, Wealth Creation & Business Growth', value: 8, description: 'Building thriving businesses, launching market-leading products, and achieving personal financial independence.' },
+      { label: 'Artistic Truth, Cultural Expression & Creative Reach', value: 6, description: 'Inspiring people through film acting, fashion modeling, athletic achievement, musical expression, or powerful storytelling.' },
+      { label: 'Healing Others, Advancing Knowledge & Protecting the Planet', value: 4, description: 'Caring for patients, teaching future generations, discovering scientific solutions, or advancing clean sustainability.' },
+      { label: 'Not Sure / A Meaningful Blend of Multiple Drivers', value: 'not_clear', description: 'I am motivated by a balanced combination of these values and want to explore multiple pathways.' },
     ],
   },
   {
     id: 'nonNegotiables',
-    step: 20,
+    step: 21,
     category: 'Life Non-Negotiables & Dealbreakers',
-    title: 'What are the things which are non-negotiable for you in your career?',
-    description: 'Select all priorities that are essential requirements or absolute dealbreakers for you — we will find the careers that protect and fulfill these standards.',
+    title: 'Which of the following are absolute essentials or non-negotiables for your career? (Select all that apply)',
+    description: 'Select all requirements that are essential must-haves or absolute dealbreakers for you — we will prioritize careers that protect and fulfill these standards.',
     isMultiSelect: true,
     skills: [
-      'Daily Fitness & Health (Protected time for workouts, physical movement, and personal well-being)',
-      'Scheduled & Predictable Hours (Fixed work hours with strictly no surprise weekend or late-night calls)',
-      'High Earning Potential (Strong salary, performance bonuses, or high income growth over time)',
-      'Family & Personal Time (Evenings and weekends free for relationships, hobbies, and home life)',
+      'Physical Health & Fitness Time (Protected time for workouts, physical wellness, and personal health maintenance)',
+      'Scheduled & Predictable Hours (Fixed working hours with strictly no surprise weekend calls or middle-of-the-night emergencies)',
+      'High Earning Potential (Strong base salary, performance bonuses, or high income growth over time)',
+      'Quality Family & Personal Time (Evenings and weekends consistently free for relationships, hobbies, and personal life)',
       'Remote Work Flexibility (Freedom to work from home with zero mandatory daily office commute)',
-      'Job Security & Income Stability (High job protection, steady monthly paycheck, and reliable medical/retirement benefits)',
-      'Ethical Purpose & Social Impact (Work that genuinely helps people, improves society, or protects nature)',
-      'Creative & Independent Freedom (Freedom to solve problems your own way without micromanagement)',
-      'Low Stress & Calm Work Culture (Manageable workload, healthy team culture, and low daily anxiety)',
-      'Sleeping at Home / Minimal Travel (Staying rooted locally with very little mandatory business travel)',
-      'Clear Promotions & Upward Mobility (Transparent career ladder where hard work is recognized and rewarded)',
-      'Social Respect & Professional Prestige (A respected role with strong social standing, credibility, and dignity)',
+      'Job Security & Income Stability (High job protection, steady monthly paycheck, and dependable benefits)',
+      'Ethical Purpose & Positive Social Impact (Work that genuinely helps people, improves society, or protects the environment)',
+      'Creative Freedom & Independent Problem-Solving (Freedom to solve problems your own way without micromanagement)',
+      'Low Stress & Calm Work Culture (Manageable workload, healthy team environment, and low daily anxiety)',
+      'Stay Close to Home / Minimal Required Travel (Staying rooted locally with minimal mandatory business travel)',
+      'Clear Career Advancement & Promotion Pathway (Transparent career ladder where hard work is recognized and rewarded)',
+      'Professional Prestige & Social Respect (A career with strong social standing, credibility, and recognized dignity)',
     ],
   },
 ];
@@ -443,8 +471,6 @@ function computeDimSimilarity(dim: ResolvedNumeric, targetVal: number, neutralSc
   return Math.max(0, 1 - minDiff / 9);
 }
 
-// Lazy import of the server-side logger to keep this file browser-safe.
-// The logger will only actually be called in a Node.js environment.
 function getLogger() {
   try {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -482,16 +508,7 @@ export function computeCareerRecommendations(
     log?.warn('computeCareerRecommendations called with 0 careers — results may be empty');
   }
 
-  log?.debug('Starting recommendation computation', {
-    totalCareers: allCareers.length,
-    answeredDimensions: Object.keys(answers).filter(
-      (k) => {
-        const v = (answers as any)[k];
-        return Array.isArray(v) ? v.length > 0 : v != null;
-      }
-    ).length,
-  });
-  // 1. Resolve every answer into normalized structures across 20 dimensions
+  // 1. Resolve every answer into normalized structures across 21 dimensions
   const tech = resolveNumericAnswer(answers.technicalOrientation, 5);
   const mode = resolveWorkMode(answers.workMode);
   const outputMedium = resolveNumericAnswer(answers.outputMedium ?? 'not_clear', 5);
@@ -502,6 +519,7 @@ export function computeCareerRecommendations(
   const helping = resolveNumericAnswer(answers.helpingAndHumanImpact, 5);
   const creative = resolveNumericAnswer(answers.creativeDesignAptitude, 5);
   const physical = resolveNumericAnswer(answers.physicalDexterityTacticalCraft, 5);
+  const techPractical = resolveNumericAnswer(answers.technicalPracticalBalance ?? 'not_clear', 5);
   const governance = resolveNumericAnswer(answers.governanceLawPublicService, 5);
   const learning = resolveNumericAnswer(answers.continuousLearning, 5);
   const feedbackHorizon = resolveNumericAnswer(answers.feedbackHorizon ?? 'not_clear', 5);
@@ -513,27 +531,26 @@ export function computeCareerRecommendations(
   const userSkills = (answers.existingSkills || []).map((s) => s.toLowerCase());
   const coreLifeDriver = resolveNumericAnswer(answers.coreLifeDriver ?? answers.missionDrivenOrientation ?? 'not_clear', 5);
 
-  // Backward compatibility helpers
   const wlb = pressureDynamics;
   const salary = financialStrategy;
 
   // 2. Multi-Criteria Composite Archetype Determination
-  // Evaluates every archetype profile comprehensively across technology, public sector, business & creative arts
   const archetypeProfiles: { key: string; title: string; subtitle: string; score: number }[] = [
     {
       key: 'systems',
       title: 'The Frontier Systems Architect',
       subtitle: 'You thrive on deep algorithmic complexity, mathematical rigor, and engineering systems at the bleeding edge of software, silicon, and intelligence.',
-      score: (tech.isNotClear ? 5 : tech.value) * 3.2 +
+      score: (tech.isNotClear ? 5 : tech.value) * 3.0 +
              (math.isNotClear ? 5 : math.value) * 1.8 +
+             (techPractical.isNotClear ? 5 : techPractical.value >= 7 ? 4 : 1) * 1.5 +
              (learning.isNotClear ? 5 : learning.value) * 1.2 +
-             (preferredIndustries.includes('Technology & Engineering') ? 24 : 0) +
-             (userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('algorithm')) ? 16 : 0),
+             (preferredIndustries.some((ind) => ind.includes('Technology') || ind.includes('Software')) ? 24 : 0) +
+             (userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('algorithm')) ? 16 : 0),
     },
     {
       key: 'sovereign_leader',
       title: 'The Sovereign Administrator & Nation Builder',
-      subtitle: 'You are called to serve the nation with institutional authority, steering Indian public infrastructure, railways, energy PSUs, defense, and sovereign governance.',
+      subtitle: 'You are called to serve the nation with institutional authority, steering public infrastructure, railways, energy PSUs, defense, and sovereign governance.',
       score: (governance.isNotClear ? 5 : governance.value) * 3.8 +
              (coreLifeDriver.isNotClear ? 5 : coreLifeDriver.value) * 2.2 +
              (outputMedium.isNotClear ? 5 : outputMedium.value === 2 ? 10 : 3) * 1.5 +
@@ -547,8 +564,8 @@ export function computeCareerRecommendations(
       score: (creative.isNotClear ? 5 : creative.value) * 2.5 +
              (leadership.isNotClear ? 5 : leadership.value) * 2.5 +
              (publicVisibility.isNotClear ? 5 : publicVisibility.value) * 1.8 +
-             (preferredIndustries.includes('Business & Management') || preferredIndustries.some((ind) => ind.includes('Fashion')) ? 26 : 0) +
-             (userSkills.some((s) => s.includes('brand') || s.includes('marketing') || s.includes('advertising') || s.includes('consumer')) ? 18 : 0),
+             (preferredIndustries.some((ind) => ind.includes('Business') || ind.includes('Fashion') || ind.includes('Product Management')) ? 26 : 0) +
+             (userSkills.some((s) => s.includes('brand') || s.includes('marketing') || s.includes('advertising') || s.includes('product management')) ? 18 : 0),
     },
     {
       key: 'screen_artist',
@@ -566,17 +583,18 @@ export function computeCareerRecommendations(
       subtitle: 'You possess a profound dedication to human physical and emotional wellbeing, thriving in environments where clinical knowledge directly restores health and saves lives.',
       score: (helping.isNotClear ? 5 : helping.value) * 4.0 +
              (physical.isNotClear ? 5 : physical.value) * 1.2 +
-             (preferredIndustries.includes('Medicine & Healthcare') ? 28 : 0) +
-             (userSkills.some((s) => s.includes('biology') || s.includes('anatomy') || s.includes('patient') || s.includes('healthcare')) ? 18 : 0),
+             (preferredIndustries.some((ind) => ind.includes('Medicine') || ind.includes('Healthcare')) ? 28 : 0) +
+             (userSkills.some((s) => s.includes('biology') || s.includes('anatomy') || s.includes('patient') || s.includes('healthcare') || s.includes('medical')) ? 18 : 0),
     },
     {
       key: 'tactical',
       title: 'The High-Precision Tactical Operator',
       subtitle: 'You excel when operating sophisticated real-world machinery and physical systems under high pressure, maintaining supreme composure in cockpits, bridge decks, and acute theaters.',
-      score: (physical.isNotClear ? 5 : physical.value) * 3.5 +
+      score: (physical.isNotClear ? 5 : physical.value) * 3.2 +
+             (techPractical.isNotClear ? 5 : techPractical.value <= 4 ? 4 : 1) * 1.5 +
              (pressureDynamics.isNotClear ? 6 : pressureDynamics.value) * 1.2 +
-             (preferredIndustries.includes('Aviation & Maritime Operations') ? 28 : 0) +
-             (userSkills.some((s) => s.includes('aviation') || s.includes('piloting') || s.includes('navigation') || s.includes('electronics')) ? 18 : 0),
+             (preferredIndustries.some((ind) => ind.includes('Aviation') || ind.includes('Automation') || ind.includes('Robotics')) ? 28 : 0) +
+             (userSkills.some((s) => s.includes('aviation') || s.includes('piloting') || s.includes('plc') || s.includes('robotics')) ? 18 : 0),
     },
     {
       key: 'justice',
@@ -584,7 +602,7 @@ export function computeCareerRecommendations(
       subtitle: 'You are driven by the rule of law, constitutional ethics, and sovereign diplomacy, aspiring to defend human rights, govern institutions, and shape national policy.',
       score: (governance.isNotClear ? 5 : governance.value) * 4.0 +
              (leadership.isNotClear ? 5 : leadership.value) * 1.5 +
-             (preferredIndustries.includes('Law & Government') || preferredIndustries.some((i) => i.includes('Judiciary')) ? 28 : 0) +
+             (preferredIndustries.some((ind) => ind.includes('Law') || ind.includes('Government')) ? 28 : 0) +
              (userSkills.some((s) => s.includes('law') || s.includes('debating') || s.includes('speaking')) ? 16 : 0),
     },
     {
@@ -593,99 +611,35 @@ export function computeCareerRecommendations(
       subtitle: 'You possess sharp numeric intuition, thriving on financial valuation, risk quantification, and structuring high-stakes investments in global capital markets.',
       score: (math.isNotClear ? 5 : math.value) * 2.8 +
              (financialStrategy.isNotClear ? 7 : financialStrategy.value) * 2.2 +
-             (preferredIndustries.includes('Finance & Banking') ? 26 : 0) +
+             (preferredIndustries.some((ind) => ind.includes('Finance') || ind.includes('Banking')) ? 26 : 0) +
              (userSkills.some((s) => s.includes('finance') || s.includes('accounting') || s.includes('budgeting')) ? 18 : 0),
-    },
-    {
-      key: 'creative',
-      title: 'The Expressive Storyteller & Creative Visionary',
-      subtitle: 'You combine refined artistic taste with narrative intuition, driven to evoke profound human emotion through cinematic visuals, music, literature, or bespoke design.',
-      score: (creative.isNotClear ? 5 : creative.value) * 4.2 +
-             (ambiguity.isNotClear ? 5 : ambiguity.value) * 1.5 +
-             (preferredIndustries.some((i) => i.includes('Creative')) ? 28 : 0) +
-             (userSkills.some((s) => s.includes('design') || s.includes('writing') || s.includes('arts') || s.includes('cooking')) ? 18 : 0),
-    },
-    {
-      key: 'founder',
-      title: 'The High-Conviction Venture Founder',
-      subtitle: 'You possess an extraordinary appetite for high ambiguity, leadership under uncertainty, and building groundbreaking companies from absolute scratch.',
-      score: (ambiguity.isNotClear ? 5 : ambiguity.value) * 3.0 +
-             (financialStrategy.isNotClear ? 7 : financialStrategy.value) * 1.8 +
-             (leadership.isNotClear ? 5 : leadership.value) * 2.0 +
-             (preferredIndustries.includes('Business & Management') ? 15 : 0),
-    },
-    {
-      key: 'dealmaker',
-      title: 'The Strategic Commercial Dealmaker',
-      subtitle: 'You excel in fast-paced executive rooms, orchestrating multi-million dollar contracts, building strategic coalitions, and driving organizational transformation.',
-      score: (leadership.isNotClear ? 5 : leadership.value) * 3.5 +
-             (financialStrategy.isNotClear ? 7 : financialStrategy.value) * 1.5 +
-             (preferredIndustries.includes('Business & Management') ? 26 : 0) +
-             (userSkills.some((s) => s.includes('sales') || s.includes('negotiation') || s.includes('leadership')) ? 18 : 0),
     },
     {
       key: 'builder',
       title: 'The Master Builder & Infrastructure Architect',
       subtitle: 'You are driven to leave an indelible physical mark on the world, designing towering structures, renewable power grids, and civil marvels that endure for generations.',
-      score: (physical.isNotClear ? 5 : physical.value) * 2.5 +
+      score: (physical.isNotClear ? 5 : physical.value) * 2.2 +
              (math.isNotClear ? 5 : math.value) * 2.0 +
-             (preferredIndustries.includes('Engineering & Built Environment') ? 28 : 0) +
-             (userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('electrical') || s.includes('circuits')) ? 18 : 0),
+             (techPractical.isNotClear ? 5 : (techPractical.value >= 4 && techPractical.value <= 7) ? 5 : 1) * 2.0 +
+             (preferredIndustries.some((ind) => ind.includes('Engineering') || ind.includes('Renewable') || ind.includes('Built Environment') || ind.includes('Smart Buildings')) ? 28 : 0) +
+             (userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('electrical') || s.includes('solar') || s.includes('clean energy')) ? 18 : 0),
     },
     {
-      key: 'craftsman',
-      title: 'The Master Craftsman & Human Performance Optimizer',
-      subtitle: 'You embody tactile mastery, physical discipline, and sensory precision, inspiring physical excellence in athletics or culinary artistry.',
-      score: (physical.isNotClear ? 5 : physical.value) * 3.2 +
-             (creative.isNotClear ? 5 : creative.value) * 1.5 +
-             (preferredIndustries.some((i) => i.includes('Sports') || i.includes('Hospitality')) ? 28 : 0) +
-             (userSkills.some((s) => s.includes('athletics') || s.includes('fitness') || s.includes('cooking') || s.includes('culinary')) ? 18 : 0),
-    },
-    {
-      key: 'academic',
-      title: 'The Knowledge Pioneer & Academic Mentor',
-      subtitle: 'You are animated by the pursuit of fundamental truth, scientific discovery, and nurturing the intellectual curiosity of the next generation.',
-      score: (learning.isNotClear ? 5 : learning.value) * 2.8 +
-             (helping.isNotClear ? 5 : helping.value) * 2.0 +
-             (preferredIndustries.includes('Education & Research') ? 28 : 0) +
-             (userSkills.some((s) => s.includes('teaching') || s.includes('tutoring') || s.includes('experiments') || s.includes('lab')) ? 18 : 0),
-    },
-    {
-      key: 'ai_builder',
-      title: 'The Independent AI Builder & Maker',
-      subtitle: 'You combine strong technical ability with an entrepreneurial instinct to rapidly ship AI-powered products and tools solo or in a small team.',
-      score: (tech.isNotClear ? 5 : tech.value) * 2.0 +
-             (ambiguity.isNotClear ? 5 : ambiguity.value) * 2.5 +
-             (financialStrategy.isNotClear ? 5 : financialStrategy.value) * 1.5 +
-             (preferredIndustries.includes('Technology & Engineering') ? 15 : 0) +
-             (userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('algorithm')) ? 14 : 0),
-    },
-    {
-      key: 'mission_engineer',
-      title: 'The Mission-Driven Climate & Systems Engineer',
-      subtitle: 'You want to apply engineering skills and analytical rigour to fix humanity\'s biggest infrastructure, climate, and sustainability challenges.',
-      score: (coreLifeDriver.isNotClear ? 5 : coreLifeDriver.value) * 2.5 +
-             (tech.isNotClear ? 5 : tech.value) * 1.8 +
-             (math.isNotClear ? 5 : math.value) * 1.5 +
-             (preferredIndustries.includes('Technology & Engineering') || preferredIndustries.includes('Engineering & Built Environment') ? 18 : 0) +
-             (userSkills.some((s) => s.includes('cad') || s.includes('electrical') || s.includes('algorithm') || s.includes('code')) ? 12 : 0),
-    },
-    {
-      key: 'public_servant',
-      title: 'The Dedicated Public Servant & Policy Leader',
-      subtitle: 'You are driven by an unwavering commitment to serve your nation through civil administration, law enforcement, or diplomatic service.',
-      score: (governance.isNotClear ? 5 : governance.value) * 3.5 +
-             (coreLifeDriver.isNotClear ? 5 : coreLifeDriver.value) * 2.0 +
-             (leadership.isNotClear ? 5 : leadership.value) * 1.5 +
-             (preferredIndustries.includes('Law & Government') || preferredIndustries.some((i) => i.includes('Public Sector')) ? 28 : 0) +
-             (userSkills.some((s) => s.includes('law') || s.includes('speaking') || s.includes('debating')) ? 16 : 0),
+      key: 'automation_specialist',
+      title: 'The Industrial Automation & Smart Systems Innovator',
+      subtitle: 'You bridge the digital realm with the physical world, creating intelligent control systems, robotics integrations, and automated infrastructure that optimize real-world operations.',
+      score: (tech.isNotClear ? 5 : tech.value) * 2.4 +
+             (techPractical.isNotClear ? 5 : (techPractical.value >= 5 && techPractical.value <= 7) ? 6 : 1) * 2.5 +
+             (physical.isNotClear ? 5 : physical.value) * 1.5 +
+             (preferredIndustries.some((ind) => ind.includes('Automation') || ind.includes('Robotics') || ind.includes('Smart Buildings')) ? 28 : 0) +
+             (userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('robotics') || s.includes('scada')) ? 20 : 0),
     },
   ];
 
   archetypeProfiles.sort((a, b) => b.score - a.score);
   const bestArchetype = archetypeProfiles[0];
-  const archetypeTitle = bestArchetype.score >= 38 ? bestArchetype.title : 'The Frontier Strategic Innovator';
-  const archetypeSubtitle = bestArchetype.score >= 38 ? bestArchetype.subtitle : 'You excel at bridging systemic complexity with tangible real-world outcomes, driving high-impact initiatives across modern disciplines.';
+  const archetypeTitle = bestArchetype.score >= 36 ? bestArchetype.title : 'The Frontier Strategic Innovator';
+  const archetypeSubtitle = bestArchetype.score >= 36 ? bestArchetype.subtitle : 'You excel at bridging systemic complexity with tangible real-world outcomes, driving high-impact initiatives across modern disciplines.';
 
   // 3. Multi-Vector Scoring of Each Career
   const scored = allCareers.map((career) => {
@@ -694,7 +648,7 @@ export function computeCareerRecommendations(
     const slug = career.slug || '';
 
     // --- Component 1: Industry & Domain Match (Weight: 35%) ---
-    let domainScore = 55; // Neutral baseline when user has no strict preference
+    let domainScore = 55;
     const hasPreferred = preferredIndustries.length > 0;
 
     if (hasPreferred) {
@@ -703,6 +657,18 @@ export function computeCareerRecommendations(
         const c = category.toLowerCase();
         const ind = industry.toLowerCase();
         if (p === c || p === ind) return true;
+        if ((p.includes('industrial automation') || p.includes('controls') || p.includes('robotics') || p.includes('smart manufacturing')) &&
+            (ind.includes('automation') || ind.includes('robotics') || slug.includes('automation') || slug.includes('robotics'))) return true;
+        if ((p.includes('renewable') || p.includes('cleantech') || p.includes('sustainability') || p.includes('clean energy')) &&
+            (ind.includes('renewable') || ind.includes('clean') || ind.includes('energy') || slug.includes('renewable') || slug.includes('energy'))) return true;
+        if ((p.includes('medical technology') || p.includes('medical device') || p.includes('biomedical') || p.includes('healthcare tech')) &&
+            (ind.includes('medical') || ind.includes('device') || slug.includes('medical-tech') || slug.includes('medical-technology'))) return true;
+        if ((p.includes('smart buildings') || p.includes('building automation') || p.includes('energy management')) &&
+            (ind.includes('smart buildings') || ind.includes('building automation') || slug.includes('smart-buildings') || slug.includes('energy-automation'))) return true;
+        if ((p.includes('product management') || p.includes('technology strategy') || p.includes('business strategy')) &&
+            (slug.includes('product-manager') || ind.includes('product management') || ind.includes('technology strategy'))) return true;
+        if ((p.includes('enterprise software') || p.includes('customer engineering')) &&
+            (slug.includes('forward-deployed') || ind.includes('enterprise software'))) return true;
         if (p.includes('fashion') && (ind.includes('fashion') || slug.includes('model'))) return true;
         if ((p.includes('cinema') || p.includes('creative') || p.includes('entertainment')) && (c.includes('creative') || ind.includes('media') || ind.includes('entertainment') || slug.includes('actor') || slug.includes('film'))) return true;
         if ((p.includes('public sector') || p.includes('government') || p.includes('railways') || p.includes('psu') || p.includes('civil services')) && (c.includes('government') || ind.includes('public') || ind.includes('railway') || slug.includes('psu') || slug.includes('railway') || slug.includes('upsc'))) return true;
@@ -722,20 +688,23 @@ export function computeCareerRecommendations(
       if (isDomainMatch) {
         domainScore = 100;
       } else {
-        // Significantly deprioritize unrelated industries when user has explicit targets
         domainScore = 18;
       }
     }
 
-    // Natural category affinity computed from question answers
     let categoryAffinity = 0;
     if (category === 'Medicine & Healthcare') {
       if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 8;
       if (!physical.isNotClear && (slug.includes('surgeon') || slug.includes('dentist'))) categoryAffinity += (physical.value - 5) * 3;
+      if (!techPractical.isNotClear && slug === 'medical-technology-application-specialist') {
+        const tpBalance = techPractical.value;
+        if (tpBalance >= 5 && tpBalance <= 7) categoryAffinity += 12;
+      }
     } else if (category === 'Technology & Engineering') {
       if (!tech.isNotClear) categoryAffinity += (tech.value - 5) * 9;
       if (!math.isNotClear) categoryAffinity += (math.value - 5) * 4;
       if (!learning.isNotClear) categoryAffinity += (learning.value - 5) * 3;
+      if (!techPractical.isNotClear) categoryAffinity += (techPractical.value - 5) * 4;
     } else if (category === 'Finance & Banking') {
       if (!math.isNotClear) categoryAffinity += (math.value - 5) * 7;
       if (!salary.isNotClear) categoryAffinity += (salary.value - 5) * 5;
@@ -758,11 +727,15 @@ export function computeCareerRecommendations(
       if (!math.isNotClear) categoryAffinity += (math.value - 5) * 4;
       if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 6;
       if (!tech.isNotClear) categoryAffinity += (tech.value - 5) * 3;
+      if (!techPractical.isNotClear) {
+        const tpVal = techPractical.value;
+        if (tpVal >= 4 && tpVal <= 7) categoryAffinity += 10;
+        else if (tpVal === 1) categoryAffinity += 8;
+      }
     } else if (category === 'Hospitality & Food') {
       if (!creative.isNotClear) categoryAffinity += (creative.value - 5) * 7;
       if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 7;
       if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 4;
-      // Dedicated cuisine/hospitality affinity signal
       if (slug.includes('chef') || slug.includes('culinary') || slug.includes('hotel') || slug.includes('restaurant')) {
         if (userSkills.some((s) => s.includes('cook') || s.includes('culinary') || s.includes('hospitality'))) categoryAffinity += 20;
       }
@@ -784,7 +757,7 @@ export function computeCareerRecommendations(
 
     // --- Component 3: Work Environment & Physical Setting (Weight: 15%) ---
     const remoteOpp = career.remoteOpportunities || 5;
-    let workModeScore = 70; // neutral default
+    let workModeScore = 70;
     if (!mode.isNotClear && mode.modes.length > 0) {
       let bestModeMatch = 25;
       if (mode.modes.includes('remote')) {
@@ -802,7 +775,6 @@ export function computeCareerRecommendations(
         }
       }
       if (mode.modes.includes('field')) {
-        // Field work broadly applies to physical, active, hands-on and creative careers
         const isFieldCareer =
           category === 'Aviation & Maritime Operations' ||
           category === 'Sports & Fitness' ||
@@ -810,6 +782,8 @@ export function computeCareerRecommendations(
           category === 'Hospitality & Food' ||
           category === 'Medicine & Healthcare' ||
           category === 'Creative & Media' ||
+          slug.includes('forward-deployed') ||
+          slug.includes('automation') ||
           remoteOpp <= 3;
         if (isFieldCareer) {
           bestModeMatch = Math.max(bestModeMatch, 100);
@@ -870,33 +844,25 @@ export function computeCareerRecommendations(
     const skillRatio = essentialTech.length > 0 ? possessed.length / essentialTech.length : 0.4;
     let skillBonus = possessed.length * 4;
 
-    // Targeted specialization bonuses for distinct domain skills
-    if (slug.includes('model') && userSkills.some((s) => s.includes('modeling') || s.includes('runway') || s.includes('editorial'))) {
-      skillBonus += 18;
-    }
-    if (slug.includes('athlete') && userSkills.some((s) => s.includes('athletic') || s.includes('sports training') || s.includes('conditioning'))) {
-      skillBonus += 18;
-    }
-    if (slug.includes('railways') && userSkills.some((s) => s.includes('rail') || s.includes('locomotive') || s.includes('transit'))) {
-      skillBonus += 20;
-    }
-    if (slug.includes('psu') && userSkills.some((s) => s.includes('refinery') || s.includes('petrochemical') || s.includes('industrial plant'))) {
-      skillBonus += 20;
-    }
-    if (slug.includes('brand-manager') && userSkills.some((s) => s.includes('brand strategy') || s.includes('consumer marketing'))) {
-      skillBonus += 20;
-    }
-    if (slug.includes('actor') && userSkills.some((s) => s.includes('acting') || s.includes('dramatic') || s.includes('voice artistry'))) {
-      skillBonus += 20;
-    }
-    if (slug.includes('upsc') && userSkills.some((s) => s.includes('civil governance') || s.includes('public administration') || s.includes('policy'))) {
-      skillBonus += 14;
-    }
-    // Tech subtype specialization bonuses
-    if ((slug.includes('chef') || slug.includes('culinary') || slug.includes('hotel') || slug.includes('restaurant')) &&
-        userSkills.some((s) => s.includes('cook') || s.includes('culinary') || s.includes('hospitality'))) {
-      skillBonus += 24;
-    }
+    // Specialized domain skill bonuses
+    if (slug.includes('model') && userSkills.some((s) => s.includes('modeling') || s.includes('runway') || s.includes('editorial'))) skillBonus += 18;
+    if (slug.includes('athlete') && userSkills.some((s) => s.includes('athletic') || s.includes('sports training') || s.includes('conditioning'))) skillBonus += 18;
+    if (slug.includes('railways') && userSkills.some((s) => s.includes('rail') || s.includes('locomotive') || s.includes('transit'))) skillBonus += 20;
+    if (slug.includes('psu') && userSkills.some((s) => s.includes('refinery') || s.includes('petrochemical') || s.includes('industrial plant'))) skillBonus += 20;
+    if (slug.includes('brand-manager') && userSkills.some((s) => s.includes('brand strategy') || s.includes('consumer marketing'))) skillBonus += 20;
+    if (slug.includes('actor') && userSkills.some((s) => s.includes('acting') || s.includes('dramatic') || s.includes('voice artistry'))) skillBonus += 20;
+    if (slug.includes('upsc') && userSkills.some((s) => s.includes('civil governance') || s.includes('public administration') || s.includes('policy'))) skillBonus += 14;
+
+    // ─── 7 Roles Specialization Skill Bonuses ───
+    if (slug === 'industrial-automation-controls-engineer' && userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('scada') || s.includes('machinery'))) skillBonus += 24;
+    if (slug === 'forward-deployed-ai-robotics-engineer' && userSkills.some((s) => s.includes('robotics') || s.includes('ros') || s.includes('hardware integration'))) skillBonus += 24;
+    if (slug === 'renewable-energy-project-developer' && userSkills.some((s) => s.includes('clean energy') || s.includes('solar') || s.includes('environmental'))) skillBonus += 24;
+    if (slug === 'medical-technology-application-specialist' && userSkills.some((s) => s.includes('medical device') || s.includes('biomedical') || s.includes('hospital'))) skillBonus += 24;
+    if (slug === 'smart-buildings-energy-automation-consultant' && userSkills.some((s) => s.includes('smart buildings') || s.includes('building automation') || s.includes('hvac'))) skillBonus += 24;
+    if (slug === 'ai-product-manager' && userSkills.some((s) => s.includes('product management') || s.includes('roadmapping') || s.includes('user experience'))) skillBonus += 24;
+    if (slug === 'forward-deployed-engineer' && userSkills.some((s) => s.includes('enterprise client') || s.includes('technical integration') || s.includes('customer engineering'))) skillBonus += 24;
+
+    // General Tech subtypes
     if ((slug.includes('ml-engineer') || slug.includes('ai-engineer') || slug.includes('ai-ml') || slug.includes('generative-ai') ||
          slug.includes('mlops') || slug.includes('physical-ai')) &&
         userSkills.some((s) => s.includes('algorithm') || s.includes('code') || s.includes('software'))) {
@@ -907,16 +873,6 @@ export function computeCareerRecommendations(
         userSkills.some((s) => s.includes('code') || s.includes('web development') || s.includes('algorithm'))) {
       skillBonus += 14;
     }
-    if ((slug.includes('vlsi') || slug.includes('fintech') || slug.includes('quantum')) &&
-        userSkills.some((s) => s.includes('electrical') || s.includes('algorithm') || s.includes('mathematics'))) {
-      skillBonus += 14;
-    }
-    if ((slug.includes('digital-marketer') || slug.includes('marketing-manager') || slug.includes('hr-manager') ||
-         slug.includes('corporate-strategy') || slug.includes('real-estate') || slug.includes('supply-chain') ||
-         slug.includes('event') || slug.includes('entrepreneur')) &&
-        userSkills.some((s) => s.includes('brand strategy') || s.includes('sales') || s.includes('project planning') || s.includes('leadership') || s.includes('finance'))) {
-      skillBonus += 12;
-    }
 
     // --- Component 6: Lifestyle Pain Points & Frustration Penalties/Bonuses ---
     let painPointDelta = 0;
@@ -924,83 +880,72 @@ export function computeCareerRecommendations(
       const wlbVal = career.workLifeBalance || 7;
       const pressureVal = career.workPressure || 7;
 
-      // 1. Commute
-      if (painPoints.includes('Commuting long distances to work every day')) {
+      if (painPoints.some((p) => p.includes('commuting') || p.includes('heavy traffic'))) {
         if (remoteOpp >= 7) painPointDelta += 8;
         if (remoteOpp <= 3 && category !== 'Aviation & Maritime Operations') painPointDelta -= 8;
       }
-      // 2. Desk sitting
-      if (painPoints.includes('Sitting at a desk all day without moving')) {
-        if (category === 'Aviation & Maritime Operations' || category === 'Sports & Fitness' || category === 'Hospitality & Food' || category === 'Engineering & Built Environment') {
+      if (painPoints.some((p) => p.includes('Sitting still') || p.includes('desk'))) {
+        if (category === 'Aviation & Maritime Operations' || category === 'Sports & Fitness' || category === 'Hospitality & Food' || category === 'Engineering & Built Environment' || slug.includes('automation') || slug.includes('robotics')) {
           painPointDelta += 16;
-        } else if (category === 'Medicine & Healthcare' && (slug.includes('surgeon') || slug.includes('physiotherapist') || slug.includes('nurse') || slug.includes('doctor') || slug.includes('dentist') || slug.includes('veterinarian'))) {
+        } else if (category === 'Medicine & Healthcare' && (slug.includes('surgeon') || slug.includes('nurse') || slug.includes('specialist'))) {
           painPointDelta += 12;
         } else if (category === 'Technology & Engineering' || category === 'Finance & Banking' || slug.includes('lawyer') || slug.includes('accountant') || slug.includes('actuary')) {
           painPointDelta -= 16;
         }
       }
-      // 3. Recognition
-      if (painPoints.includes('Not getting recognized or appreciated for my work')) {
-        if (category === 'Medicine & Healthcare' || slug.includes('founder') || slug.includes('director') || slug.includes('lead') || slug.includes('pilot')) {
+      if (painPoints.some((p) => p.includes('appreciation') || p.includes('credit') || p.includes('recognition'))) {
+        if (category === 'Medicine & Healthcare' || slug.includes('founder') || slug.includes('director') || slug.includes('lead') || slug.includes('pilot') || slug.includes('product-manager')) {
           painPointDelta += 6;
         }
       }
-      // 4. Creative freedom
-      if (painPoints.includes('Having no creative freedom or variety in tasks')) {
+      if (painPoints.some((p) => p.includes('repetitive tasks') || p.includes('variety') || p.includes('creative freedom'))) {
         if (category === 'Creative & Media' || category === 'Hospitality & Food' ||
             slug.includes('founder') || slug.includes('product') || slug.includes('architect') ||
-            slug.includes('chef') || slug.includes('brand-manager') || slug.includes('designer')) {
+            slug.includes('forward-deployed') || slug.includes('automation') || slug.includes('developer')) {
           painPointDelta += 8;
         }
         if (slug.includes('accountant') || slug.includes('actuary') || slug.includes('controller')) {
           painPointDelta -= 8;
         }
       }
-      // 5. Working alone
-      if (painPoints.includes('Working alone with little human interaction')) {
-        if (category === 'Education & Research' || category === 'Medicine & Healthcare' || category === 'Business & Management' || category === 'Hospitality & Food') {
+      if (painPoints.some((p) => p.includes('isolation') || p.includes('little human contact') || p.includes('interaction'))) {
+        if (category === 'Education & Research' || category === 'Medicine & Healthcare' || category === 'Business & Management' || category === 'Hospitality & Food' || slug.includes('forward-deployed') || slug.includes('product-manager')) {
           painPointDelta += 7;
         }
       }
-      // 6. Extreme stress and long hours
-      if (painPoints.includes('Extreme stress, pressure, and very long hours')) {
+      if (painPoints.some((p) => p.includes('stress') || p.includes('emergencies') || p.includes('60+ hour'))) {
         if (wlbVal >= 7 && pressureVal <= 6) painPointDelta += 10;
         if (pressureVal >= 8 || wlbVal <= 4) painPointDelta -= 14;
       }
-      // 7. No real difference / purpose
-      if (painPoints.includes('Feeling my work makes no real difference to anyone')) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || category === 'Law & Government' || slug.includes('renewable')) {
+      if (painPoints.some((p) => p.includes('meaningful difference') || p.includes('no real difference'))) {
+        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || category === 'Law & Government' || slug.includes('renewable') || slug.includes('smart-buildings')) {
           painPointDelta += 10;
         }
       }
-      // 8. Low earnings relative to effort
-      if (painPoints.includes('Earning too little compared to the effort I put in')) {
+      if (painPoints.some((p) => p.includes('Low pay') || p.includes('Earning too little'))) {
         if (seniorMax >= 250) painPointDelta += 8;
         if (seniorMax < 130) painPointDelta -= 8;
       }
-      // 9. Rigid rules & bureaucracy
-      if (painPoints.includes('Too many rules and rigid procedures to follow')) {
-        if (slug.includes('founder') || category === 'Creative & Media' || category === 'Business & Management') {
+      if (painPoints.some((p) => p.includes('bureaucracy') || p.includes('red tape') || p.includes('rigid rules'))) {
+        if (slug.includes('founder') || category === 'Creative & Media' || category === 'Business & Management' || slug.includes('forward-deployed')) {
           painPointDelta += 8;
         }
         if (category === 'Law & Government' || slug.includes('pilot') || slug.includes('controller') || slug.includes('actuary')) {
           painPointDelta -= 10;
         }
       }
-      // 10. Constant travel
-      if (painPoints.includes('Constant travel and long time away from home/family')) {
-        if (slug.includes('pilot') || slug.includes('merchant-navy') || slug.includes('field-service') || slug.includes('offshore')) {
+      if (painPoints.some((p) => p.includes('travel') || p.includes('away from home'))) {
+        if (slug.includes('pilot') || slug.includes('merchant-navy') || slug.includes('forward-deployed') || slug.includes('offshore')) {
           painPointDelta -= 18;
         } else if (remoteOpp >= 6) {
           painPointDelta += 6;
         }
       }
-      // 11. Income instability
-      if (painPoints.includes('Unstable income or job insecurity')) {
+      if (painPoints.some((p) => p.includes('Unstable income') || p.includes('layoffs') || p.includes('insecurity'))) {
         if (category === 'Medicine & Healthcare' || category === 'Law & Government' || (career.careerStability || 7) >= 8) {
           painPointDelta += 8;
         }
-        if (slug.includes('founder') || slug.includes('content-creator') || slug.includes('trader')) {
+        if (slug.includes('founder') || slug.includes('content-creator') || slug.includes('trader') || slug.includes('model')) {
           painPointDelta -= 10;
         }
       }
@@ -1010,163 +955,113 @@ export function computeCareerRecommendations(
     let ambiguityDelta = 0;
     if (!ambiguity.isNotClear) {
       if (ambiguity.values.some((v) => v >= 8)) {
-        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('investor') || slug.includes('content-creator') || slug.includes('ai-builder') || slug.includes('go-to-market')) ambiguityDelta += 8;
+        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('forward-deployed') || slug.includes('ai-product-manager') || slug.includes('product-manager') || slug.includes('ai-builder')) ambiguityDelta += 8;
       } else if (ambiguity.values.some((v) => v <= 4)) {
-        if (slug.includes('pilot') || slug.includes('judge') || slug.includes('actuary') || slug.includes('controller') || slug.includes('accountant') || slug.includes('upsc')) ambiguityDelta += 8;
+        if (slug.includes('pilot') || slug.includes('judge') || slug.includes('actuary') || slug.includes('controller') || slug.includes('accountant') || slug.includes('upsc') || slug.includes('industrial-automation')) ambiguityDelta += 8;
       }
     }
 
-    // --- New: Financial Strategy & Trajectory Alignment ---
+    // --- Financial Strategy Alignment ---
     let financialStrategyDelta = 0;
     if (!financialStrategy.isNotClear) {
       const fsVal = financialStrategy.value;
       if (fsVal >= 9) {
-        // High-risk exponential upside (startups, royalties, endorsements)
-        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('venture') || slug.includes('trader') ||
-            slug.includes('model') || slug.includes('actor') || slug.includes('athlete') || slug.includes('content-creator') ||
-            slug.includes('ai-builder')) financialStrategyDelta += 14;
-        if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc') || slug.includes('teacher') ||
-            slug.includes('armed-forces') || slug.includes('police')) financialStrategyDelta -= 8;
+        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('forward-deployed') || slug.includes('ai-product-manager') ||
+            slug.includes('model') || slug.includes('actor') || slug.includes('athlete') || slug.includes('ai-builder')) financialStrategyDelta += 14;
+        if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc') || slug.includes('teacher')) financialStrategyDelta -= 8;
       } else if (fsVal >= 7) {
-        // Elite corporate pay & bonuses — broad tech & business coverage
-        if (category === 'Technology & Engineering' || category === 'Finance & Banking' ||
-            category === 'Business & Management' ||
+        if (category === 'Technology & Engineering' || category === 'Finance & Banking' || category === 'Business & Management' ||
             slug.includes('brand-manager') || slug.includes('investment-banker') || slug.includes('management-consultant') ||
-            slug.includes('lawyer') || slug.includes('surgeon') || slug.includes('pilot')) financialStrategyDelta += 12;
+            slug.includes('lawyer') || slug.includes('surgeon') || slug.includes('pilot') || slug.includes('controls-engineer')) financialStrategyDelta += 12;
         if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc')) financialStrategyDelta -= 4;
       } else if (fsVal <= 5) {
-        // Guaranteed sovereign stability & government benefits
         if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc') || slug.includes('armed-forces') ||
             slug.includes('police') || slug.includes('judge') || category === 'Education & Research') financialStrategyDelta += 18;
-        if (slug.includes('founder') || slug.includes('model') || slug.includes('trader') || slug.includes('venture')) financialStrategyDelta -= 12;
+        if (slug.includes('founder') || slug.includes('model') || slug.includes('trader')) financialStrategyDelta -= 12;
       }
     }
 
-    // --- New: Output Medium & Tangibility Alignment ---
+    // --- Output Medium Alignment ---
     let outputMediumDelta = 0;
     if (!outputMedium.isNotClear) {
       const omVal = outputMedium.value;
       if (omVal >= 8) {
-        // Digital & Algorithmic systems
-        if (category === 'Technology & Engineering') outputMediumDelta += 14;
+        if (category === 'Technology & Engineering' || slug.includes('software') || slug.includes('ai')) outputMediumDelta += 14;
         if (slug.includes('model') || slug.includes('railways') || slug.includes('actor')) outputMediumDelta -= 8;
       } else if (omVal >= 6) {
-        // Physical engineering & industrial plants
-        if (slug.includes('psu')) outputMediumDelta += 24;
-        else if (category === 'Engineering & Built Environment' || slug.includes('civil') || slug.includes('mechanical') || slug.includes('electrical')) outputMediumDelta += 15;
+        if (slug.includes('psu') || slug.includes('automation') || slug.includes('renewable') || slug.includes('smart-buildings')) outputMediumDelta += 24;
+        else if (category === 'Engineering & Built Environment' || slug.includes('civil') || slug.includes('mechanical')) outputMediumDelta += 15;
       } else if (omVal === 5) {
-        // Human bodily performance, creative arts & entertainment
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || category === 'Creative & Media' || category === 'Sports & Fitness') outputMediumDelta += 18;
-        if (slug.includes('actuary') || slug.includes('data-engineer') || slug.includes('accountant')) outputMediumDelta -= 10;
+        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || category === 'Creative & Media') outputMediumDelta += 18;
       } else if (omVal <= 3) {
-        // Public systems & sovereign rail networks
-        if (slug.includes('railways')) outputMediumDelta += 24;
-        else if (slug.includes('psu') || slug.includes('upsc') || slug.includes('police') || category === 'Law & Government') outputMediumDelta += 16;
-        if (slug.includes('model') || slug.includes('fashion') || slug.includes('game-designer')) outputMediumDelta -= 10;
+        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || category === 'Law & Government') outputMediumDelta += 20;
       }
     }
 
-    // --- New: Public Visibility & Spotlight Alignment ---
+    // --- Public Visibility Alignment ---
     let publicVisibilityDelta = 0;
     if (!publicVisibility.isNotClear) {
       const pvVal = publicVisibility.value;
       if (pvVal >= 8) {
-        // Center stage & front of camera
         if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || slug.includes('content-creator')) publicVisibilityDelta += 20;
-        if (slug.includes('actuary') || slug.includes('data-engineer') || slug.includes('cloud-architect') ||
-            slug.includes('network-admin') || slug.includes('devops') || slug.includes('cybersecurity')) publicVisibilityDelta -= 15;
+        if (slug.includes('actuary') || slug.includes('data-engineer') || slug.includes('controls-engineer')) publicVisibilityDelta -= 15;
       } else if (pvVal >= 6) {
-        // High-profile institutional, brand or commercial leadership
-        if (slug.includes('brand-manager') || slug.includes('upsc') || slug.includes('railways') || slug.includes('diplomat') ||
-            slug.includes('lawyer') || slug.includes('marketing') || slug.includes('management-consultant') ||
-            slug.includes('ceo') || slug.includes('director') || slug.includes('chef') || slug.includes('hotel') ||
-            category === 'Business & Management') publicVisibilityDelta += 14;
+        if (slug.includes('brand-manager') || slug.includes('upsc') || slug.includes('ai-product-manager') || slug.includes('forward-deployed') ||
+            slug.includes('lawyer') || slug.includes('management-consultant') || category === 'Business & Management') publicVisibilityDelta += 14;
       } else if (pvVal <= 3) {
-        // Quiet behind-the-scenes mastery & anonymity
         if (category === 'Technology & Engineering' || slug.includes('actuary') || slug.includes('data') ||
-            slug.includes('lab') || slug.includes('researcher') || slug.includes('engineer') ||
-            slug.includes('developer') || slug.includes('analyst')) publicVisibilityDelta += 14;
+            slug.includes('controls-engineer') || slug.includes('developer')) publicVisibilityDelta += 14;
         if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete')) publicVisibilityDelta -= 22;
       }
     }
 
-    // --- New: Feedback Horizon Alignment ---
+    // --- Feedback Horizon Alignment ---
     let feedbackHorizonDelta = 0;
     if (!feedbackHorizon.isNotClear) {
       const fhVal = feedbackHorizon.value;
       if (fhVal >= 8) {
-        // Immediate real-time feedback (live performances, trading, surgery, sport)
         if (slug.includes('athlete') || slug.includes('actor') || slug.includes('trader') || slug.includes('surgeon') ||
-            slug.includes('chef') || slug.includes('hotel') || slug.includes('restaurant') || slug.includes('pilot') ||
-            slug.includes('content-creator')) feedbackHorizonDelta += 15;
+            slug.includes('chef') || slug.includes('pilot')) feedbackHorizonDelta += 15;
       } else if (fhVal >= 6) {
-        // Fast monthly/quarterly sprints — broad tech & business
-        if (category === 'Technology & Engineering' || category === 'Business & Management' ||
-            category === 'Finance & Banking' || slug.includes('brand-manager') || slug.includes('marketer') ||
-            slug.includes('product') || slug.includes('digital')) feedbackHorizonDelta += 12;
+        if (category === 'Technology & Engineering' || category === 'Business & Management' || slug.includes('forward-deployed') ||
+            slug.includes('ai-product-manager') || slug.includes('brand-manager')) feedbackHorizonDelta += 12;
       } else if (fhVal <= 3) {
-        // Multi-year national legacy & long-horizon impact
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('armed-forces') ||
-            slug.includes('renewable') || slug.includes('scientist') || slug.includes('professor') ||
-            category === 'Engineering & Built Environment' || category === 'Education & Research') feedbackHorizonDelta += 16;
+        if (slug.includes('railways') || slug.includes('psu') || slug.includes('renewable') || slug.includes('smart-buildings') ||
+            category === 'Engineering & Built Environment') feedbackHorizonDelta += 16;
       }
     }
 
-    // --- New: Core Professional Purpose / Driver Alignment ---
+    // --- Core Life Driver Alignment ---
     let coreLifeDriverDelta = 0;
     if (!coreLifeDriver.isNotClear) {
       const cldVal = coreLifeDriver.value;
       if (cldVal >= 9) {
-        // Sovereign nation building & public duty
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('armed-forces') || slug.includes('police')) coreLifeDriverDelta += 22;
-        if (slug.includes('model') || slug.includes('trader')) coreLifeDriverDelta -= 10;
+        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('armed-forces')) coreLifeDriverDelta += 22;
       } else if (cldVal >= 7) {
-        // Commercial wealth & brand dominance — broad tech, finance, business
-        if (slug.includes('brand-manager') || slug.includes('founder') || slug.includes('sales') || slug.includes('investment-banker') ||
-            slug.includes('venture') || slug.includes('trader') || slug.includes('lawyer') ||
-            category === 'Technology & Engineering' || category === 'Finance & Banking' ||
-            category === 'Business & Management') coreLifeDriverDelta += 16;
+        if (slug.includes('brand-manager') || slug.includes('founder') || slug.includes('ai-product-manager') || slug.includes('forward-deployed') ||
+            category === 'Technology & Engineering' || category === 'Finance & Banking' || category === 'Business & Management') coreLifeDriverDelta += 16;
       } else if (cldVal >= 5) {
-        // Artistic truth, performance & cultural impact
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') ||
-            category === 'Creative & Media' || category === 'Sports & Fitness' ||
-            category === 'Hospitality & Food') coreLifeDriverDelta += 20;
+        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || category === 'Creative & Media') coreLifeDriverDelta += 20;
       } else if (cldVal <= 4) {
-        // Scientific truth, patient healing & environmental regeneration
         if (category === 'Medicine & Healthcare' || category === 'Education & Research' ||
-            slug.includes('scientist') || slug.includes('climate') || slug.includes('renewable') ||
-            slug.includes('lab') || slug.includes('researcher')) coreLifeDriverDelta += 18;
+            slug.includes('renewable') || slug.includes('medical-tech') || slug.includes('smart-buildings') || slug.includes('climate')) coreLifeDriverDelta += 18;
       }
     }
 
-    // --- New: Leadership Scope Alignment ---
+    // --- Leadership Scope Alignment ---
     let leadershipScopeDelta = 0;
     if (!leadership.isNotClear) {
       const lsVal = leadership.value;
       if (lsVal >= 8) {
-        // Executive command & institutional governance
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('armed-forces') ||
-            slug.includes('director') || slug.includes('ceo') || slug.includes('president') ||
-            slug.includes('strategy') || slug.includes('corporate') || slug.includes('entrepreneur')) leadershipScopeDelta += 15;
+        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('director') || slug.includes('ceo')) leadershipScopeDelta += 15;
       } else if (lsVal >= 6) {
-        // Creative brand vision, commercial & general management
-        if (category === 'Business & Management' ||
-            slug.includes('brand-manager') || slug.includes('product-manager') || slug.includes('marketing') ||
-            slug.includes('hr-manager') || slug.includes('supply-chain') || slug.includes('event') ||
-            slug.includes('hotel') || slug.includes('restaurant') || slug.includes('chef')) leadershipScopeDelta += 14;
-      } else if (lsVal === 5) {
-        // Coaching & mentoring
-        if (slug.includes('coach') || slug.includes('trainer') || slug.includes('teacher') ||
-            slug.includes('psychologist') || slug.includes('consultant')) leadershipScopeDelta += 14;
+        if (category === 'Business & Management' || slug.includes('ai-product-manager') || slug.includes('product-manager') || slug.includes('brand-manager')) leadershipScopeDelta += 14;
       } else if (lsVal <= 3) {
-        // Solo craft mastery & deep individual contributor
-        if (slug.includes('sde') || slug.includes('actor') || slug.includes('model') || slug.includes('data') ||
-            slug.includes('developer') || slug.includes('engineer') || slug.includes('architect') ||
-            slug.includes('analyst') || slug.includes('researcher')) leadershipScopeDelta += 10;
+        if (slug.includes('developer') || slug.includes('engineer') || slug.includes('controls-engineer') || slug.includes('actor')) leadershipScopeDelta += 10;
       }
     }
 
-    // --- Component 7: Non-Negotiables Alignment (Priority Dealbreakers & Core Needs) ---
+    // --- Non-Negotiables Alignment ---
     let nonNegotiablesDelta = 0;
     const fulfilledNonNegotiables: string[] = [];
 
@@ -1175,10 +1070,8 @@ export function computeCareerRecommendations(
       const pressureVal = career.workPressure || 7;
       const remoteOppVal = career.remoteOpportunities || 5;
       const seniorMaxVal = career.seniorSalaryMax || 200;
-      const entryMaxVal = career.entrySalaryMax || 100;
 
-      // 1. Fitness & Health
-      if (nonNegotiables.some((n) => n.includes('Fitness') || n.includes('Health'))) {
+      if (nonNegotiables.some((n) => n.includes('Health') || n.includes('Fitness'))) {
         if (wlbVal >= 6 && pressureVal <= 7) {
           nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('daily fitness & health routines');
@@ -1189,23 +1082,16 @@ export function computeCareerRecommendations(
           nonNegotiablesDelta -= 26;
         }
       }
-
-      // 2. Scheduled & Predictable Hours
       if (nonNegotiables.some((n) => n.includes('Scheduled') || n.includes('Predictable Hours'))) {
         if (wlbVal >= 7 && pressureVal <= 6) {
           nonNegotiablesDelta += 18;
           fulfilledNonNegotiables.push('predictable scheduled hours');
-        } else if (category === 'Education & Research' || category === 'Law & Government' || slug.includes('actuary') || slug.includes('accountant') || slug.includes('paralegal')) {
-          nonNegotiablesDelta += 14;
-          fulfilledNonNegotiables.push('structured work hours');
-        } else if (slug.includes('surgeon') || slug.includes('emergency') || slug.includes('forward-deployed') || slug.includes('investment-banker') || slug.includes('trader')) {
+        } else if (slug.includes('surgeon') || slug.includes('forward-deployed') || slug.includes('investment-banker')) {
           nonNegotiablesDelta -= 30;
         }
       }
-
-      // 3. High Money & Wealth Potential
-      if (nonNegotiables.some((n) => n.includes('Money') || n.includes('Wealth'))) {
-        if (seniorMaxVal >= 250 || entryMaxVal >= 115) {
+      if (nonNegotiables.some((n) => n.includes('Earning Potential') || n.includes('High Earning') || n.includes('Money'))) {
+        if (seniorMaxVal >= 250) {
           nonNegotiablesDelta += 22;
           fulfilledNonNegotiables.push('top-tier compensation upside');
         } else if (seniorMaxVal >= 190) {
@@ -1214,19 +1100,15 @@ export function computeCareerRecommendations(
           nonNegotiablesDelta -= 25;
         }
       }
-
-      // 4. Family & Personal Life
-      if (nonNegotiables.some((n) => n.includes('Family') || n.includes('Personal Life'))) {
+      if (nonNegotiables.some((n) => n.includes('Family') || n.includes('Personal Time'))) {
         if (wlbVal >= 7 && pressureVal <= 6) {
           nonNegotiablesDelta += 18;
           fulfilledNonNegotiables.push('family & personal time');
-        } else if (slug.includes('pilot') || slug.includes('merchant-navy') || slug.includes('investment-banker') || pressureVal >= 9 || wlbVal <= 4) {
+        } else if (slug.includes('pilot') || slug.includes('forward-deployed') || pressureVal >= 9 || wlbVal <= 4) {
           nonNegotiablesDelta -= 30;
         }
       }
-
-      // 5. Location Freedom & Remote Flexibility
-      if (nonNegotiables.some((n) => n.includes('Location Freedom') || n.includes('Remote Flexibility'))) {
+      if (nonNegotiables.some((n) => n.includes('Remote') || n.includes('Location Freedom'))) {
         if (remoteOppVal >= 8) {
           nonNegotiablesDelta += 22;
           fulfilledNonNegotiables.push('location freedom & remote work');
@@ -1237,73 +1119,78 @@ export function computeCareerRecommendations(
           nonNegotiablesDelta -= 32;
         }
       }
-
-      // 6. Job Security & Income Stability
-      if (nonNegotiables.some((n) => n.includes('Job Security') || n.includes('Income Stability'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Law & Government' || category === 'Education & Research' || (career.careerStability || 7) >= 8) {
+      if (nonNegotiables.some((n) => n.includes('Job Security') || n.includes('Stability'))) {
+        if (category === 'Medicine & Healthcare' || category === 'Law & Government' || (career.careerStability || 7) >= 8) {
           nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('strong career stability');
-        } else if (slug.includes('founder') || slug.includes('trader') || slug.includes('creator')) {
+        } else if (slug.includes('founder') || slug.includes('trader')) {
           nonNegotiablesDelta -= 22;
         }
       }
-
-      // 7. Ethical Alignment & Social Impact
-      if (nonNegotiables.some((n) => n.includes('Ethical Alignment') || n.includes('Social Impact'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || slug.includes('climate') || slug.includes('renewable') || slug.includes('public-defender')) {
+      if (nonNegotiables.some((n) => n.includes('Ethical') || n.includes('Social Impact'))) {
+        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || slug.includes('renewable') || slug.includes('smart-buildings')) {
           nonNegotiablesDelta += 18;
           fulfilledNonNegotiables.push('ethical social impact');
         }
       }
-
-      // 8. Creative & Intellectual Autonomy
-      if (nonNegotiables.some((n) => n.includes('Autonomy'))) {
-        if (category === 'Creative & Media' || slug.includes('founder') || slug.includes('architect') || slug.includes('ai-builder') || slug.includes('researcher')) {
+      if (nonNegotiables.some((n) => n.includes('Creative Freedom') || n.includes('Autonomy'))) {
+        if (category === 'Creative & Media' || slug.includes('founder') || slug.includes('product') || slug.includes('ai-builder')) {
           nonNegotiablesDelta += 15;
-          fulfilledNonNegotiables.push('intellectual autonomy');
-        } else if (slug.includes('controller') || slug.includes('actuary') || slug.includes('compliance')) {
-          nonNegotiablesDelta -= 12;
+          fulfilledNonNegotiables.push('creative problem-solving autonomy');
         }
       }
-
-      // 9. Low Stress & Calm Work Culture
-      if (nonNegotiables.some((n) => n.includes('Low Stress') || n.includes('Calm Work'))) {
+      if (nonNegotiables.some((n) => n.includes('Low Stress') || n.includes('Calm'))) {
         if (wlbVal >= 7 && pressureVal <= 5) {
           nonNegotiablesDelta += 18;
-          fulfilledNonNegotiables.push('peaceful work culture');
+          fulfilledNonNegotiables.push('calm workplace culture');
         } else if (pressureVal >= 8 || wlbVal <= 4) {
           nonNegotiablesDelta -= 26;
         }
       }
+    }
 
-      // 10. Minimal Travel & Rooted Living
-      if (nonNegotiables.some((n) => n.includes('Minimal Travel') || n.includes('Rooted Living'))) {
-        if (remoteOppVal >= 6 || (category !== 'Aviation & Maritime Operations' && !slug.includes('consultant'))) {
-          nonNegotiablesDelta += 10;
-        }
-        if (slug.includes('pilot') || slug.includes('merchant-navy') || slug.includes('management-consultant') || slug.includes('field-service')) {
-          nonNegotiablesDelta -= 28;
-        }
+    // --- Component: Technical vs. Practical Balance Alignment (Q11) ---
+    let techPracticalDelta = 0;
+    if (!techPractical.isNotClear) {
+      let careerTP = 5; // Default balanced
+      
+      if (slug === 'industrial-automation-controls-engineer') careerTP = 6; // 60% Tech, 40% Practical
+      else if (slug === 'forward-deployed-ai-robotics-engineer') careerTP = 7; // 70% Tech, 30% Practical
+      else if (slug === 'forward-deployed-engineer') careerTP = 7; // 70% Tech, 30% Practical
+      else if (slug === 'renewable-energy-project-developer') careerTP = 6; // 60% Tech, 40% Practical
+      else if (slug === 'medical-technology-application-specialist') careerTP = 6; // 60% Tech, 40% Practical
+      else if (slug === 'smart-buildings-energy-automation-consultant') careerTP = 6; // 60% Tech, 40% Practical
+      else if (slug === 'ai-product-manager' || slug === 'product-manager') careerTP = 7; // 70% Tech, 30% Practical
+      else if (category === 'Technology & Engineering') {
+        if (slug.includes('hardware') || slug.includes('vlsi') || slug.includes('robotics') || slug.includes('embedded')) careerTP = 7;
+        else careerTP = 9; // 100% Technical pure software / algorithms / cloud
+      } else if (category === 'Engineering & Built Environment') {
+        careerTP = 6;
+      } else if (category === 'Medicine & Healthcare') {
+        if (slug.includes('surgeon') || slug.includes('nurse') || slug.includes('dentist') || slug.includes('paramedic')) careerTP = 3;
+        else if (slug.includes('specialist') || slug.includes('biomedical')) careerTP = 6;
+        else careerTP = 5;
+      } else if (category === 'Aviation & Maritime Operations' || category === 'Sports & Fitness' || category === 'Hospitality & Food') {
+        careerTP = 2; // Predominantly hands-on/practical
+      } else if (category === 'Finance & Banking') {
+        careerTP = 8;
+      } else if (category === 'Creative & Media') {
+        if (slug.includes('animator') || slug.includes('video-editor') || slug.includes('sound-designer')) careerTP = 7;
+        else careerTP = 3;
+      } else if (category === 'Law & Government') {
+        careerTP = 5;
       }
 
-      // 11. Rapid Career Growth & Promotion
-      if (nonNegotiables.some((n) => n.includes('Rapid Career Growth') || n.includes('Promotion'))) {
-        if (category === 'Technology & Engineering' || category === 'Finance & Banking' || slug.includes('product-manager') || slug.includes('venture')) {
-          nonNegotiablesDelta += 14;
-          fulfilledNonNegotiables.push('fast career growth');
-        }
-      }
-
-      // 12. Professional Prestige & Respect
-      if (nonNegotiables.some((n) => n.includes('Prestige') || n.includes('Respect'))) {
-        if (slug.includes('surgeon') || slug.includes('judge') || slug.includes('pilot') || slug.includes('investment-banker') || slug.includes('architect') || slug.includes('professor')) {
-          nonNegotiablesDelta += 15;
-          fulfilledNonNegotiables.push('high professional prestige');
-        }
+      const tpDiff = Math.abs(techPractical.value - careerTP);
+      if (tpDiff <= 1) {
+        techPracticalDelta = 16;
+      } else if (tpDiff <= 2.5) {
+        techPracticalDelta = 8;
+      } else if (tpDiff >= 5) {
+        techPracticalDelta = -14;
       }
     }
 
-    // Assemble Weighted Composite Score
     const weightedComposite =
       domainScore * 0.35 +
       aptitudeScore * 0.30 +
@@ -1311,70 +1198,89 @@ export function computeCareerRecommendations(
       salaryScore * 0.10 +
       skillRatio * 100 * 0.10;
 
-    // --- Career Sub-specialization Differentiator (tiebreaker within same category) ---
-    // Gives each career a unique signal boost when the user's skill/industry preference strongly
-    // matches its very specific sub-domain, ensuring every career is reachable and accurate.
+    // --- Career Sub-specialization Differentiator ---
     let subSpecDelta = 0;
     if (category === 'Technology & Engineering') {
       const hasMath = userSkills.some((s) => s.includes('mathematics') || s.includes('statistics'));
       const hasAlgorithms = userSkills.some((s) => s.includes('algorithm'));
-      const hasWeb = userSkills.some((s) => s.includes('web development'));
+      const hasWeb = userSkills.some((s) => s.includes('web development') || s.includes('app design'));
       const hasElectronics = userSkills.some((s) => s.includes('electrical') || s.includes('wiring') || s.includes('electronics'));
-      const hasSales = userSkills.some((s) => s.includes('sales') || s.includes('customer pitching') || s.includes('negotiation'));
+      const hasSales = userSkills.some((s) => s.includes('sales') || s.includes('negotiation') || s.includes('client'));
       const hasProjectPlanning = userSkills.some((s) => s.includes('project planning') || s.includes('leadership'));
-      const hasFinance = userSkills.some((s) => s.includes('finance') || s.includes('budgeting'));
-      const has3DCad = userSkills.some((s) => s.includes('3d cad') || s.includes('mechanical'));
 
       if ((slug === 'data-scientist' || slug === 'data-scientist-data-engineer') && hasMath && hasAlgorithms) subSpecDelta += 24;
-      else if ((slug === 'data-engineer' || slug === 'big-data-specialist') && hasMath) subSpecDelta += 22;
-
       if (slug === 'technical-program-manager' && hasProjectPlanning) subSpecDelta += 24;
-      if (slug === 'cloud-architect' && (hasElectronics || hasWeb) && (career.seniorSalaryMax || 0) >= 220) subSpecDelta += 22;
-      if (slug === 'devops-cloud-platform-sre' && hasAlgorithms && hasElectronics) subSpecDelta += 22;
-      if (slug === 'network-administrator' && hasElectronics && (career.workPressure || 0) <= 7) subSpecDelta += 24;
-      if (slug === 'cybersecurity-analyst' && (hasAlgorithms || hasElectronics || userSkills.some((s) => s.includes('code'))) && !hasSales) subSpecDelta += 24;
-
       if (slug === 'full-stack-developer' && hasWeb) subSpecDelta += 24;
-      if ((slug === 'senior-software-developer' || slug === 'software-development-engineer') && hasAlgorithms && !hasWeb) subSpecDelta += 22;
-      if ((slug === 'go-to-market-engineer' || slug === 'solutions-consultant' || slug === 'digital-transformation-consultant' || slug === 'forward-deployed-engineer') && hasSales) subSpecDelta += 24;
-      if ((slug === 'vlsi-physical-design-engineer' || slug === 'physical-ai-engineer' || slug === 'quantum-computing-engineer') && hasElectronics) subSpecDelta += 24;
-      if (slug === 'climate-tech-engineer' && has3DCad) subSpecDelta += 24;
-      if (slug === 'fintech-engineer' && hasFinance) subSpecDelta += 24;
-    }
-    if (category === 'Finance & Banking') {
-      const hasMath = userSkills.some((s) => s.includes('mathematics') || s.includes('statistics'));
-      const hasBudgeting = userSkills.some((s) => s.includes('finance') || s.includes('budgeting'));
-      const hasAccounting = userSkills.some((s) => s.includes('accounting') || s.includes('financial records'));
-      const hasWriting = userSkills.some((s) => s.includes('writing') || s.includes('journalism'));
+      if (slug === 'senior-software-developer' && hasAlgorithms) subSpecDelta += 22;
+      if (slug === 'vlsi-physical-design-engineer' && hasElectronics) subSpecDelta += 24;
 
-      if (slug === 'actuary' && hasMath && (career.careerStability || 0) >= 8) subSpecDelta += 26;
-      if (slug === 'financial-analyst' && (hasBudgeting || hasAccounting) && (career.workPressure || 0) <= 7) subSpecDelta += 24;
-      if (slug === 'economist' && (hasMath || hasWriting)) subSpecDelta += 26;
-      if (slug === 'chartered-accountant-ca' && hasAccounting) subSpecDelta += 24;
-      if ((slug === 'stock-trader' || slug === 'quantitative-trader') && hasMath) subSpecDelta += 20;
-      if (slug === 'investment-banker' && hasBudgeting) subSpecDelta += 20;
+      // New 7 Roles Sub-Specializations in Technology & Engineering:
+      if (slug === 'industrial-automation-controls-engineer') {
+        const hasAutomation = userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('scada') || s.includes('control') || s.includes('industrial'));
+        const hasElec = userSkills.some((s) => s.includes('electronics') || s.includes('circuits') || s.includes('electrical'));
+        const hasMech = userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('machinery'));
+        if (hasAutomation) subSpecDelta += 30;
+        else if (hasElec || hasMech) subSpecDelta += 18;
+        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 12;
+      }
+      if (slug === 'forward-deployed-ai-robotics-engineer') {
+        const hasRobotics = userSkills.some((s) => s.includes('robotics') || s.includes('ros') || s.includes('automation') || s.includes('electronics'));
+        const hasCode = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('algorithm'));
+        if (hasRobotics && hasCode) subSpecDelta += 32;
+        else if (hasRobotics || hasCode) subSpecDelta += 18;
+        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 12;
+      }
+      if (slug === 'forward-deployed-engineer') {
+        const hasFDE = userSkills.some((s) => s.includes('enterprise client') || s.includes('technical integration') || s.includes('customer engineering'));
+        const hasCode = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('sql') || s.includes('data analysis'));
+        if (hasFDE) subSpecDelta += 30;
+        else if (hasCode && hasSales) subSpecDelta += 26;
+        else if (hasCode) subSpecDelta += 18;
+        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 12;
+      }
     }
+
     if (category === 'Engineering & Built Environment') {
-      if (slug === 'offshore-oil-gas-manager' && userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('refinery'))) subSpecDelta += 26;
+      if (slug === 'renewable-energy-project-developer') {
+        const hasCleanEnergy = userSkills.some((s) => s.includes('clean energy') || s.includes('solar') || s.includes('wind') || s.includes('environmental'));
+        const hasEng = userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('civil') || s.includes('finance') || s.includes('budgeting'));
+        if (hasCleanEnergy) subSpecDelta += 30;
+        else if (hasEng) subSpecDelta += 18;
+        if (preferredIndustries.some((i) => i.toLowerCase().includes('renewable') || i.toLowerCase().includes('clean') || i.toLowerCase().includes('sustainability'))) subSpecDelta += 24;
+        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 10;
+      }
+      if (slug === 'smart-buildings-energy-automation-consultant') {
+        const hasSmartBuildings = userSkills.some((s) => s.includes('smart buildings') || s.includes('building automation') || s.includes('bas') || s.includes('bms') || s.includes('hvac'));
+        const hasAutomation = userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('electronics') || s.includes('electrical'));
+        if (hasSmartBuildings) subSpecDelta += 30;
+        else if (hasAutomation) subSpecDelta += 18;
+        if (preferredIndustries.some((i) => i.toLowerCase().includes('smart buildings') || i.toLowerCase().includes('building automation') || i.toLowerCase().includes('energy management'))) subSpecDelta += 24;
+        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 10;
+      }
     }
-    if (category === 'Business & Management') {
-      const isMktgFocused = userSkills.some((s) => s.includes('brand strategy') || s.includes('writing'));
-      const isConsultFocused = userSkills.some((s) => s.includes('finance') || s.includes('project planning'));
-      const isStartupFocused = userSkills.some((s) => s.includes('code') || s.includes('sales'));
-      const isEventFocused = userSkills.some((s) => s.includes('project planning') || s.includes('sales'));
-      const isSupplyFocused = userSkills.some((s) => s.includes('project planning') || s.includes('mathematics'));
-      const isRealEstateFocused = userSkills.some((s) => s.includes('finance') || s.includes('sales'));
-      const isSalesFocused = userSkills.some((s) => s.includes('sales') || s.includes('public speaking'));
-      const isHRFocused = userSkills.some((s) => s.includes('project planning') || s.includes('public speaking'));
 
-      if ((slug === 'marketing-manager' || slug === 'digital-marketer') && isMktgFocused) subSpecDelta += 20;
-      if ((slug === 'management-consultant' || slug === 'corporate-strategy-director') && isConsultFocused) subSpecDelta += 20;
-      if ((slug === 'entrepreneur-founder' || slug === 'ai-builder') && isStartupFocused) subSpecDelta += 20;
-      if (slug === 'international-event-director' && isEventFocused) subSpecDelta += 20;
-      if (slug === 'supply-chain-operations-manager' && isSupplyFocused) subSpecDelta += 20;
-      if (slug === 'real-estate-developer' && isRealEstateFocused) subSpecDelta += 20;
-      if (slug === 'enterprise-sales-account-manager' && isSalesFocused) subSpecDelta += 20;
-      if (slug === 'hr-manager' && isHRFocused) subSpecDelta += 20;
+    if (category === 'Medicine & Healthcare') {
+      if (slug === 'medical-technology-application-specialist') {
+        const hasMedTech = userSkills.some((s) => s.includes('medical device') || s.includes('biomedical') || s.includes('hospital'));
+        const hasBio = userSkills.some((s) => s.includes('biology') || s.includes('anatomy') || s.includes('patient') || s.includes('medical') || s.includes('healthcare'));
+        if (hasMedTech) subSpecDelta += 30;
+        else if (hasBio) subSpecDelta += 18;
+        if (preferredIndustries.some((i) => i.toLowerCase().includes('medical technology') || i.toLowerCase().includes('devices') || i.toLowerCase().includes('healthcare tech'))) subSpecDelta += 24;
+        if (!techPractical.isNotClear && (techPractical.value >= 4 && techPractical.value <= 7)) subSpecDelta += 12;
+      }
+    }
+
+    if (category === 'Business & Management') {
+      if (slug === 'ai-product-manager') {
+        const hasPM = userSkills.some((s) => s.includes('product management') || s.includes('roadmapping') || s.includes('user experience') || s.includes('agile'));
+        const hasTech = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('data analysis'));
+        if (hasPM) subSpecDelta += 30;
+        else if (hasTech) subSpecDelta += 20;
+        if (preferredIndustries.some((i) => i.toLowerCase().includes('product management') || i.toLowerCase().includes('technology strategy') || i.toLowerCase().includes('software'))) subSpecDelta += 22;
+        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 10;
+      }
+      if (slug === 'brand-manager' && userSkills.some((s) => s.includes('brand strategy') || s.includes('marketing') || s.includes('advertising'))) subSpecDelta += 24;
+      if (slug === 'management-consultant' && userSkills.some((s) => s.includes('finance') || s.includes('project planning'))) subSpecDelta += 20;
     }
 
     const totalRawScore =
@@ -1390,45 +1296,46 @@ export function computeCareerRecommendations(
       coreLifeDriverDelta +
       leadershipScopeDelta +
       nonNegotiablesDelta +
+      techPracticalDelta +
       subSpecDelta;
 
-    // Generate Tailored, Explainable whyMatch Rationale
+    // Tailored, Explainable whyMatch Rationale
     let whyMatch = `Strong overall match based on your domain preferences for ${category.toLowerCase()} and strategic career goals.`;
     if (fulfilledNonNegotiables.length > 0) {
       const topFulfilled = fulfilledNonNegotiables.slice(0, 2).join(' and ');
       whyMatch = `Protects your non-negotiables (${topFulfilled}) while aligning with your ${category.toLowerCase()} aptitudes.`;
+    } else if (slug === 'industrial-automation-controls-engineer') {
+      whyMatch = 'Combines your passion for automated control systems, PLC programming, robotics, and smart manufacturing operations.';
+    } else if (slug === 'forward-deployed-ai-robotics-engineer') {
+      whyMatch = 'Directly aligns with your desire to deploy cutting-edge AI perception and physical robotics directly at high-impact client sites.';
+    } else if (slug === 'renewable-energy-project-developer') {
+      whyMatch = 'Channels your dedication to clean energy infrastructure, sustainability, and large-scale renewable project development.';
+    } else if (slug === 'medical-technology-application-specialist') {
+      whyMatch = 'Harmonizes your interest in advanced medical devices, surgical technology, and clinical healthcare partnership.';
+    } else if (slug === 'smart-buildings-energy-automation-consultant') {
+      whyMatch = 'Bridges your enthusiasm for building automation, energy efficiency, IoT sensor systems, and sustainable architecture.';
+    } else if (slug === 'ai-product-manager') {
+      whyMatch = 'Empowers your product vision, technical strategy, and leadership to shape transformative AI applications people love.';
+    } else if (slug === 'forward-deployed-engineer') {
+      whyMatch = 'Leverages your full-stack engineering chops, client problem-solving skills, and mission-driven deployment impact.';
     } else if (slug === 'brand-manager') {
-      whyMatch = `Harmonizes with your creative brand vision, consumer marketing acumen, and commercial leadership strengths.`;
+      whyMatch = 'Harmonizes with your creative brand vision, consumer marketing acumen, and commercial leadership strengths.';
     } else if (slug === 'fashion-commercial-model') {
-      whyMatch = `Matches your physical presence, visual aesthetic intuition, and excitement for high-visibility fashion and media.`;
+      whyMatch = 'Matches your physical presence, visual aesthetic intuition, and excitement for high-visibility fashion and media.';
     } else if (slug === 'film-artist-actor') {
-      whyMatch = `Directly reflects your passion for dramatic screen performance, emotional embodiment, and cinematic storytelling.`;
+      whyMatch = 'Directly reflects your passion for dramatic screen performance, emotional embodiment, and cinematic storytelling.';
     } else if (slug === 'indian-psu-officer') {
-      whyMatch = `Channels your dedication to national energy and industrial engineering within India's prestigious Maharatna/Navratna public sector.`;
+      whyMatch = 'Channels your dedication to national energy and industrial engineering within India\'s prestigious Maharatna/Navratna public sector.';
     } else if (slug === 'indian-railways-officer') {
-      whyMatch = `Aligns with your commitment to sovereign governance, large-scale transportation logistics, and commanding Indian Railways infrastructure.`;
+      whyMatch = 'Aligns with your commitment to sovereign governance, large-scale transportation logistics, and commanding Indian Railways infrastructure.';
     } else if (category === 'Medicine & Healthcare' && (!helping.isNotClear || userSkills.some((s) => s.includes('biology')))) {
-      whyMatch = `Directly harmonizes with your calling for direct human care, medical diagnostics, and personal patient impact.`;
-    } else if (category === 'Aviation & Maritime Operations' && (!physical.isNotClear || painPoints.includes('Sitting at a desk all day without moving'))) {
-      whyMatch = `Matches your enthusiasm for real-world vehicular command, active spatial awareness, and hands-on navigational mastery outside a desk.`;
+      whyMatch = 'Directly harmonizes with your calling for direct human care, medical diagnostics, and personal patient impact.';
     } else if (category === 'Technology & Engineering' && (!tech.isNotClear || userSkills.some((s) => s.includes('code')))) {
-      whyMatch = `Directly leverages your appetite for deep software systems, technological problem solving, and modern digital platforms.`;
-    } else if (category === 'Finance & Banking' && (!math.isNotClear || !salary.isNotClear)) {
-      whyMatch = `Capitalizes on your quantitative analytical mindset, commercial ambition, and high financial compensation trajectory.`;
-    } else if (category === 'Law & Government' && !governance.isNotClear) {
-      whyMatch = `Reflects your commitment to constitutional justice, institutional policy, public safety, and statutory rule of law.`;
-    } else if (category === 'Creative & Media' && !creative.isNotClear) {
-      whyMatch = `Celebrates your aesthetic intuition, narrative storytelling, and desire to create impactful visual or multimedia experiences.`;
+      whyMatch = 'Directly leverages your appetite for deep software systems, technological problem solving, and modern digital platforms.';
     } else if (category === 'Engineering & Built Environment') {
-      whyMatch = `Leverages your mathematical and spatial abilities to leave an enduring physical mark through structural design and infrastructure.`;
+      whyMatch = 'Leverages your mathematical and spatial abilities to leave an enduring physical mark through structural design and infrastructure.';
     } else if (category === 'Business & Management' && !leadership.isNotClear) {
-      whyMatch = `Empowers your executive communication, team leadership, cross-functional diplomacy, and commercial execution.`;
-    } else if (category === 'Sports & Fitness') {
-      whyMatch = `Combines your passion for athletic discipline, biomechanics, physical wellness, and human performance coaching.`;
-    } else if (category === 'Hospitality & Food') {
-      whyMatch = `Blends sensory culinary craft with high-energy service discipline and memorable guest hospitality experiences.`;
-    } else if (category === 'Education & Research') {
-      whyMatch = `Aligns with your passion for lifelong intellectual exploration, academic research, and mentoring the next generation.`;
+      whyMatch = 'Empowers your executive communication, team leadership, cross-functional diplomacy, and commercial execution.';
     }
 
     let disadvantages: string[] = [];
@@ -1443,7 +1350,7 @@ export function computeCareerRecommendations(
       careerSlug: slug,
       title: career.title,
       category,
-      compatibilityScore: 85, // will be calibrated below based on true ranking
+      compatibilityScore: 85,
       whyMatch,
       possessedSkills: possessed.length > 0 ? possessed : ['Critical Thinking', 'Analytical Foundation'],
       missingSkills: missing.slice(0, 4),
@@ -1463,12 +1370,9 @@ export function computeCareerRecommendations(
     };
   });
 
-  // Sort descending by rawScore first so the true highest-match careers rank at the top
   scored.sort((a, b) => b.rawScore - a.rawScore);
 
-  // Calibrate top 10 compatibility percentages with realistic graduation
   const top10 = scored.slice(0, 10).map((item, idx) => {
-    // Dynamic top-tier distribution from 98% down to 78% for top 10
     const calibratedScore = Math.max(68, Math.min(98, Math.round(98 - idx * 2.2)));
     const { rawScore, ...rest } = item;
     return {

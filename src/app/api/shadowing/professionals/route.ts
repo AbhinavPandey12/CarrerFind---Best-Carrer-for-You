@@ -15,37 +15,52 @@ export async function GET(req: Request) {
     const isPaid = searchParams.get('isPaid'); // free, paid
     const search = searchParams.get('search');
 
-    const where: any = {};
+    const andConditions: any[] = [];
 
     if (industry && industry !== 'All') {
-      where.industry = { contains: industry };
+      const keywords = industry.split(/[\s,&/]+/).filter((w) => w.length > 2);
+      if (keywords.length > 1) {
+        andConditions.push({
+          OR: keywords.map((kw) => ({ industry: { contains: kw } })),
+        });
+      } else {
+        andConditions.push({ industry: { contains: industry } });
+      }
     }
 
     if (mode === 'virtual') {
-      where.OR = [
-        { offersVirtual: true },
-        { availabilitySlots: { some: { OR: [{ mode: 'VIRTUAL' }, { sessionType: 'WEBINAR' }] } } },
-      ];
+      andConditions.push({
+        OR: [
+          { offersVirtual: true },
+          { availabilitySlots: { some: { OR: [{ mode: 'VIRTUAL' }, { sessionType: 'WEBINAR' }] } } },
+        ],
+      });
     } else if (mode === 'in_person') {
-      where.OR = [
-        { offersInPerson: true },
-        { availabilitySlots: { some: { OR: [{ mode: 'IN_PERSON' }, { sessionType: 'SEMINAR' }] } } },
-      ];
+      andConditions.push({
+        OR: [
+          { offersInPerson: true },
+          { availabilitySlots: { some: { OR: [{ mode: 'IN_PERSON' }, { sessionType: 'SEMINAR' }] } } },
+        ],
+      });
     }
 
     if (isPaid === 'free') {
-      where.isPaid = false;
+      andConditions.push({ isPaid: false });
     } else if (isPaid === 'paid') {
-      where.isPaid = true;
+      andConditions.push({ isPaid: true });
     }
 
     if (search) {
-      where.OR = [
-        { title: { contains: search } },
-        { company: { contains: search } },
-        { user: { name: { contains: search } } },
-      ];
+      andConditions.push({
+        OR: [
+          { title: { contains: search } },
+          { company: { contains: search } },
+          { user: { name: { contains: search } } },
+        ],
+      });
     }
+
+    const where = andConditions.length > 0 ? { AND: andConditions } : {};
 
     const mentors = await prisma.mentorProfile.findMany({
       where,
