@@ -7,6 +7,8 @@ import {
   ASSESSMENT_QUESTIONS,
   AssessmentAnswerState,
   RecommendedCareerResult,
+  CareerSuitabilityEntry,
+  PersonalCharacteristicsReview,
 } from '@/lib/assessmentEngine';
 import {
   Sparkles,
@@ -24,6 +26,14 @@ import {
   Award,
   ChevronRight,
   RefreshCw,
+  User,
+  Star,
+  List,
+  ChevronDown,
+  ChevronUp,
+  Layers,
+  Target,
+  Zap,
 } from 'lucide-react';
 
 export default function AssessmentPage() {
@@ -54,10 +64,13 @@ export default function AssessmentPage() {
 
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [showAllCareers, setShowAllCareers] = useState<boolean>(false);
   const [resultData, setResultData] = useState<{
     archetypeTitle: string;
     archetypeSubtitle: string;
     topCareers: RecommendedCareerResult[];
+    allCareers: CareerSuitabilityEntry[];
+    personalReview: PersonalCharacteristicsReview;
   } | null>(null);
 
   const currentQuestion = ASSESSMENT_QUESTIONS[currentStepIndex];
@@ -151,6 +164,17 @@ export default function AssessmentPage() {
         archetypeTitle: data.archetypeTitle,
         archetypeSubtitle: data.archetypeSubtitle,
         topCareers: data.topCareers,
+        allCareers: data.allCareers || [],
+        personalReview: data.personalReview || {
+          summaryParagraph: '',
+          keyStrengths: [],
+          workStyleTraits: [],
+          professionalInclinations: [],
+          technicalPracticalBalance: '',
+          workEnvironmentPreference: '',
+          coreDrives: [],
+          thingsToAvoid: [],
+        },
       });
       track('assessment_completed', {
         archetypeTitle: data.archetypeTitle,
@@ -377,16 +401,327 @@ export default function AssessmentPage() {
             </div>
           </div>
 
-          {/* Top 10 Recommended Careers List */}
+          {/* ═══════════════════════════════════════════════════════
+              SECTION 1: PERSONAL CHARACTERISTICS REVIEW
+          ═══════════════════════════════════════════════════════ */}
+          {resultData.personalReview && resultData.personalReview.summaryParagraph && (
+            <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 space-y-6">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-950/80 border border-purple-500/30 flex items-center justify-center shrink-0">
+                  <User className="w-4 h-4 text-purple-300" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white">Personal Characteristics Review</h3>
+                  <p className="text-[11px] text-slate-400">Based on your 21 assessment responses</p>
+                </div>
+              </div>
+
+              {/* Summary Paragraph */}
+              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed border-l-2 border-indigo-500/40 pl-4">
+                {resultData.personalReview.summaryParagraph}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Key Strengths */}
+                {resultData.personalReview.keyStrengths?.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5" /> Key Strengths
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {resultData.personalReview.keyStrengths.map((s, i) => (
+                        <span key={i} className="text-[11px] px-2.5 py-1 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-200 font-medium">
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Work Style Traits */}
+                {resultData.personalReview.workStyleTraits?.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-emerald-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Brain className="w-3.5 h-3.5" /> Work Style Traits
+                    </h4>
+                    <ul className="space-y-1">
+                      {resultData.personalReview.workStyleTraits.map((t, i) => (
+                        <li key={i} className="text-[11px] text-slate-300 flex items-start gap-1.5">
+                          <span className="text-emerald-400 mt-0.5">•</span> {t}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Professional Inclinations */}
+                {resultData.personalReview.professionalInclinations?.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Target className="w-3.5 h-3.5" /> Professional Inclinations
+                    </h4>
+                    <ul className="space-y-1">
+                      {resultData.personalReview.professionalInclinations.map((p, i) => (
+                        <li key={i} className="text-[11px] text-slate-300 flex items-start gap-1.5">
+                          <span className="text-amber-400 mt-0.5">•</span> {p}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Core Drives */}
+                {resultData.personalReview.coreDrives?.length > 0 && (
+                  <div className="space-y-2">
+                    <h4 className="text-xs font-bold text-rose-300 uppercase tracking-wider flex items-center gap-1.5">
+                      <Heart className="w-3.5 h-3.5" /> Core Drives
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {resultData.personalReview.coreDrives.map((d, i) => (
+                        <span key={i} className="text-[11px] px-2.5 py-1 rounded-full bg-rose-950/40 border border-rose-500/20 text-rose-200 font-medium">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Technical-Practical Balance & Work Environment */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-slate-800">
+                {resultData.personalReview.technicalPracticalBalance && (
+                  <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Technical / Practical Balance</span>
+                    <span className="text-xs text-slate-200">{resultData.personalReview.technicalPracticalBalance}</span>
+                  </div>
+                )}
+                {resultData.personalReview.workEnvironmentPreference && (
+                  <div className="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Work Environment Preference</span>
+                    <span className="text-xs text-slate-200">{resultData.personalReview.workEnvironmentPreference}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Things to Avoid */}
+              {resultData.personalReview.thingsToAvoid?.length > 0 && (
+                <div className="space-y-2 pt-2 border-t border-slate-800">
+                  <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider">Work Situations to Avoid</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {resultData.personalReview.thingsToAvoid.map((item, i) => (
+                      <span key={i} className="text-[11px] px-2.5 py-1 rounded-full bg-slate-900/80 border border-slate-700 text-slate-400 font-medium">
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════
+              SECTION 2: TOP CAREER RECOMMENDATION
+          ═══════════════════════════════════════════════════════ */}
+          {resultData.topCareers?.[0] && (
+            <div className="p-5 sm:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-indigo-500/30 bg-gradient-to-br from-indigo-950/40 via-purple-950/20 to-slate-900 space-y-5 relative overflow-hidden">
+              <div className="absolute top-0 right-0 w-40 h-40 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none" />
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-indigo-600/30 border border-indigo-400/40 flex items-center justify-center shrink-0">
+                  <Star className="w-4 h-4 text-indigo-300" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white">Top Career Recommendation</h3>
+                  <p className="text-[11px] text-indigo-300/70">Your single strongest career match based on all 21 responses</p>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row sm:items-start gap-5">
+                <div className="flex-1 space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h4 className="text-xl sm:text-2xl font-extrabold text-white">{resultData.topCareers[0].title}</h4>
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full badge-tech">
+                      {resultData.topCareers[0].category}
+                    </span>
+                  </div>
+                  <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">{resultData.topCareers[0].whyMatch}</p>
+
+                  <div className="flex flex-wrap gap-3 text-[11px] pt-1">
+                    <div>
+                      <span className="text-slate-400 mr-1 font-medium">Skills You Have:</span>
+                      <span className="text-emerald-400 font-semibold">{resultData.topCareers[0].possessedSkills.join(', ')}</span>
+                    </div>
+                    {resultData.topCareers[0].missingSkills.length > 0 && (
+                      <div>
+                        <span className="text-slate-400 mr-1 font-medium">Skills to Develop:</span>
+                        <span className="text-amber-400 font-semibold">{resultData.topCareers[0].missingSkills.join(', ')}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    <div className="text-[11px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                      <span className="text-slate-400">Entry:</span> <span className="text-white font-semibold">${resultData.topCareers[0].entrySalaryMin}k–${resultData.topCareers[0].entrySalaryMax}k</span>
+                    </div>
+                    <div className="text-[11px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                      <span className="text-slate-400">Senior:</span> <span className="text-white font-semibold">${resultData.topCareers[0].seniorSalaryMin}k–${resultData.topCareers[0].seniorSalaryMax}k</span>
+                    </div>
+                    <div className="text-[11px] px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-800">
+                      <span className="text-slate-400">Work-Life:</span> <span className="text-emerald-400 font-semibold">{resultData.topCareers[0].workLifeBalance}/10</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col items-center gap-3 shrink-0">
+                  <div className="text-center p-4 rounded-2xl bg-indigo-950/60 border border-indigo-500/30">
+                    <span className="text-4xl font-black text-indigo-400 block">{resultData.topCareers[0].compatibilityScore}%</span>
+                    <span className="text-[10px] text-slate-400 font-semibold uppercase">Match Score</span>
+                  </div>
+                  <div className="flex flex-col gap-2 w-full">
+                    <Link
+                      href={`/careers/${resultData.topCareers[0].careerSlug}`}
+                      className="px-5 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 flex items-center justify-center gap-1 transition-all"
+                    >
+                      <span>View Full Profile</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </Link>
+                    <Link
+                      href={`/student/compare?add=${resultData.topCareers[0].careerSlug}`}
+                      className="px-5 py-2 rounded-xl text-xs font-medium glass-panel text-slate-300 hover:text-white border border-slate-700 flex items-center justify-center gap-1 transition-all"
+                    >
+                      <BarChart2 className="w-3.5 h-3.5" />
+                      <span>Add to Compare</span>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════
+              SECTION 3: SUITABILITY ANALYSIS — ALL CAREERS
+          ═══════════════════════════════════════════════════════ */}
+          {resultData.allCareers?.length > 0 && (
+            <div className="space-y-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div>
+                  <h3 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
+                    <List className="w-5 h-5 text-indigo-400" />
+                    Suitability Analysis — All {resultData.allCareers.length} Careers
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-0.5">
+                    Every available career ranked from highest to lowest suitability based on your responses.
+                  </p>
+                </div>
+                <div className="flex items-center gap-3 text-[11px] shrink-0">
+                  <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-semibold">Excellent Fit: ≥85%</span>
+                  <span className="px-2 py-0.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 font-semibold">Good: ≥68%</span>
+                  <span className="px-2 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-300 font-semibold">Moderate: ≥48%</span>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {(showAllCareers ? resultData.allCareers : resultData.allCareers.slice(0, 20)).map((career) => {
+                  const fitColors: Record<string, string> = {
+                    'Excellent Fit': 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300',
+                    'Good Fit': 'bg-indigo-950/40 border-indigo-500/30 text-indigo-300',
+                    'Moderate Fit': 'bg-amber-950/40 border-amber-500/30 text-amber-300',
+                    'Low Fit': 'bg-rose-950/40 border-rose-500/30 text-rose-300',
+                  };
+                  const scoreColors: Record<string, string> = {
+                    'Excellent Fit': 'text-emerald-400',
+                    'Good Fit': 'text-indigo-400',
+                    'Moderate Fit': 'text-amber-400',
+                    'Low Fit': 'text-rose-400',
+                  };
+                  const fcClass = fitColors[career.fitCategory] || fitColors['Low Fit'];
+                  const scoreClass = scoreColors[career.fitCategory] || scoreColors['Low Fit'];
+
+                  return (
+                    <div
+                      key={career.careerSlug}
+                      className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 hover:border-slate-700 transition-all flex flex-col sm:flex-row sm:items-center gap-4"
+                    >
+                      {/* Rank Badge */}
+                      <div className="w-9 h-9 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center font-bold text-xs text-slate-400 shrink-0">
+                        #{career.rank}
+                      </div>
+
+                      {/* Title + Category + Explanation */}
+                      <div className="flex-1 space-y-2">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="text-sm font-bold text-white">{career.title}</span>
+                          <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full badge-tech">
+                            {career.category}
+                          </span>
+                          <span className={`text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${fcClass}`}>
+                            {career.fitCategory}
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 leading-relaxed">{career.fitExplanation}</p>
+                        <div className="flex flex-wrap gap-3 text-[10px]">
+                          {career.possessedSkills?.slice(0, 3).map((s, i) => (
+                            <span key={i} className="text-emerald-400 font-medium">✓ {s}</span>
+                          ))}
+                          {career.missingSkills?.slice(0, 2).map((s, i) => (
+                            <span key={i} className="text-amber-400 font-medium">△ {s}</span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Score + Link */}
+                      <div className="flex sm:flex-col items-center sm:items-end gap-3 shrink-0">
+                        <div className="text-right">
+                          <span className={`text-xl font-black ${scoreClass}`}>{career.compatibilityScore}%</span>
+                          <span className="text-[10px] text-slate-500 block">{career.scoreOutOf10}/10</span>
+                        </div>
+                        <Link
+                          href={`/careers/${career.careerSlug}`}
+                          className="px-3 py-1.5 rounded-xl text-[11px] font-semibold bg-indigo-600/20 hover:bg-indigo-600/40 text-indigo-300 border border-indigo-500/30 flex items-center gap-1 transition-all"
+                        >
+                          <span>Profile</span>
+                          <ChevronRight className="w-3 h-3" />
+                        </Link>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Show All / Show Less Toggle */}
+              {resultData.allCareers.length > 20 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllCareers((prev) => !prev)}
+                  className="w-full py-3 rounded-2xl glass-panel border border-slate-800 hover:border-indigo-500/30 text-xs font-semibold text-slate-300 hover:text-white flex items-center justify-center gap-2 transition-all"
+                >
+                  {showAllCareers ? (
+                    <>
+                      <ChevronUp className="w-4 h-4 text-indigo-400" />
+                      Show Top 20 Only
+                    </>
+                  ) : (
+                    <>
+                      <ChevronDown className="w-4 h-4 text-indigo-400" />
+                      Show All {resultData.allCareers.length} Careers
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* ═══════════════════════════════════════════════════════
+              SECTION 4: RANKED TOP 10 RECOMMENDED CAREERS (existing)
+          ═══════════════════════════════════════════════════════ */}
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-indigo-400" />
-                  Top Recommended Career Paths
+                  <Layers className="w-5 h-5 text-indigo-400" />
+                  Ranked Top 10 Recommendations
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  Ranked by compatibility percentage with detailed skill gap breakdowns.
+                  Your 10 highest-scoring career paths with detailed metrics and skill gap breakdowns.
                 </p>
               </div>
               <span className="text-xs text-indigo-400 font-semibold hidden sm:inline">

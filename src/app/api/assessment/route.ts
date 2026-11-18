@@ -76,6 +76,8 @@ export async function POST(req: Request) {
       archetypeTitle: recommendation.archetypeTitle,
       archetypeSubtitle: recommendation.archetypeSubtitle,
       topCareers: recommendation.topCareers,
+      allCareers: recommendation.allCareers,
+      personalReview: recommendation.personalReview,
       savedResultId,
     });
   } catch (error: unknown) {

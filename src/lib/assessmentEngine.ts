@@ -55,6 +55,33 @@ export interface RecommendedCareerResult {
   iconName: string;
 }
 
+export type FitCategory = 'Excellent Fit' | 'Good Fit' | 'Moderate Fit' | 'Low Fit';
+
+export interface CareerSuitabilityEntry extends RecommendedCareerResult {
+  rank: number;
+  fitCategory: FitCategory;
+  scoreOutOf10: number;
+  fitExplanation: string;
+}
+
+export interface PersonalCharacteristicsReview {
+  summaryParagraph: string;
+  keyStrengths: string[];
+  workStyleTraits: string[];
+  professionalInclinations: string[];
+  technicalPracticalBalance: string;
+  workEnvironmentPreference: string;
+  coreDrives: string[];
+  thingsToAvoid: string[];
+}
+
+function fitCategory(score: number): FitCategory {
+  if (score >= 85) return 'Excellent Fit';
+  if (score >= 68) return 'Good Fit';
+  if (score >= 48) return 'Moderate Fit';
+  return 'Low Fit';
+}
+
 export const ASSESSMENT_QUESTIONS = [
   {
     id: 'technicalOrientation',
@@ -481,6 +508,166 @@ function getLogger() {
   }
 }
 
+// Helper to safely extract numeric value from a typed answer field
+function extractNumericValue(val: number | number[] | 'not_clear' | undefined, fallback: number): number {
+  if (val === undefined || val === 'not_clear') return fallback;
+  if (Array.isArray(val)) {
+    const nums = (val as Array<unknown>).filter((v): v is number => typeof v === 'number');
+    return nums[0] ?? fallback;
+  }
+  return typeof val === 'number' ? val : fallback;
+}
+
+function extractNullableNumericValue(val: number | number[] | 'not_clear' | undefined): number | null {
+  if (val === undefined || val === 'not_clear') return null;
+  if (Array.isArray(val)) {
+    const nums = (val as Array<unknown>).filter((v): v is number => typeof v === 'number');
+    return nums[0] ?? null;
+  }
+  return typeof val === 'number' ? val : null;
+}
+
+function buildPersonalReview(answers: AssessmentAnswerState): PersonalCharacteristicsReview {
+  const techVal = extractNumericValue(answers.technicalOrientation, 5);
+  const mathVal = extractNumericValue(answers.mathAnalyticalAptitude, 5);
+  const helpingVal = extractNumericValue(answers.helpingAndHumanImpact, 5);
+  const creativeVal = extractNumericValue(answers.creativeDesignAptitude, 5);
+  const physicalVal = extractNumericValue(answers.physicalDexterityTacticalCraft, 5);
+  const ambiguityVal = extractNumericValue(answers.ambiguityTolerance, 5);
+
+  const leadershipRaw = answers.leadershipScope ?? answers.leadershipPeopleAptitude;
+  const leadershipVal = extractNumericValue(leadershipRaw, 5);
+
+  const govVal = extractNumericValue(answers.governanceLawPublicService, 5);
+  const learningVal = extractNumericValue(answers.continuousLearning, 5);
+  const tpVal = extractNullableNumericValue(answers.technicalPracticalBalance);
+
+  const userSkills = (answers.existingSkills || []).filter((s) => s !== 'not_clear');
+  const preferredIndustries = (answers.preferredIndustries || []).filter((i) => i !== 'not_clear');
+  const painPoints = (answers.lifestylePainPoints || []).filter((p) => p !== 'not_clear');
+  const nonNegotiables = (answers.nonNegotiables || []).filter((n) => n !== 'not_clear');
+  const workModes = Array.isArray(answers.workMode)
+    ? (answers.workMode as string[]).filter((m) => m !== 'not_clear')
+    : (answers.workMode && answers.workMode !== 'not_clear' ? [answers.workMode as string] : []);
+
+  // --- Technical-Practical Balance label ---
+  let tpLabel = 'Adaptable across technical and practical work (open to various combinations)';
+  if (tpVal !== null) {
+    if (tpVal <= 1) tpLabel = '100% Practical — Strong preference for hands-on fieldwork, equipment operation, and physical systems';
+    else if (tpVal <= 3) tpLabel = '30% Technical / 70% Practical — Primarily practical with some technical analysis';
+    else if (tpVal <= 6) tpLabel = '60% Technical / 40% Practical — Balanced, with slightly more technical problem-solving than hands-on work';
+    else if (tpVal <= 7) tpLabel = '70% Technical / 30% Practical — Predominantly technical (design, code, analysis) with some practical implementation';
+    else tpLabel = '100% Technical — Pure technical preference: software, algorithms, engineering design, and digital systems';
+  }
+
+  // --- Work Environment ---
+  const workModeLabel = workModes.length > 0
+    ? workModes.map((m) => {
+        if (m === 'remote') return 'Remote (work-from-home)';
+        if (m === 'hybrid') return 'Hybrid (mix of office and remote)';
+        if (m === 'onsite') return 'On-site / In-office';
+        if (m === 'field') return 'Field-based / Client sites / On location';
+        return m;
+      }).join(', ')
+    : 'Adaptable to any work environment';
+
+  // --- Key Strengths ---
+  const keyStrengths: string[] = [];
+  if (techVal >= 7) keyStrengths.push('Strong technical aptitude and software/engineering orientation');
+  if (techVal >= 5 && techVal < 7) keyStrengths.push('Balanced technical and strategic thinking');
+  if (mathVal >= 7) keyStrengths.push('Advanced analytical and mathematical reasoning');
+  if (mathVal >= 5 && mathVal < 7) keyStrengths.push('Solid quantitative and logical problem-solving');
+  if (helpingVal >= 7) keyStrengths.push('Genuine care for human wellbeing and clinical or social impact');
+  if (creativeVal >= 7) keyStrengths.push('Strong creative, design, and artistic sensibility');
+  if (creativeVal >= 5 && creativeVal < 7) keyStrengths.push('Meaningful UX and product design awareness');
+  if (physicalVal >= 7) keyStrengths.push('High physical dexterity and tactical hands-on execution ability');
+  if (ambiguityVal >= 7) keyStrengths.push('High tolerance for ambiguity; thrives in open-ended and innovative environments');
+  if (ambiguityVal >= 4 && ambiguityVal < 7) keyStrengths.push('Comfortable with structured problem-solving and iterative improvement');
+  if (ambiguityVal < 4) keyStrengths.push('Preference for well-defined processes, checklists, and reliable protocols');
+  if (leadershipVal >= 7) keyStrengths.push('Strong executive leadership, team management, and strategic direction abilities');
+  if (leadershipVal >= 5 && leadershipVal < 7) keyStrengths.push('Coaching mindset and collaborative team-working style');
+  if (govVal >= 7) keyStrengths.push('Strong civic duty orientation and public service commitment');
+  if (learningVal >= 7) keyStrengths.push('High appetite for continuous learning and fast-evolving knowledge domains');
+  if (userSkills.length > 0) keyStrengths.push(`Existing foundation in: ${userSkills.slice(0, 4).join(', ')}`);
+  if (keyStrengths.length === 0) keyStrengths.push('Broad generalist foundation with cross-disciplinary adaptability');
+
+  // --- Work Style Traits ---
+  const workStyleTraits: string[] = [];
+  if (ambiguityVal >= 7) workStyleTraits.push('Entrepreneurial and self-directed — comfortable navigating uncertainty without rigid instructions');
+  else if (ambiguityVal <= 4) workStyleTraits.push('Process-driven and reliable — delivers best results within structured workflows and protocols');
+  else workStyleTraits.push('Adaptable — balances structured processes with creative problem-solving as situations demand');
+
+  if (tpVal !== null && tpVal >= 7) workStyleTraits.push('Primarily digital and analytical — works best with software, data, and computational tools');
+  else if (tpVal !== null && tpVal <= 3) workStyleTraits.push('Primarily hands-on and practical — learns and delivers best through direct physical work');
+  else workStyleTraits.push('Hybrid worker — integrates both technical analysis and practical hands-on delivery');
+
+  if (workModes.includes('remote')) workStyleTraits.push('Independently focused — thrives working autonomously from flexible or remote locations');
+  if (workModes.includes('field')) workStyleTraits.push('Field-oriented — energized by travel, client environments, and varied physical workplaces');
+  if (workModes.includes('onsite')) workStyleTraits.push('Collaborative and office-grounded — values team proximity and in-person collaboration');
+
+  // --- Professional Inclinations ---
+  const professionalInclinations: string[] = [];
+  if (preferredIndustries.length > 0) {
+    professionalInclinations.push(`Target sectors: ${preferredIndustries.slice(0, 3).join(', ')}`);
+  }
+  if (techVal >= 7) professionalInclinations.push('Drawn to technology-first careers in engineering, software, or AI systems');
+  if (helpingVal >= 7) professionalInclinations.push('Motivated by direct positive impact on human health and wellbeing');
+  if (govVal >= 7) professionalInclinations.push('Interested in public governance, policy-making, or institutional leadership');
+  if (creativeVal >= 7) professionalInclinations.push('Attracted to creative expression, storytelling, design, or media');
+  if (physicalVal >= 7 && techVal <= 4) professionalInclinations.push('Suited to operational, tactical, or athletic careers requiring physical precision');
+  if (leadershipVal >= 7) professionalInclinations.push('Aspires to leadership roles with authority over teams, strategy, or institutions');
+  if (professionalInclinations.length === 0) professionalInclinations.push('Open to exploring a broad spectrum of professional career paths');
+
+  // --- Core Drives ---
+  const coreDrives: string[] = [];
+  if (nonNegotiables.length > 0) coreDrives.push(...nonNegotiables.slice(0, 3));
+  else {
+    if (mathVal >= 7 || techVal >= 7) coreDrives.push('Intellectual challenge and mastery of complex systems');
+    if (helpingVal >= 7) coreDrives.push('Making a meaningful difference in people\'s lives');
+    if (govVal >= 7) coreDrives.push('Serving the nation and contributing to public institutions');
+    if (creativeVal >= 7) coreDrives.push('Creative self-expression and aesthetic impact');
+    if (coreDrives.length === 0) coreDrives.push('Personal growth, financial stability, and meaningful career impact');
+  }
+
+  // --- Things to Avoid ---
+  const thingsToAvoid: string[] = [];
+  if (painPoints.length > 0) thingsToAvoid.push(...painPoints.slice(0, 4));
+  else thingsToAvoid.push('No specific dealbreakers identified — broad adaptability across workplace conditions');
+
+  // --- Summary Paragraph ---
+  const techDesc = techVal >= 7 ? 'strongly technical and software-focused'
+    : techVal >= 5 ? 'broadly analytical and strategic'
+    : techVal >= 3 ? 'more practical and people-oriented'
+    : 'primarily driven by human impact, creativity, or public service';
+
+  const mathDesc = mathVal >= 7 ? 'with advanced quantitative and analytical reasoning'
+    : mathVal >= 5 ? 'with moderate analytical aptitude'
+    : 'with a focus on qualitative, relational, or creative domains';
+
+  const helperDesc = helpingVal >= 7 ? 'and a deep passion for direct human care and wellbeing'
+    : helpingVal >= 5 ? 'and some interest in collaborative, people-facing roles'
+    : '';
+
+  const ambiguityDesc = ambiguityVal >= 7 ? 'You are highly entrepreneurial and comfortable pioneering work in ambiguous, unexplored spaces.'
+    : ambiguityVal <= 4 ? 'You operate most effectively within clearly defined processes, protocols, and predictable environments.'
+    : 'You balance structured methodology with the ability to innovate and adapt when circumstances require.';
+
+  const industryRef = preferredIndustries.length > 0 ? ` with particular interest in ${preferredIndustries.slice(0, 2).join(' and ')}` : '';
+
+  const summaryParagraph = `Your assessment profile reveals a ${techDesc} professional ${mathDesc}${helperDesc ? ' ' + helperDesc : ''}${industryRef}. ${ambiguityDesc} ${leadershipVal >= 7 ? 'Your strong leadership orientation suggests you are suited for roles that require directing teams, shaping strategy, or driving organizational outcomes.' : leadershipVal <= 3 ? 'You prefer individual contributor roles where you can focus deeply on specialized craft and technical excellence.' : 'You bring a collaborative, coaching mindset that works well in cross-functional teams.'} ${learningVal >= 7 ? 'You are highly adaptable and genuinely enjoy evolving your skill set in rapidly changing domains.' : learningVal <= 4 ? 'You value mastery of timeless skills and prefer careers with stable, long-term knowledge foundations.' : 'You balance skill depth with a willingness to continuously grow and adapt.'} ${userSkills.length > 0 ? `Your existing skills in ${userSkills.slice(0, 3).join(', ')} provide a meaningful head start in your strongest matching career areas.` : 'You bring strong foundational aptitudes that can be built upon across multiple career paths.'}`;
+
+  return {
+    summaryParagraph,
+    keyStrengths,
+    workStyleTraits,
+    professionalInclinations,
+    technicalPracticalBalance: tpLabel,
+    workEnvironmentPreference: workModeLabel,
+    coreDrives,
+    thingsToAvoid,
+  };
+}
+
 export function computeCareerRecommendations(
   answers: AssessmentAnswerState,
   allCareers: any[]
@@ -488,6 +675,8 @@ export function computeCareerRecommendations(
   archetypeTitle: string;
   archetypeSubtitle: string;
   topCareers: RecommendedCareerResult[];
+  allCareers: CareerSuitabilityEntry[];
+  personalReview: PersonalCharacteristicsReview;
 } {
   const log = getLogger();
   const startMs = Date.now();
@@ -1372,14 +1561,65 @@ export function computeCareerRecommendations(
 
   scored.sort((a, b) => b.rawScore - a.rawScore);
 
-  const top10 = scored.slice(0, 10).map((item, idx) => {
-    const calibratedScore = Math.max(68, Math.min(98, Math.round(98 - idx * 2.2)));
-    const { rawScore, ...rest } = item;
+  // --- Calibrate scores across all careers using raw score range ---
+  const maxRaw = scored[0]?.rawScore ?? 1;
+  const minRaw = scored[scored.length - 1]?.rawScore ?? 0;
+  const rawRange = maxRaw - minRaw || 1;
+
+  const allScoredCalibratedRaw = scored.map((item, idx) => {
+    // Blend: 70% based on raw score position, 30% based on rank position
+    const rawRatio = (item.rawScore - minRaw) / rawRange;
+    const rankRatio = 1 - idx / (scored.length - 1 || 1);
+    const blended = rawRatio * 0.70 + rankRatio * 0.30;
+    let calibrated = Math.round(22 + blended * (98 - 22));
+    // Enforce monotonic decrease
+    calibrated = Math.min(calibrated, 98);
+    calibrated = Math.max(calibrated, 18);
+    return { ...item, _calibratedScore: calibrated };
+  });
+
+  // Enforce strict monotonic decrease (each rank <= previous)
+  for (let i = 1; i < allScoredCalibratedRaw.length; i++) {
+    if (allScoredCalibratedRaw[i]._calibratedScore > allScoredCalibratedRaw[i - 1]._calibratedScore) {
+      allScoredCalibratedRaw[i]._calibratedScore = allScoredCalibratedRaw[i - 1]._calibratedScore;
+    }
+  }
+
+  const top10 = allScoredCalibratedRaw.slice(0, 10).map((item) => {
+    const { rawScore, _calibratedScore, ...rest } = item;
+    return { ...rest, compatibilityScore: _calibratedScore };
+  });
+
+  // Build full career suitability list (all careers)
+  const allCareersRanked: CareerSuitabilityEntry[] = allScoredCalibratedRaw.map((item, idx) => {
+    const { rawScore, _calibratedScore, ...rest } = item;
+    const score = _calibratedScore;
+    const fc = fitCategory(score);
+    const scoreOutOf10 = parseFloat((score / 10).toFixed(1));
+
+    // Brief fit explanation
+    let fitExplanation: string;
+    if (fc === 'Excellent Fit') {
+      fitExplanation = `Strong alignment across your technical depth, work environment preferences, industry interests, and professional strengths. This role directly matches your most important career priorities.`;
+    } else if (fc === 'Good Fit') {
+      fitExplanation = `Good alignment with your core preferences. This career matches your aptitudes and interests in key dimensions, with a few areas that may require additional development or adjustment.`;
+    } else if (fc === 'Moderate Fit') {
+      fitExplanation = `Partial alignment with your profile. While some aspects of this role fit your preferences, there are notable gaps between your stated priorities and what this career typically demands.`;
+    } else {
+      fitExplanation = `Limited alignment with your assessed profile. This role requires characteristics, skills, or working conditions that significantly differ from your stated preferences and aptitudes.`;
+    }
+
     return {
       ...rest,
-      compatibilityScore: calibratedScore,
+      compatibilityScore: score,
+      rank: idx + 1,
+      fitCategory: fc,
+      scoreOutOf10,
+      fitExplanation,
     };
   });
+
+  const personalReview = buildPersonalReview(answers);
 
   const durationMs = Date.now() - startMs;
   log?.info('Recommendation computation completed', {
@@ -1395,5 +1635,7 @@ export function computeCareerRecommendations(
     archetypeTitle,
     archetypeSubtitle,
     topCareers: top10,
+    allCareers: allCareersRanked,
+    personalReview,
   };
 }
