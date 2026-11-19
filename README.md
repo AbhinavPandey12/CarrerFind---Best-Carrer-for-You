@@ -3,8 +3,9 @@
 [![Next.js](https://img.shields.io/badge/Next.js-14.2.15-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-3.4-38B2AC?style=for-the-badge&logo=tailwind-css)](https://tailwindcss.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-5.22-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
+[![Prisma](https://img.shields.io/badge/Prisma-5.21-2D3748?style=for-the-badge&logo=prisma)](https://www.prisma.io/)
 [![SQLite](https://img.shields.io/badge/SQLite-003B57?style=for-the-badge&logo=sqlite)](https://www.sqlite.org/)
+[![Recharts](https://img.shields.io/badge/Recharts-2.13-22c55e?style=for-the-badge&logo=d3.js)](https://recharts.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
 > ### *"Don't Just Choose a Career. Experience It Before You Commit."*
@@ -23,16 +24,17 @@
    - [User Profile Storage & Retrieval](#user-profile-storage--retrieval)
    - [Job Profile Storage, Retrieval & Management (Adding New Careers)](#job-profile-storage-retrieval--management-adding-new-careers)
 5. [Assessment Engine & Recommendation Algorithm Workflow](#-assessment-engine--recommendation-algorithm-workflow)
-   - [The 20 Assessment Dimensions](#the-20-assessment-dimensions)
+   - [The 21 Assessment Dimensions](#the-21-assessment-dimensions)
    - [End-to-End Recommendation Pipeline Architecture](#end-to-end-recommendation-pipeline-architecture)
    - [Multi-Selection Scoring Mathematics & Minimum-Distance Formulation](#multi-selection-scoring-mathematics--minimum-distance-formulation)
    - [Composite Scoring Formula & 5-Component Weights Breakdown](#composite-scoring-formula--5-component-weights-breakdown)
    - [Contextual Modifiers, Pain Points & Non-Negotiables Engine](#contextual-modifiers-pain-points--non-negotiables-engine)
    - [The 17 Archetype Profiles & Classification Scoring Matrix](#the-17-archetype-profiles--classification-scoring-matrix)
    - [Sub-Specialization Tiebreaker & Calibration Engine](#sub-specialization-tiebreaker--calibration-engine)
-   - [Explainability, Skill Gap Analysis & 'Why Match' Synthesis](#explainability-skill-gap-analysis--why-match-synthesis)
+   - [Personal Characteristics Review Synthesis](#personal-characteristics-review-synthesis)
+   - [Suitability Analysis for All 95 Careers](#suitability-analysis-for-all-95-careers)
 6. [Core Application Modules](#-core-application-modules)
-   - [Module 1: Interactive Career Assessment](#module-1-interactive-career-assessment)
+   - [Module 1: Interactive 21-Question Career Assessment & Visual Analytics Dashboard](#module-1-interactive-21-question-career-assessment--visual-analytics-dashboard)
    - [Module 2: 95-Career Encyclopedia & 5-Tab Profile Experience](#module-2-95-career-encyclopedia--5-tab-profile-experience)
    - [Module 3: "A Day in the Life" Workday Documentary Library](#module-3-a-day-in-the-life-workday-documentary-library)
    - [Module 4: Job Shadowing Marketplace & Conflict-Free Booking](#module-4-job-shadowing-marketplace--conflict-free-booking)
@@ -40,29 +42,56 @@
    - [Module 6: Multi-Career Comparative Evaluation Tool](#module-6-multi-career-comparative-evaluation-tool)
    - [Module 7: Administration & Verification Cockpit](#module-7-administration--verification-cockpit)
 7. [Verified API Route Specifications](#-verified-api-route-specifications)
-8. [Trust, Safety & In-Person Protocols](#-trust-safety--in-person-protocols)
-9. [Pre-Configured Demo Personas](#-pre-configured-demo-personas)
-10. [Complete Step-by-Step Local Setup & Execution Guide](#-complete-step-by-step-local-setup--execution-guide)
-11. [Observability, Telemetry & Structured Logging](#-observability-telemetry--structured-logging)
+8. [Observability, Telemetry & Structured Logging](#-observability-telemetry--structured-logging)
+   - [Client-Side Telemetry Implementation (`src/lib/telemetry.ts`)](#client-side-telemetry-implementation-srclibtelemetryts)
+   - [Server-Side Structured Leveled Logger (`src/lib/logger.ts`)](#server-side-structured-leveled-logger-srclibloggerts)
+   - [Database Performance & Slow Query Detection (`src/lib/prisma.ts`)](#database-performance--slow-query-detection-srclibprismats)
+9. [Debugging, Error Handling & Recovery Architecture](#-debugging-error-handling--recovery-architecture)
+   - [Automatic Chunk Load Error Recovery (`ChunkErrorRecovery.tsx`)](#automatic-chunk-load-error-recovery-chunkerrorrecoverytsx)
+   - [Global Next.js Error Boundary (`global-error.tsx`)](#global-nextjs-error-boundary-global-errortsx)
+   - [Database Diagnostics & Inspection Scripts](#database-diagnostics--inspection-scripts)
+   - [Common Debugging Scenarios & Resolution Workflows](#common-debugging-scenarios--resolution-workflows)
+10. [Integrations Architecture](#-integrations-architecture)
+    - [Recharts Visual Data Layer](#recharts-visual-data-layer)
+    - [Prisma ORM & Embedded SQLite](#prisma-orm--embedded-sqlite)
+    - [Cookie-Based JWT Authentication](#cookie-based-jwt-authentication)
+    - [Privacy-Enhanced YouTube Video Embeds](#privacy-enhanced-youtube-video-embeds)
+    - [External Analytics & Observability Sinks](#external-analytics--observability-sinks)
+11. [Maintenance Practices & Operational Guide](#-maintenance-practices--operational-guide)
+    - [Adding & Modifying Career Profiles](#adding--modifying-career-profiles)
+    - [Database Schema Migrations & Seeding](#database-schema-migrations--seeding)
+    - [Database Backups & Disaster Recovery](#database-backups--disaster-recovery)
+    - [TypeScript Compile-Time Verification](#typescript-compile-time-verification)
+    - [Production Build Optimization & Cache Strategy](#production-build-optimization--cache-strategy)
+12. [Trust, Safety & In-Person Protocols](#-trust-safety--in-person-protocols)
+13. [Pre-Configured Demo Personas](#-pre-configured-demo-personas)
+14. [Complete Step-by-Step Local Setup & Execution Guide](#-complete-step-by-step-local-setup--execution-guide)
+15. [License](#-license)
 
 ---
 
 ## 🌟 Executive Summary
 
-**CareerFind** is a production-grade, full-stack career discovery and experiential shadowing platform designed to eliminate the costly guesswork from education and career decision-making. 
+**CareerFind** is a production-grade, full-stack career discovery, comparative evaluation, and experiential job shadowing platform engineered to eliminate costly guesswork from educational and professional decision-making. 
 
-Instead of forcing students and professionals to rely on idealized job descriptions, CareerFind combines:
-- **An Explainable 20-Question Multi-Select Assessment Engine** that maps personal cognitive strengths, quantitative comfort, work modes, and non-negotiables to compatibility ratings across all careers.
-- **An Exhaustive 95-Profession Career Encyclopedia** spanning 13 industry domains (*Technology & AI, Business & Brand Management, Creative Arts & Cinema, Fashion & Modeling, Athletics & Sports Coaching, Law & Judiciary, Indian Sovereign Government & Civil Services, Railways & PSUs, Medicine, and Engineering*).
-- **A 5-Tab Interactive Profile Experience** on every career page featuring **Overview**, **A Day in the Life** (hour-by-hour chronological schedule, workload split, and documentary videos), **Job Shadowing** (4 learning pillars, verified hosts, and 1-click booking), **Skills & Roadmap**, and **Compensation & Growth**.
-- **A High-Trust Job Shadowing Marketplace** facilitating virtual and on-site observation sessions with verified industry practitioners, protected by database-level double-booking prevention.
-- **Side-by-Side Multi-Parameter Career Comparison** evaluating up to 4 roles across 8 quantitative and qualitative dimensions simultaneously.
+Instead of forcing students and career switchers to rely on generic descriptions, CareerFind combines:
+- **An Explainable 21-Question Multi-Select Assessment Engine**: Evaluates cognitive aptitudes, technical vs. practical balance, work environment preferences, financial strategies, output mediums, lifestyle dealbreakers, and existing competencies against 95 careers.
+- **Visual Analytics Dashboard**: Displays 4 interactive Recharts visualizations (Match Score Bar Chart, Skill Readiness Donut, Salary Trajectory Bars, Multi-Dimension Radar) directly on assessment results.
+- **Deep Personal Characteristics Review**: Synthesizes an individualized 8-attribute qualitative diagnostic highlighting strengths, work-style traits, professional inclinations, core drives, and situations to avoid.
+- **Complete Suitability Analysis for All 95 Careers**: Full ranking from #1 to #95 with fit categories (*Excellent Fit $\ge$ 85%*, *Good Fit $\ge$ 68%*, *Moderate Fit $\ge$ 48%*, *Low Fit*), skill gap breakdowns, and plain-English rationales.
+- **Side-by-Side Multi-Parameter Career Comparison**:
+  - Detailed Entry-Level, Mid-Level, and Senior-Level salary ranges directly on top profession cards.
+  - Interactive **Career Growth Progression** timelines showing sequential promotions, experience intervals, and role scopes.
+  - Grouped **Salary Bands Comparison** bar charts.
+  - **Top Skills Needed (Technical + Interpersonal)** with per-profession tag clouds and cross-career skill frequency distribution bar charts.
+- **Exhaustive 95-Profession Career Encyclopedia**: Spanning 13 industry domains (*Technology & AI, Business & Brand Management, Creative Arts & Cinema, Fashion & Modeling, Athletics & Sports Coaching, Law & Judiciary, Indian Sovereign Government & Civil Services, Railways & PSUs, Medicine, and Engineering*).
+- **High-Trust Job Shadowing Marketplace**: Facilitating virtual and on-site observation sessions with verified industry practitioners, protected by database transactions with collision detection to prevent double-booking.
 
 ---
 
 ## 🏗️ End-to-End System Architecture & Data Flow
 
-CareerFind is engineered with a modern, monolithic Next.js App Router architecture that balances server-side rendering performance with rich client-side interactivity.
+CareerFind is built using a monolithic **Next.js 14 App Router** architecture that balances server-side rendering performance and SEO with dynamic client-side interactivity.
 
 ### High-Level System Architecture
 
@@ -72,13 +101,13 @@ graph TD
 
     subgraph NextServer["Next.js 14 App Router Framework"]
         RSC["React Server Components (SSR & SEO)<br/>• /careers/[slug]/page.tsx<br/>• /videos/page.tsx<br/>• /page.tsx"]
-        RCC["Client Components ('use client')<br/>• CareerDetailClient.tsx<br/>• AssessmentPage.tsx<br/>• BookingModal.tsx<br/>• CompareTool.tsx"]
+        RCC["Client Components ('use client')<br/>• AssessmentPage.tsx (Recharts Dashboard)<br/>• CareerComparisonVisualizer.tsx<br/>• BookingModal.tsx<br/>• ChunkErrorRecovery.tsx"]
         
-        Middleware["Session & Auth Layer<br/>• HTTP-Only Cookie ('token')<br/>• JWT Signing & Verification<br/>• Bcrypt Password Hashing"]
+        Middleware["Session & Auth Layer<br/>• HTTP-Only Cookie ('token')<br/>• JWT Signing & Verification (HS256)<br/>• Bcrypt Password Hashing"]
 
         subgraph APILayer["REST API Endpoints (/src/app/api)"]
             AuthAPI["/api/auth/* (Login, Register, Me, Demo-Switch)"]
-            AssessAPI["/api/assessment (Scoring & Archetype Engine)"]
+            AssessAPI["/api/assessment (Scoring, Personal Review, Archetypes)"]
             CareersAPI["/api/careers/* (Profiles, Filtering, Bookmarks)"]
             VideosAPI["/api/videos/* (Curated Videos & Bookmarks)"]
             ShadowAPI["/api/shadowing/* (Hosts & Transactional Booking)"]
@@ -87,8 +116,14 @@ graph TD
         end
     end
 
+    subgraph ObservabilityLayer["Telemetry & Logging Layer"]
+        Telemetry["Client Telemetry (src/lib/telemetry.ts)<br/>• track(), trackError(), measure()"]
+        Logger["Server Logger (src/lib/logger.ts)<br/>• Leveled JSON logging, formatError()"]
+        SlowQuery["Prisma Slow Query Profiler (>200ms)"]
+    end
+
     subgraph DataPersistence["Persistence Layer"]
-        PrismaORM["Prisma ORM 5.22 (Type-Safe Query Builder)"]
+        PrismaORM["Prisma ORM 5.21 (Type-Safe Query Builder)"]
         SQLiteDB[("SQLite Database: prisma/dev.db<br/>ACID Transactions & Embedded Storage")]
         SeedModules["Modular Data Seeders (prisma/data/*.js)<br/>95 Careers across 13 Modules"]
     end
@@ -96,8 +131,11 @@ graph TD
     Client <--> RSC
     Client <--> RCC
     RCC <--> APILayer
+    RCC --> Telemetry
+    APILayer --> Logger
     APILayer <--> Middleware
     APILayer <--> PrismaORM
+    PrismaORM --> SlowQuery
     PrismaORM <--> SQLiteDB
     SeedModules --> PrismaORM
 ```
@@ -109,52 +147,27 @@ sequenceDiagram
     autonumber
     actor User as Assessment Taker
     participant UI as Assessment Page (Client)
+    participant Telemetry as Telemetry (track)
     participant API as POST /api/assessment
     participant Engine as assessmentEngine.ts
     participant DB as SQLite (via Prisma)
 
-    User->>UI: Selects answers across 20 questions (Supports Multi-Selection & 'Not Clear')
-    User->>UI: Clicks "Complete Assessment"
-    UI->>API: Sends answers payload (AssessmentAnswerState)
-    API->>DB: prisma.career.findMany() (Fetches all 95 profiles)
-    DB-->>API: Returns full career dataset
+    User->>UI: Selects answers across 21 questions (Supports Multi-Selection & 'Not Clear')
+    UI->>Telemetry: track('assessment_started', { totalSteps: 21 })
+    User->>UI: Clicks "Generate Career Matches"
+    UI->>API: Sends payload (AssessmentAnswerState)
+    API->>DB: prisma.career.findMany() (Fetches 95 profiles)
+    DB-->>API: Returns career dataset
     API->>Engine: computeCareerRecommendations(answers, allCareers)
-    Note over Engine: 1. Resolves numeric & work-mode answers<br/>2. Computes closest distance for multi-selects<br/>3. Evaluates 20 dimensions & lifestyle rules<br/>4. Calculates possessed vs missing skills<br/>5. Derives Archetype & top ranked matches
-    Engine-->>API: Returns { archetypeTitle, archetypeSubtitle, topCareers }
+    Note over Engine: 1. Resolves numeric answers & handles 'not_clear'<br/>2. Computes minimum-distance for multi-selects<br/>3. Evaluates 21 dimensions & contextual rules<br/>4. Synthesizes PersonalCharacteristicsReview (8 traits)<br/>5. Derives Top 10 + Complete 95-career Suitability list<br/>6. Classifies Archetype from 17 profiles
+    Engine-->>API: Returns { archetypeTitle, archetypeSubtitle, topCareers, allCareers, personalReview }
     opt User is Authenticated
         API->>DB: prisma.assessmentResult.create(...)
         DB-->>API: Saved result record
     end
-    API-->>UI: Returns JSON with archetype and ranked careers
-    UI-->>User: Displays animated results with match percentages & "Why Match" rationale
-```
-
-### Job Shadowing Booking & Conflict-Locking Flow
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Student as Student
-    participant Modal as BookingModal (Client)
-    participant API as POST /api/shadowing/book
-    participant DB as SQLite (Prisma Transaction)
-    actor Mentor as Verified Host
-
-    Student->>Modal: Selects available slot & writes introductory goals
-    Modal->>API: Sends { slotId, mentorProfileId, sessionDate, studentIntroduction }
-    API->>DB: Run interactive transaction: prisma.$transaction(...)
-    DB->>DB: Check if slot isBooked == true
-    alt Slot is already booked (Conflict)
-        DB-->>API: Conflict detected
-        API-->>Modal: HTTP 409 Conflict ("This slot was just booked by another student")
-    else Slot is available
-        DB->>DB: Mark slot.isBooked = true
-        DB->>DB: Create JobShadowBooking record (status: 'PENDING' / 'APPROVED')
-        DB-->>API: Commit transaction
-        API-->>Modal: HTTP 200 OK { bookingId, sessionDetails, meetingUrl }
-        Modal-->>Student: Renders confetti & confirmation details
-        API--)Mentor: Notifies host of incoming booking on /mentor/bookings
-    end
+    API-->>UI: Returns JSON with recommendations & charts data
+    UI->>Telemetry: track('assessment_completed', { archetypeTitle, count: 10 })
+    UI-->>User: Renders Personal Review, Top Match, Recharts Analytics, All 95 Suitability
 ```
 
 ---
@@ -163,43 +176,44 @@ sequenceDiagram
 
 ### Environment Variables Configuration
 
-The project operates out of the box with zero required external third-party services. The configuration is loaded via environment variables with safe internal defaults:
+CareerFind operates out of the box with zero external third-party dependencies required. Internal defaults enable zero-configuration startup:
 
 | Variable | Required | Default Value | Description |
 | :--- | :--- | :--- | :--- |
-| `DATABASE_URL` | Optional | `"file:./dev.db"` | SQLite connection string used by Prisma. Set to `file:./dev.db` located inside `prisma/`. |
+| `DATABASE_URL` | Optional | `"file:./dev.db"` | SQLite connection string used by Prisma ORM. |
 | `JWT_SECRET` | Optional | `careerfind-super-secret-jwt-key-production` | Secret cryptographic key used to sign and verify JSON Web Tokens in HTTP-only session cookies. |
 | `PORT` | Optional | `3000` | Local HTTP port for the Next.js server. |
 | `NODE_ENV` | Optional | `development` | Runtime environment (`development`, `production`, or `test`). |
+| `LOG_LEVEL` | Optional | `debug` (dev) / `info` (prod) | Minimum logging severity (`debug`, `info`, `warn`, `error`). |
 
-To customize these, create a `.env` file in the root directory:
-
+Sample `.env` file:
 ```env
 DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-custom-secure-jwt-secret-here"
+JWT_SECRET="careerfind-super-secret-jwt-key-production"
 PORT=3000
 NODE_ENV=development
+LOG_LEVEL=debug
 ```
 
 ### Dependencies Breakdown
 
-All packages are strictly pinned in [`package.json`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/package.json):
+All packages are pinned in [`package.json`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/package.json):
 
 #### Production Dependencies
-- **`next` (`14.2.15`)**: Core React framework utilizing App Router, Server Components, and API routes.
-- **`react` & `react-dom` (`^18.x`)**: Core UI component library.
-- **`@prisma/client` (`^5.22.0`)**: Auto-generated type-safe database client.
-- **`bcryptjs` (`^2.4.3`)**: Password salt generation and hash verification.
+- **`next` (`14.2.15`)**: App Router, Server Components, Route Handlers, and static rendering optimization.
+- **`react` & `react-dom` (`^18.3.1`)**: React UI library.
+- **`@prisma/client` (`^5.21.1`)**: Auto-generated type-safe database client.
+- **`bcryptjs` (`^2.4.3`)**: Password hashing and salt verification.
 - **`jsonwebtoken` (`^9.0.2`)**: JWT token creation, encoding, and cookie verification.
-- **`lucide-react` (`^0.454.0`)**: Modern SVG iconography.
-- **`clsx` & `tailwind-merge` (`^2.x`)**: Dynamic CSS class composition.
-- **`canvas-confetti` (`^1.9.4`)**: Visual celebratory feedback on assessment completion and shadowing bookings.
+- **`lucide-react` (`^0.453.0`)**: Modern iconography suite.
+- **`recharts` (`^2.13.0`)**: Composable declarative charting library for React (Bar, Radar, Donut/Pie charts).
+- **`clsx` & `tailwind-merge` (`^2.x`)**: Utility-first CSS class concatenation.
 
 #### Development Dependencies
-- **`prisma` (`^5.22.0`)**: Prisma CLI for database migrations, schema pushing, and studio inspector.
-- **`typescript` (`^5.x`)**: Strict compile-time static type analysis.
-- **`tailwindcss` (`^3.4.x`)** & **`postcss`**: Utility-first CSS styling engine.
-- **`@types/*`**: Comprehensive TypeScript definitions for Node, React, Bcrypt, and JWT.
+- **`prisma` (`^5.21.1`)**: Database schema migration and inspection CLI.
+- **`typescript` (`^5.x`)**: Compile-time static type analysis.
+- **`tailwindcss` (`^3.4.14`)** & **`postcss`**: Utility-first CSS styling engine.
+- **`@types/*`**: Type definitions for Node, React, Bcrypt, and JWT.
 
 ---
 
@@ -207,17 +221,16 @@ All packages are strictly pinned in [`package.json`](file:///c:/Users/abhi%20viv
 
 ### Database Setup & Prisma ORM
 
-The application uses an embedded **SQLite** database (`prisma/dev.db`). This makes CareerFind completely self-contained with zero Docker or external database service requirements.
+CareerFind uses an embedded **SQLite** database (`prisma/dev.db`). This allows full ACID transactional guarantees without configuring external database engines.
 
-Key Prisma commands:
 ```bash
-# Push schema changes to the local SQLite database without creating heavy SQL migration files
+# Push schema changes to the local SQLite database
 npx prisma db push
 
-# Re-generate the TypeScript Prisma Client after schema changes
+# Regenerate TypeScript Prisma Client after schema edits
 npx prisma generate
 
-# Launch Prisma Studio to visually inspect and edit records in your browser
+# Visually inspect and edit records in your browser
 npx prisma studio
 ```
 
@@ -242,29 +255,15 @@ erDiagram
 
 ### User Profile Storage & Retrieval
 
-1. **User Registration (`POST /api/auth/register`):**
-   - Receives `name`, `email`, `password`, and `role` (`STUDENT` or `MENTOR`).
-   - Hashes password using `bcrypt.hash(password, 10)`.
-   - Creates the parent `User` record.
-   - If `role === 'STUDENT'`, creates a linked `StudentProfile` storing `academicLevel`, `majorOrField`, `skillsPossessed`, and `preferredWorkMode`.
-   - If `role === 'MENTOR'`, creates a linked `MentorProfile` with `company`, `title`, `industry`, `experienceYears`, starting with `verificationStatus: 'PENDING'`.
-
-2. **Session Authentication & Profile Retrieval:**
-   - On successful login, signs a JWT containing `{ id, email, role }` with a 7-day expiration and sets it as an `HTTP-Only`, `SameSite=Lax` cookie named `token`.
-   - The helper `getCurrentUser()` in [`src/lib/auth.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/auth.ts) decodes the cookie and retrieves the full profile:
-     ```ts
-     const user = await prisma.user.findUnique({
-       where: { id: decoded.id },
-       include: { studentProfile: true, mentorProfile: true },
-     });
-     ```
-   - Allows clean Role-Based Access Control (RBAC) across student, mentor, and administrative routes.
+- **Registration (`POST /api/auth/register`)**: Receives `name`, `email`, `password`, and `role` (`STUDENT` or `MENTOR`). Hashes passwords with `bcrypt.hash(password, 10)`. Creates `StudentProfile` or `MentorProfile`.
+- **Session Authentication**: JWT signed with `{ id, email, role }` (7-day validity) and issued as an `HTTP-Only`, `SameSite=Lax` cookie named `token`.
+- **Current User Resolution (`src/lib/auth.ts`)**: `getCurrentUser()` decodes the cookie and fetches user records with linked profiles.
 
 ---
 
 ### Job Profile Storage, Retrieval & Management (Adding New Careers)
 
-All **95 career profiles** in CareerFind are stored in the `Career` table and defined across modular JavaScript data files in [`prisma/data/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/prisma/data/):
+All **95 career profiles** are defined across modular data files in [`prisma/data/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/prisma/data/):
 
 | Data Module File | Domain Coverage | Career Count |
 | :--- | :--- | :--- |
@@ -283,193 +282,17 @@ All **95 career profiles** in CareerFind are stored in the `Career` table and de
 | `newExtensionCareers.js` | Brand Manager, Athlete, Model, Actor, PSU Executive, Railways | 6 careers |
 | **Total** | **All 13 Sectors Combined** | **95 Careers** |
 
-#### Schema Definition of a Career Profile
-Each career conforms to the `Career` model in `prisma/schema.prisma` across 26 rich fields:
-```prisma
-model Career {
-  id                          String   @id @default(cuid())
-  slug                        String   @unique
-  title                       String
-  category                    String   // e.g. "Technology & Engineering", "Law & Government"
-  industry                    String
-  shortDescription            String
-  overview                    String
-  dailyResponsibilities       String   // JSON string array
-  dayInLife                   String   // Formatted chronological workday schedule
-  typicalWorkEnvironment      String   // Remote, Hybrid, Office, Lab, Field
-  requiredEducation           String
-  essentialTechSkills         String   // JSON string array
-  essentialSoftSkills         String   // JSON string array
-  toolsAndTechnologies        String   // JSON string array
-  entrySalaryMin              Int      // USD in thousands (e.g. 85 = $85,000)
-  entrySalaryMax              Int
-  midSalaryMin                Int
-  midSalaryMax                Int
-  seniorSalaryMin             Int
-  seniorSalaryMax             Int
-  learningDifficulty          Int      // 1-10 scale
-  entryJobDifficulty          Int      // 1-10 scale
-  technicalComplexity         Int      // 1-10 scale
-  mathRequirements            Int      // 1-10 scale
-  workPressure                Int      // 1-10 scale
-  workLifeBalance             Int      // 1-10 scale
-  remoteOpportunities         Int      // 1-10 scale
-  careerStability             Int      // 1-10 scale
-  futureDemandScore           Int      // 1-10 scale
-  futureDemandOutlook         String   // e.g. "26% projected 10-year growth"
-  growthPotential             Int      // 1-10 scale
-  internationalOpportunities  String
-  advantages                  String   // JSON string array
-  disadvantages               String   // JSON string array
-  careerProgressionRoadmap    String   // JSON string array of stages
-  iconName                    String   @default("Briefcase")
-  featured                    Boolean  @default(false)
-  createdAt                   DateTime @default(now())
-}
-```
-
-#### How to Add a New Career Profile to the Backend
-
-To add a new career profile, follow these simple steps:
-
-1. **Add the Career Definition:**
-   Open the relevant file in `prisma/data/` (or create a new module and export it in `prisma/data/index.js`). Define the profile with its unique slug and all 26 fields:
-   ```javascript
-   {
-     slug: "renewable-energy-director",
-     title: "Renewable Energy Director",
-     category: "Engineering & Built Environment",
-     industry: "CleanTech & Energy",
-     shortDescription: "Directing utility-scale solar, wind, and battery energy transition programs.",
-     overview: "Full overview text...",
-     dailyResponsibilities: JSON.stringify(["Grid interconnection modeling", "Turbine procurement", "EPC audits"]),
-     dayInLife: "08:30 AM - Grid telemetry audit\n10:30 AM - EPC contractor standup\n02:00 PM - Environmental regulatory hearing\n05:30 PM - Capital allocation debrief",
-     typicalWorkEnvironment: "Hybrid (Site visits + Remote design)",
-     requiredEducation: "B.Tech in Electrical/Mechanical Engineering + PE License",
-     essentialTechSkills: JSON.stringify(["PSCAD", "Power Systems", "Grid Interconnection"]),
-     essentialSoftSkills: JSON.stringify(["Stakeholder Negotiation", "Risk Mitigation"]),
-     toolsAndTechnologies: JSON.stringify(["ETAP", "MATLAB", "AutoCAD Electrical"]),
-     entrySalaryMin: 80,
-     entrySalaryMax: 110,
-     midSalaryMin: 130,
-     midSalaryMax: 180,
-     seniorSalaryMin: 200,
-     seniorSalaryMax: 290,
-     learningDifficulty: 8,
-     entryJobDifficulty: 7,
-     technicalComplexity: 8,
-     mathRequirements: 8,
-     workPressure: 7,
-     workLifeBalance: 7,
-     remoteOpportunities: 6,
-     careerStability: 9,
-     futureDemandScore: 9,
-     futureDemandOutlook: "32% projected 10-year growth (Much faster than average)",
-     growthPotential: 9,
-     internationalOpportunities: "High global demand across the US, EU, and India.",
-     advantages: JSON.stringify(["High mission fulfillment", "Government-backed incentives"]),
-     disadvantages: JSON.stringify(["Protracted regulatory review cycles"]),
-     careerProgressionRoadmap: JSON.stringify(["Junior Project Engineer", "Lead Systems Engineer", "Engineering Director"]),
-     iconName: "Zap",
-     featured: true,
-   }
-   ```
-
-2. **Sync the Database:**
-   Run the seed script or execute an upsert query:
-   ```bash
-   node prisma/seed.js
-   ```
-   *Alternatively, in production without wiping other tables, use a script with `prisma.career.upsert({ where: { slug: ... }, update: ..., create: ... })`.*
-
-3. **Instant Platform Integration:**
-   Once saved in SQLite:
-   - It is immediately accessible at `/careers/[slug]` with all 5 interactive tabs.
-   - It is dynamically matched in `/assessment` scoring.
-   - It can be filtered, searched, and compared in `/student/compare`.
-   - Mentors and documentary videos are automatically matched using intelligent category fallbacks.
-
 ---
 
 ## 🧠 Assessment Engine & Recommendation Algorithm Workflow
 
-The CareerFind Recommendation Engine ([`src/lib/assessmentEngine.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/assessmentEngine.ts)) implements an **explainable, multi-attribute decision model (MCDM)** combined with **strict constraint programming** and **semantic skill graph mapping**. 
+The CareerFind Recommendation Engine ([`src/lib/assessmentEngine.ts`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/lib/assessmentEngine.ts)) implements an **explainable, multi-attribute decision model (MCDM)** combined with **strict constraint programming** and **semantic skill graph mapping**.
 
-Instead of treating career selection as an arbitrary classification quiz or black-box embedding model, CareerFind evaluates every career against 20 psychological, quantitative, environmental, and ethical dimensions to calculate an exact, transparent alignment profile.
+### The 21 Assessment Dimensions
 
----
+Every question is presented in clear, conversational language:
 
-### End-to-End Recommendation Pipeline Architecture
-
-```mermaid
-flowchart TD
-    subgraph Inputs["1. Assessment Taker Inputs (20 Dimensions)"]
-        Q_Num["15 Scaled Dimensions<br/>(Technical, Math, Ambiguity, Leadership, etc.)"]
-        Q_Mode["Q2: Physical Work Mode<br/>(Remote, Hybrid, Onsite, Field)"]
-        Q_Multi["4 Multi-Select Batteries<br/>• Q16: Lifestyle Pain Points<br/>• Q17: Current Skillset (22 skills)<br/>• Q18: Target Industry Sectors<br/>• Q20: Non-Negotiable Dealbreakers"]
-    end
-
-    subgraph Normalization["2. Input Normalization & Resolution"]
-        Norm_Num["resolveNumericAnswer()<br/>Multi-values resolved to numeric sets"]
-        Norm_Mode["resolveWorkMode()<br/>String arrays extracted"]
-        Norm_Fall["Not Clear Detection<br/>Assigns neutral 0.75 score"]
-    end
-
-    subgraph Scoring["3. Multi-Vector Scoring Engine (Evaluated per Career)"]
-        subgraph Core["Core Composite Score (100% Normalized)"]
-            C1["Component 1: Domain & Industry Match (35%)"]
-            C2["Component 2: Cognitive Aptitude & Difficulty (30%)<br/>• Tech Complexity (35%)<br/>• Math Rigor (25%)<br/>• Pressure Dynamics (20%)<br/>• Learning Curve (20%)"]
-            C3["Component 3: Work Environment & Setting (15%)"]
-            C4["Component 4: Salary & Wealth Trajectory (10%)"]
-            C5["Component 5: Skill Gap & Ratio Match (10%)"]
-        end
-
-        subgraph Modifiers["Contextual Multipliers & Behavioral Deltas"]
-            M_Affinity["Category Natural Affinities (±5 to ±20 pts)"]
-            M_Pain["Lifestyle Avoidance Filters (±8 to ±18 pts)"]
-            M_Strategy["Financial Strategy Model (±8 to ±18 pts)"]
-            M_Medium["Output Medium & Tangibility (±8 to ±24 pts)"]
-            M_Visibility["Public Spotlight vs Privacy (±14 to ±22 pts)"]
-            M_Feedback["Feedback Horizon Cadence (±12 to ±16 pts)"]
-            M_Driver["Core Professional Purpose (±10 to ±22 pts)"]
-            M_Leadership["Leadership & Scope Delta (±10 to ±15 pts)"]
-            M_NonNeg["Non-Negotiables Guarantee (±16 to ±32 pts)"]
-            M_SubSpec["Sub-Specialization Tiebreaker (±12 to ±26 pts)"]
-        end
-
-        Score_Formula["Total Raw Score = Core Composite + ∑ Deltas"]
-    end
-
-    subgraph Archetypes["4. Archetype Classification"]
-        Arch_Eval["Evaluates 17 Distinct Archetype Profiles"]
-        Arch_Select["Selects top archetype title & personalized narrative"]
-    end
-
-    subgraph Output["5. Calibration, Ranking & Explainability"]
-        Sort["Sort Descending by Total Raw Score"]
-        Top10["Extract Top 10 Best Matching Careers"]
-        Calibrate["Calibrate Compatibility: 98% down to 78%"]
-        Skills["Segment Skills: Possessed vs Missing (Skills to Develop)"]
-        WhyMatch["Synthesize Tailored 'Why Match' Rationale"]
-    end
-
-    Inputs --> Normalization
-    Normalization --> Scoring
-    Normalization --> Archetypes
-    Core --> Score_Formula
-    Modifiers --> Score_Formula
-    Score_Formula --> Sort
-    Arch_Eval --> Arch_Select
-    Sort --> Top10 --> Calibrate --> Skills --> WhyMatch
-```
-
----
-
-### The 20 Assessment Dimensions
-
-Every question has been rewritten in clear, everyday language with no confusing jargon:
-
-| # | Question Dimension | Internal ID | Data Type | Evaluated Scale / Choices | Core Weight / Purpose |
+| # | Question Dimension | Internal ID | Data Type | Evaluated Scale / Choices | Purpose & Weight |
 | :-: | :--- | :--- | :--- | :--- | :--- |
 | **Q1** | **Technical & Engineering Orientation** | `technicalOrientation` | Scaled Spectrum | 1 (Creative/People) to 9 (Deep Code & AI) | Core Aptitude (35% of Component 2) |
 | **Q2** | **Workplace Environment** | `workMode` | Multi-Choice | `remote`, `hybrid`, `onsite`, `field`, or `not_clear` | Work Setting (15% of Core Composite) |
@@ -478,60 +301,45 @@ Every question has been rewritten in clear, everyday language with no confusing 
 | **Q5** | **Quantitative & Analytical Rigor** | `mathAnalyticalAptitude` | Scaled Spectrum | 1 (Little/No Math) to 9 (Advanced Math/Algorithms) | Core Aptitude (25% of Component 2) |
 | **Q6** | **Structure vs. Ambiguity** | `ambiguityTolerance` | Scaled Spectrum | 1 (Strict SOPs) to 9 (Invent from Scratch) | Context Modifier ($\pm 8$ pts) |
 | **Q7** | **Leadership & Influence Scope** | `leadershipScope` | Scaled Spectrum | 9 (Executive Command), 7 (Brand), 5 (Coaching), 2 (Solo Craft) | Context Modifier ($\pm 10$ to $\pm 15$ pts) |
-| **Q8** | **Human Care & Social Welfare** | `helpingAndHumanImpact` | Scaled Spectrum | 1 (Commercial/Tech) to 10 (Clinical Healing) | Healthcare & Social Category Affinity |
-| **Q9** | **Creative Expression & Storytelling** | `creativeDesignAptitude` | Scaled Spectrum | 9 (Cinematic/Screen), 7 (Campaigns), 5 (UX), 2 (Pure Logic) | Creative Category Affinity |
-| **Q10** | **Physical Mastery & Tactical Presence** | `physicalDexterityTacticalCraft`| Scaled Spectrum | 9 (Athletics/Tactical), 7 (Industrial), 4 (Active), 2 (Desk) | Tactile & Active Environment Alignment |
-| **Q11** | **Sovereign Service & Public Sector** | `governanceLawPublicService`| Scaled Spectrum | 10 (Civil Services/Defence), 8 (PSUs/Railways), 6 (Law), 2 (Private)| Sovereign & Legal Category Affinity |
-| **Q12** | **Lifelong Learning & Tech Velocity** | `continuousLearning` | Scaled Spectrum | 1 (Timeless Craft) to 9 (Rapid Tech Paradigm Shifts) | Core Aptitude (20% of Component 2) |
-| **Q13** | **Feedback Cadence & Horizon** | `feedbackHorizon` | Scaled Spectrum | 9 (Immediate Live), 7 (Monthly Sprints), 2 (Multi-Year Legacy) | Context Modifier ($\pm 12$ to $\pm 16$ pts) |
-| **Q14** | **Public Visibility & Spotlight** | `publicVisibility` | Scaled Spectrum | 9 (On-Camera/Runway), 7 (Spokesperson/Civil Leader), 2 (Backstage) | Context Modifier ($\pm 14$ to $\pm 22$ pts) |
-| **Q15** | **Pressure Dynamics & Crisis Cadence** | `pressureDynamics` | Scaled Spectrum | 9 (Live Crisis/Audience) to 2 (Calm Low-Stress Routine) | Core Aptitude (20% of Component 2) |
-| **Q16** | **Lifestyle Avoidance Filter** | `lifestylePainPoints` | Multi-Select List | 11 Dealbreakers (Long commutes, sitting all day, burnout, etc.) | Avoidance Penalties & Relief Boosts |
-| **Q17** | **Current Skillset** | `existingSkills` | Multi-Select List | 22 Practical Competencies (Coding, acting, athletics, CAD, etc.) | Skill Gap & Domain Bonuses |
-| **Q18** | **Target Industry Sectors** | `preferredIndustries` | Multi-Select List | 13 Distinct Industry Domains | Domain Match (35% of Core Composite) |
-| **Q19** | **Core Professional Purpose** | `coreLifeDriver` | Scaled Spectrum | 10 (Nation Building), 8 (Wealth), 6 (Artistic Truth), 4 (Healing) | Context Modifier ($\pm 10$ to $\pm 22$ pts) |
-| **Q20** | **Life Non-Negotiables & Dealbreakers**| `nonNegotiables` | Multi-Select List | 12 Hard Standards (Daily fitness, family time, remote freedom, etc.) | Priority Guarantee ($\pm 16$ to $\pm 32$ pts) |
+| **Q8** | **Human Care & Social Welfare** | `helpingAndHumanImpact` | Scaled Spectrum | 1 (Commercial/Tech) to 10 (Clinical Healing) | Healthcare Category Affinity |
+| **Q9** | **Creative Expression & Brand Storytelling** | `creativeDesignAptitude` | Scaled Spectrum | 9 (Cinematic/Screen), 7 (Campaigns), 5 (UX), 2 (Pure Logic) | Creative Category Affinity |
+| **Q10** | **Physical Mastery & Tactical Presence** | `physicalDexterityTacticalCraft`| Scaled Spectrum | 9 (Athletics/Tactical), 7 (Industrial), 4 (Active), 2 (Desk) | Tactile Environment Alignment |
+| **Q11** | **Technical vs. Practical Work Balance** | `technicalPracticalBalance` | Scaled Spectrum | 1 (100% Practical), 3 (30% Tech / 70% Prac), 6 (60/40), 7 (70/30), 9 (100% Tech) | Practical vs. Theoretical Alignment |
+| **Q12** | **Sovereign Service & Public Sector** | `governanceLawPublicService`| Scaled Spectrum | 10 (Civil Services/Defence), 8 (PSUs/Railways), 6 (Law), 2 (Private)| Sovereign & Legal Category Affinity |
+| **Q13** | **Lifelong Learning & Tech Velocity** | `continuousLearning` | Scaled Spectrum | 1 (Timeless Craft) to 9 (Rapid Tech Paradigm Shifts) | Core Aptitude (20% of Component 2) |
+| **Q14** | **Feedback Cadence & Horizon** | `feedbackHorizon` | Scaled Spectrum | 9 (Immediate Live), 7 (Monthly Sprints), 2 (Multi-Year Legacy) | Context Modifier ($\pm 12$ to $\pm 16$ pts) |
+| **Q15** | **Public Visibility & Spotlight** | `publicVisibility` | Scaled Spectrum | 9 (On-Camera/Runway), 7 (Spokesperson/Civil Leader), 2 (Backstage) | Context Modifier ($\pm 14$ to $\pm 22$ pts) |
+| **Q16** | **Pressure Dynamics & Crisis Cadence** | `pressureDynamics` | Scaled Spectrum | 9 (Live Crisis/Audience) to 2 (Calm Low-Stress Routine) | Core Aptitude (20% of Component 2) |
+| **Q17** | **Lifestyle Preferences & Avoidance Filter** | `lifestylePainPoints` | Multi-Select List | 14 Dealbreakers (commutes, burnout, micromanagement, etc.) | Avoidance Penalties & Relief Boosts |
+| **Q18** | **Current Skillset & Practical Foundations** | `existingSkills` | Multi-Select List | 30 Practical Competencies (Coding, CAD, clinical, sports, etc.) | Skill Gap & Domain Bonuses |
+| **Q19** | **Target Industry Sectors** | `preferredIndustries` | Multi-Select List | 17 Distinct Industry Sectors | Domain Match (35% of Core Composite) |
+| **Q20** | **Core Professional Purpose** | `coreLifeDriver` | Scaled Spectrum | 10 (Nation Building), 8 (Commercial Growth), 6 (Artistic Truth), 4 (Healing) | Context Modifier ($\pm 10$ to $\pm 22$ pts) |
+| **Q21** | **Life Non-Negotiables & Dealbreakers**| `nonNegotiables` | Multi-Select List | 12 Hard Standards (Daily fitness, family time, remote freedom, etc.) | Priority Guarantee ($\pm 16$ to $\pm 32$ pts) |
 
 ---
 
 ### Multi-Selection Scoring Mathematics & Minimum-Distance Formulation
 
-Traditional career quizzes force users into a single choice per question or average their selections. Averages create the **"Averaging Fallacy"**: if a student loves *Software & AI Development* (scale 9) and *People & Creative Arts* (scale 2), an arithmetic average yields $5.5$ (middle management), an outcome that satisfies neither of their genuine passions!
-
-CareerFind completely eliminates this flaw using a **minimum-distance similarity metric**:
+To prevent the **Averaging Fallacy** (where selecting opposite extremes like coding ($9$) and cinema ($2$) results in an unhelpful average of $5.5$), CareerFind uses a **minimum-distance similarity metric**:
 
 $$\text{Similarity}(D, T) = \max\left(0, 1 - \frac{\min_{v \in D} |v - T|}{9}\right)$$
 
 Where:
-- $D \subseteq \{1, 2, \dots, 10\}$ is the non-empty set of values selected by the user for that question.
-- $T \in [1, 10]$ is the career profile's target rating on that dimension.
-- $\min_{v \in D} |v - T|$ calculates the shortest distance between the career's requirements and **any** of the user's selected interests.
-- $9$ is the normalization constant representing the maximum possible distance on a 1–10 scale.
+- $D \subseteq \{1, 2, \dots, 10\}$ is the user's selected choice set.
+- $T \in [1, 10]$ is the career profile's target rating.
+- $\min_{v \in D} |v - T|$ calculates the shortest distance between any selected preference and the career.
+- $9$ is the normalization constant across the 1–10 scale.
 
-#### Mathematical Properties & Advantages:
-1. **Convex Envelope Guarantee**: $\text{Similarity}(D, T) \in [0, 1]$. An exact match on any selected choice yields $\text{Similarity} = 1.0$ ($100\%$).
-2. **Fair Multi-Interest Rewarding**: A student selecting both Software ($9$) and Cinema ($2$) receives $1.0$ when evaluated against AI Engineer ($T=9$) **and** $1.0$ when evaluated against Film Actor ($T=2$). Both careers are fairly rewarded without dilution.
-3. **Graceful Distance Degradation**: A career with $T=7$ evaluated against $D=\{9\}$ yields:
-   $$1 - \frac{|9 - 7|}{9} = 1 - \frac{2}{9} \approx 0.778 \quad (77.8\% \text{ match})$$
-
-#### Handling 'Not Sure / Open to Exploration' (`not_clear`)
-Every single-choice question provides an explicit *"Not Sure / Open"* option. When selected:
-- `isNotClear` is set to `true`.
-- The engine applies a neutral, non-penalizing baseline alignment:
-  $$\text{Similarity}(\text{not\_clear}, T) = 0.75 \quad (75\%)$$
-- Exploratory and undecided students are never penalized for keeping their options open.
+Selecting `"not_clear"` applies a neutral, non-penalizing score:
+$$\text{Similarity}(\text{not\_clear}, T) = 0.75 \quad (75\%)$$
 
 ---
 
 ### Composite Scoring Formula & 5-Component Weights Breakdown
 
-Every career in the 95-career encyclopedia is evaluated against the user's normalized answers using the master composite formula:
-
 $$\text{Total Raw Score} = S_{\text{composite}} + 0.9 \cdot \Delta_{\text{affinity}} + \Delta_{\text{pain}} + \Delta_{\text{ambiguity}} + \Delta_{\text{skills}} + \Delta_{\text{finance}} + \Delta_{\text{medium}} + \Delta_{\text{visibility}} + \Delta_{\text{feedback}} + \Delta_{\text{driver}} + \Delta_{\text{leadership}} + \Delta_{\text{non-negotiables}} + \Delta_{\text{subspec}}$$
 
-#### The Core Composite Score ($S_{\text{composite}}$)
-The core composite score is normalized on a 0–100 scale across 5 distinct components:
-
+#### Core Composite Score Breakdown ($S_{\text{composite}}$):
 $$S_{\text{composite}} = 0.35 \cdot S_{\text{domain}} + 0.30 \cdot S_{\text{aptitude}} + 0.15 \cdot S_{\text{workmode}} + 0.10 \cdot S_{\text{salary}} + 0.10 \cdot S_{\text{skills\_ratio}}$$
 
 ```
@@ -540,200 +348,157 @@ $$S_{\text{composite}} = 0.35 \cdot S_{\text{domain}} + 0.30 \cdot S_{\text{apti
 ├──────────────────────────────┬────────┬────────────────────────────────┤
 │ Component                    │ Weight │ Evaluates                      │
 ├──────────────────────────────┼────────┼────────────────────────────────┤
-│ 1. Domain & Industry Match   │  35%   │ Q18 Preferred Target Sectors   │
-│ 2. Core Cognitive Aptitudes  │  30%   │ Q1 Tech, Q5 Math, Q15 Pressure,│
-│                              │        │ Q12 Continuous Learning        │
+│ 1. Domain & Industry Match   │  35%   │ Q19 Preferred Target Sectors   │
+│ 2. Core Cognitive Aptitudes  │  30%   │ Q1 Tech, Q5 Math, Q16 Pressure,│
+│                              │        │ Q13 Continuous Learning        │
 │ 3. Work Environment & Mode   │  15%   │ Q2 Remote, Hybrid, Field, Site │
 │ 4. Salary Trajectory         │  10%   │ Q4 Senior Compensation Ceiling │
-│ 5. Skill Gap Ratio           │  10%   │ Q17 Possessed vs Required      │
+│ 5. Skill Gap Ratio           │  10%   │ Q18 Possessed vs Required      │
 └──────────────────────────────┴────────┴────────────────────────────────┘
 ```
-
-#### Detailed Breakdown of the 5 Core Components:
-
-1. **Component 1: Industry & Domain Match ($S_{\text{domain}}$, Weight: 35%)**
-   - If the user selected target industries in Q18:
-     - Exact domain match (e.g., user selected *Cinema* and career is *Film Artist*): $S_{\text{domain}} = 100$.
-     - Explicit mismatch (user picked *Technology* only, career is in *Culinary*): $S_{\text{domain}} = 18$ (significant deprioritization).
-   - If the user left industry preferences open: $S_{\text{domain}} = 55$ (neutral baseline allowing all 95 careers to compete on raw aptitude).
-
-2. **Component 2: Core Cognitive Aptitudes & Difficulty ($S_{\text{aptitude}}$, Weight: 30%)**
-   - Measures multi-dimensional cognitive alignment between the student's comfort and the profession's demands:
-     $$S_{\text{aptitude}} = 100 \cdot \left(0.35 \cdot \text{Sim}_{\text{tech}} + 0.25 \cdot \text{Sim}_{\text{math}} + 0.20 \cdot \text{Sim}_{\text{pressure}} + 0.20 \cdot \text{Sim}_{\text{learning}}\right)$$
-   - Prevents placing math-averse candidates into quantitative finance, or low-ambiguity candidates into early-stage startup engineering.
-
-3. **Component 3: Work Environment & Setting ($S_{\text{workmode}}$, Weight: 15%)**
-   - Maps the career's `remoteOpportunities` rating ($1–10$) against the student's preferred modes in Q2:
-     - **Remote Preference**: $S_{\text{workmode}} = 100$ if `remoteOpportunities >= 8`; $75$ if $\ge 6$; $15$ if $\le 2$ (e.g. airline pilot, surgeon).
-     - **Hybrid Preference**: $S_{\text{workmode}} = 100$ for balanced careers ($4 \le \text{remoteOpp} \le 8$); $65$ otherwise.
-     - **Onsite / Corporate Preference**: $S_{\text{workmode}} = 95$ for corporate headquarters, law firms, and finance floors.
-     - **Active Field Preference**: $S_{\text{workmode}} = 100$ for careers in *Aviation, Sports, Construction, Culinary, Medicine, and Maritime*.
-
-4. **Component 4: Salary & Wealth Trajectory ($S_{\text{salary}}$, Weight: 10%)**
-   - Compares the career's `seniorSalaryMax` against the financial strategy in Q4:
-     - High Earning Upside ($\ge 9$): $100$ if senior pay $\ge \$300\text{k}$; $80$ if $\ge \$220\text{k}$; $40$ if low ceiling.
-     - Government & Stability ($\le 4$): Rewards high-stability public careers ($95$ points for public sector, medicine, research).
-     - Balanced ($5–8$): Optimal scores ($95$ points) for senior pay in the $\$180\text{k}–\$300\text{k}$ band.
-
-5. **Component 5: Skill Gap & Ratio Match ($S_{\text{skills\_ratio}}$, Weight: 10%)**
-   - Tokenizes the career's `essentialTechSkills` array and executes word-boundary fuzzy matching against the user's selected skills in Q17.
-   - Calculates the match ratio:
-     $$\text{SkillRatio} = \frac{|\text{Possessed Skills}|}{|\text{Essential Tech Skills}|}$$
-   - Generates an immediate baseline score ($S_{\text{skills\_ratio}} = \text{SkillRatio} \times 100$).
 
 ---
 
 ### Contextual Modifiers, Pain Points & Non-Negotiables Engine
 
-Beyond the baseline composite, the algorithm applies fine-grained contextual modifiers that reflect authentic real-world trade-offs:
-
-#### 1. Category Natural Affinities ($\Delta_{\text{affinity}}$, Scaled by $0.9$)
-Directly amplifies or suppresses specific career sectors based on targeted question responses:
-- **Medicine & Healthcare**: Direct boost from Helping & Human Impact ($(\text{helping} - 5) \times 8$).
-- **Technology & Engineering**: Amplified by Technical Orientation ($(\text{tech} - 5) \times 9$) and Math ($(\text{math} - 5) \times 4$).
-- **Creative & Media**: Amplified by Creative Design Aptitude ($(\text{creative} - 5) \times 10$) and Public Visibility ($(\text{visibility} - 5) \times 4$).
-- **Law & Government**: Driven by Governance & Sovereign Service ($(\text{governance} - 5) \times 9$).
-- **Sports & Fitness / Aviation**: Driven by Physical Mastery & Tactical Presence ($(\text{physical} - 5) \times 9$).
-
-#### 2. Lifestyle Avoidance Filters ($\Delta_{\text{pain}}$, Q16)
-Applies targeted penalties or relief boosts based on dealbreakers to avoid:
-- *Sitting at a desk all day*: **$+16$ pts** for active field careers (Aviation, Sports, Built Environment, Culinary); **$-16$ pts** for desk-bound software and finance roles.
-- *Extreme stress & 60+ hour burnout*: **$+10$ pts** for high-WLB careers; **$-14$ pts** for high-pressure roles (`workPressure >= 8`, e.g., Investment Banking, Trauma Surgery).
-- *Constant travel away from family*: **$-18$ pts** for pilots and merchant navy; **$+6$ pts** for remote roles.
-- *Unstable income & layoffs*: **$+8$ pts** for sovereign civil service, healthcare, and high-stability PSUs; **$-10$ pts** for startup founders and day traders.
-
-#### 3. Output Medium, Visibility & Life Purpose Modifiers
-- **Output Medium ($\Delta_{\text{medium}}$)**: Boosts software roles for digital builders ($+14$), industrial plants and PSUs for physical engineering ($+24$), and national rail networks for public logistics ($+24$).
-- **Public Visibility ($\Delta_{\text{visibility}}$)**: Rewards actors, models, and athletes with **$+20$ pts** when seeking the spotlight; applies **$-15$ pts** to backstage roles (DevOps, Data Engineers, Actuaries).
-- **Core Life Purpose ($\Delta_{\text{driver}}$)**: Rewards sovereign public administration with **$+22$ pts** when the primary driver is nation building; rewards creative entertainment with **$+20$ pts** for artistic impact.
-
-#### 4. The Non-Negotiables Guarantee System ($\Delta_{\text{non-negotiables}}$, Q20)
-Non-negotiables represent strict personal requirements. When a career violates a non-negotiable standard, severe penalties ensure it drops out of the top recommendations:
-
-| Non-Negotiable Standard | Required Career Threshold | Fulfilled Boost | Violation Penalty |
-| :--- | :--- | :-: | :-: |
-| **Daily Fitness & Health** | `workLifeBalance >= 6` & `workPressure <= 7` | **$+16$ pts** | **$-26$ pts** |
-| **Scheduled & Predictable Hours** | Predictable schedule; low emergency volatility | **$+18$ pts** | **$-30$ pts** (Surgeons, Bankers) |
-| **High Earning Potential** | `seniorSalaryMax >= $250k` or `entryMax >= $115k` | **$+22$ pts** | **$-25$ pts** (Capped salaries) |
-| **Family & Personal Time** | `workLifeBalance >= 7` & `workPressure <= 6` | **$+18$ pts** | **$-30$ pts** (Pilots, Bankers) |
-| **Remote Work Flexibility** | `remoteOpportunities >= 8` (or $\ge 6$ for hybrid) | **$+22$ pts** | **$-32$ pts** (Strict physical sites) |
-| **Job Security & Stability** | `careerStability >= 8` (PSUs, Civil Services, Health)| **$+16$ pts** | **$-22$ pts** (Founders, Traders) |
-| **Ethical Social Impact** | Medicine, Climate Tech, Education, Public Defence | **$+18$ pts** | Neutral |
-| **Intellectual Autonomy** | High creative/problem-solving freedom | **$+15$ pts** | **$-12$ pts** (Strict compliance) |
-| **Low Stress & Calm Culture** | `workLifeBalance >= 7` & `workPressure <= 5` | **$+18$ pts** | **$-26$ pts** (`workPressure >= 8`) |
-| **Minimal Travel** | Rooted local schedule | **$+10$ pts** | **$-28$ pts** (Aviation, Field Consulting)|
+1. **Category Affinities ($\Delta_{\text{affinity}}$)**: Amplifies targeted sectors (Healthcare, Engineering, Creative Arts, Governance, Aviation, Sports).
+2. **Lifestyle Pain Points ($\Delta_{\text{pain}}$, Q17)**: Penalizes careers violating quality-of-life preferences (e.g. $-16$ pts for desk-bound roles if user avoids sitting all day; $-18$ pts for constant travel).
+3. **Non-Negotiables Guarantee ($\Delta_{\text{non-negotiables}}$, Q21)**: Applies $+16$ to $+22$ pts when conditions are met, and $-25$ to $-32$ pts when violated.
 
 ---
 
 ### The 17 Archetype Profiles & Classification Scoring Matrix
 
-The algorithm evaluates 17 distinct archetype profiles simultaneously using weighted composite indicators. The highest scoring profile defines the user's primary career identity:
+The engine evaluates 17 archetypes simultaneously and selects the highest scoring archetype:
 
-| Archetype Key | Archetype Title | Dominant Drivers & Scoring Formula |
+| Archetype Key | Archetype Title | Dominant Scoring Dimensions |
 | :--- | :--- | :--- |
-| `systems` | **The Frontier Systems Architect** | $\text{Tech} \times 3.2 + \text{Math} \times 1.8 + \text{Learning} \times 1.2 + \text{TechIndustry}(+24) + \text{CodingSkills}(+16)$ |
-| `sovereign_leader`| **The Sovereign Administrator & Nation Builder** | $\text{Gov} \times 3.8 + \text{Driver} \times 2.2 + \text{OutputMedium}(+15) + \text{GovIndustry}(+28) + \text{AdminSkills}(+18)$ |
-| `brand_architect` | **The Brand Architect & Consumer Visionary** | $\text{Creative} \times 2.5 + \text{Leadership} \times 2.5 + \text{Visibility} \times 1.8 + \text{BizIndustry}(+26) + \text{BrandSkills}(+18)$ |
-| `screen_artist` | **The Cinematic Screen Artist & Magnetic Performer**| $\text{Creative} \times 3.2 + \text{Visibility} \times 2.5 + \text{Physical} \times 1.8 + \text{CinemaIndustry}(+28) + \text{ActingSkills}(+20)$ |
-| `healer` | **The Compassionate Clinical Healer** | $\text{Helping} \times 4.0 + \text{Physical} \times 1.2 + \text{HealthIndustry}(+28) + \text{MedicalSkills}(+18)$ |
-| `tactical` | **The High-Precision Tactical Operator** | $\text{Physical} \times 3.5 + \text{Pressure} \times 1.2 + \text{AviationIndustry}(+28) + \text{NavSkills}(+18)$ |
-| `justice` | **The Guardian of Justice & Sovereign Policy** | $\text{Gov} \times 4.0 + \text{Leadership} \times 1.5 + \text{LawIndustry}(+28) + \text{LegalSkills}(+16)$ |
-| `capital` | **The Quantitative Capital Allocator** | $\text{Math} \times 2.8 + \text{Finance} \times 2.2 + \text{FinanceIndustry}(+26) + \text{FinanceSkills}(+18)$ |
-| `creative` | **The Expressive Storyteller & Creative Visionary** | $\text{Creative} \times 4.2 + \text{Ambiguity} \times 1.5 + \text{CreativeIndustry}(+28) + \text{ArtSkills}(+18)$ |
-| `founder` | **The High-Conviction Venture Founder** | $\text{Ambiguity} \times 3.0 + \text{Finance} \times 1.8 + \text{Leadership} \times 2.0 + \text{BizIndustry}(+15)$ |
-| `dealmaker` | **The Strategic Commercial Dealmaker** | $\text{Leadership} \times 3.5 + \text{Finance} \times 1.5 + \text{BizIndustry}(+26) + \text{SalesSkills}(+18)$ |
-| `builder` | **The Master Builder & Infrastructure Architect** | $\text{Physical} \times 2.5 + \text{Math} \times 2.0 + \text{BuiltIndustry}(+28) + \text{CADSkills}(+18)$ |
-| `craftsman` | **The Master Craftsman & Performance Optimizer** | $\text{Physical} \times 3.2 + \text{Creative} \times 1.5 + \text{SportsIndustry}(+28) + \text{FitnessSkills}(+18)$ |
-| `academic` | **The Knowledge Pioneer & Academic Mentor** | $\text{Learning} \times 2.8 + \text{Helping} \times 2.0 + \text{EduIndustry}(+28) + \text{ResearchSkills}(+18)$ |
-| `ai_builder` | **The Independent AI Builder & Maker** | $\text{Tech} \times 2.0 + \text{Ambiguity} \times 2.5 + \text{Finance} \times 1.5 + \text{TechIndustry}(+15) + \text{CodeSkills}(+14)$ |
-| `mission_engineer`| **The Mission-Driven Climate & Systems Engineer** | $\text{Driver} \times 2.5 + \text{Tech} \times 1.8 + \text{Math} \times 1.5 + \text{CleanTechIndustry}(+18) + \text{EngSkills}(+12)$ |
-| `public_servant` | **The Dedicated Public Servant & Policy Leader** | $\text{Gov} \times 3.5 + \text{Driver} \times 2.0 + \text{Leadership} \times 1.5 + \text{GovIndustry}(+28) + \text{PolicySkills}(+16)$ |
+| `systems` | **The Frontier Systems Architect** | Tech, Math, Learning, Code Skills |
+| `sovereign_leader`| **The Sovereign Administrator & Nation Builder** | Governance, Nation Building Driver, Admin Skills |
+| `brand_architect` | **The Brand Architect & Consumer Visionary** | Creative, Leadership, Visibility, Brand Skills |
+| `screen_artist` | **The Cinematic Screen Artist & Magnetic Performer**| Creative, Visibility, Physical, Acting Skills |
+| `healer` | **The Compassionate Clinical Healer** | Helping, Healthcare Industry, Medical Skills |
+| `tactical` | **The High-Precision Tactical Operator** | Physical, Pressure, Aviation/Maritime, Nav Skills |
+| `justice` | **The Guardian of Justice & Sovereign Policy** | Governance, Leadership, Law Industry, Legal Skills |
+| `capital` | **The Quantitative Capital Allocator** | Math, Finance Strategy, Finance Skills |
+| `creative` | **The Expressive Storyteller & Creative Visionary** | Creative Aptitude, Ambiguity, Art Skills |
+| `founder` | **The High-Conviction Venture Founder** | Ambiguity, Finance Upside, Leadership |
+| `dealmaker` | **The Strategic Commercial Dealmaker** | Leadership, Sales Skills, Commercial Growth |
+| `builder` | **The Master Builder & Infrastructure Architect** | Physical, Math, Built Environment, CAD Skills |
+| `craftsman` | **The Master Craftsman & Performance Optimizer** | Physical Dexterity, Tactical Craft, Sports |
+| `academic` | **The Knowledge Pioneer & Academic Mentor** | Continuous Learning, Helping, Research Skills |
+| `ai_builder` | **The Independent AI Builder & Maker** | Tech Orientation, Ambiguity, Code Skills |
+| `mission_engineer`| **The Mission-Driven Climate & Systems Engineer** | CleanTech, Math, Sustainability Driver |
+| `public_servant` | **The Dedicated Public Servant & Policy Leader** | Governance, Public Service Driver, Policy Skills |
 
 ---
 
-### Sub-Specialization Tiebreaker & Calibration Engine
+### Personal Characteristics Review Synthesis
 
-To prevent "clustering" where all careers in a broad category receive identical scores, CareerFind includes a **micro-specialization discriminator** ($\Delta_{\text{subspec}}$):
-
-- **Technology Sub-specialization**: Distinguishes *Data Scientists* (boosted by statistics + algorithms) from *Cloud Architects* (boosted by distributed electronics + systems) and *DevOps / SRE* (boosted by algorithms + infrastructure) and *Cybersecurity Analysts* (boosted by defensive algorithms and security protocols).
-- **Finance Sub-specialization**: Distinguishes *Actuaries* (boosted by mathematical probability and high stability) from *Investment Bankers* (boosted by financial modeling and high deal velocity) and *Quantitative Traders* (boosted by algorithms and risk appetite).
-- **Business Sub-specialization**: Distinguishes *Brand Managers* (boosted by brand strategy and creative design) from *Supply Chain Directors* (boosted by logistics planning and quantitative workflows).
-
-#### Score Calibration & Percentage Graduation
-After sorting all 95 careers by `totalRawScore` descending, the top 10 positions are calibrated into intuitive, realistic match percentages:
-
-$$\text{CompatibilityScore}(i) = \max\left(68, \min\left(98, \text{round}\left(98 - i \cdot 2.2\right)\right)\right)$$
-
-Where $i \in \{0, 1, \dots, 9\}$ is the index in the ranked list. This produces a smooth, graduated compatibility spread from **98% (Rank #1)** down to **78% (Rank #10)**.
+The engine synthesizes an individualized **Personal Characteristics Review** (`personalReview`) containing 8 structured attributes:
+1. **Summary Paragraph**: Narrative synthesis of cognitive orientation, environment preferences, and motivations.
+2. **Key Strengths**: Specific strengths identified from question responses (e.g., *Systems Thinking, Quantitative Reasoning, Crisis Composure*).
+3. **Work Style Traits**: Preferred working dynamics and structure.
+4. **Professional Inclinations**: Industry areas where the student's background creates natural leverage.
+5. **Technical / Practical Balance**: Explicit ratio (e.g., *70% Technical – 30% Practical*).
+6. **Work Environment Preference**: Remote, hybrid, on-site, or field orientation.
+7. **Core Drives**: Primary fulfillment motivations.
+8. **Work Situations to Avoid**: Filtered list of lifestyle conditions the user wants to avoid.
 
 ---
 
-### Explainability, Skill Gap Analysis & 'Why Match' Synthesis
+### Suitability Analysis for All 95 Careers
 
-CareerFind is committed to **transparent, explainable recommendations**. Every result returned to the student includes:
-
-1. **Dynamically Synthesized 'Why Match' Rationale**:
-   - If non-negotiables were satisfied: `"Protects your non-negotiables (daily fitness & health routines and predictable scheduled hours) while aligning with your technology & engineering aptitudes."`
-   - If specialized craft matched: `"Directly channels your commitment to sovereign governance, large-scale transportation logistics, and commanding Indian Railways infrastructure."`
-
-2. **Actionable Skill Gap Breakdown**:
-   - `possessedSkills`: Skills the student already has that give them an immediate natural advantage.
-   - `missingSkills`: Top 4 high-leverage skills required by the industry that the student needs to develop, empowering them to create targeted learning roadmaps.
+Every career in the encyclopedia is ranked from #1 to #95:
+- **`rank`**: #1 to #95
+- **`fitCategory`**:
+  - `Excellent Fit`: Compatibility Score $\ge 85\%$
+  - `Good Fit`: Compatibility Score $\ge 68\%$
+  - `Moderate Fit`: Compatibility Score $\ge 48\%$
+  - `Low Fit`: Compatibility Score $< 48\%$
+- **`scoreOutOf10`**: Scaled compatibility rating out of 10.
+- **`fitExplanation`**: Personalized explanation detailing why the role matches or where gaps exist.
 
 ---
 
 ## 📱 Core Application Modules
 
-### MODULE 1: Interactive Career Assessment
+### MODULE 1: Interactive 21-Question Career Assessment & Visual Analytics Dashboard
 *Route: [`/assessment`](http://localhost:3000/assessment)*
-- Step-by-step 20-question questionnaire wizard with real-time progress indicators.
-- **Prominent Multi-Selection Notice** on every question card confirming that multiple options are supported and factored into compatibility calculations.
-- Instant submission to `POST /api/assessment` returning ranked careers, compatibility percentages, archetype badges, and custom `whyMatch` rationales.
+- **Question Wizard**: 21-step questionnaire with real-time category tracking, progress bar, multi-select toggles, and "Not Sure / Open" options.
+- **Visual Analytics Dashboard**:
+  - **Match Score Bar Chart**: Interactive bar chart comparing compatibility across all top 10 career recommendations.
+  - **Skill Profile Donut Chart**: Pie chart comparing *Skills You Have* vs. *Skills to Develop* with a calculated career readiness percentage.
+  - **Salary Trajectory Bar Chart**: Grouped bar chart displaying Entry, Mid, and Senior salary benchmarks for the top 5 matches.
+  - **Multi-Dimension Radar Chart**: Normalized spider chart evaluating top careers across compatibility, work-life balance, learning difficulty, entry salary, and senior salary ceiling.
+- **Personal Characteristics Review**: Comprehensive 8-point diagnostic.
+- **Suitability Analysis for All 95 Careers**: Expandable list with fit badges, skill tags, and profile navigation.
+
+---
 
 ### MODULE 2: 95-Career Encyclopedia & 5-Tab Profile Experience
-*Routes: [`/careers`](http://localhost:3000/careers) and [`/careers/[slug]`](http://localhost:3000/careers/brand-manager)*
+*Routes: [`/careers`](http://localhost:3000/careers) and [`/careers/[slug]`](http://localhost:3000/careers/ai-ml-engineer)*
 - Filterable directory by 13 industry domains, salary sliders, remote flexibility, and keyword search.
 - **5-Tab Navigation System** on every single profile:
-  1. **Overview:** Executive summary, key metrics ribbon, educational qualifications, advantages & disadvantages.
-  2. **A Day in the Life:** Interactive hour-by-hour chronological schedule, daily execution time-allocation breakdown (Execution, Collaboration, Triage, Strategy), work pressure badge, and relevant Day-in-the-Life video documentaries.
-  3. **Job Shadowing:** 4 core learning pillars (Live Observation, Tool & Workflow Inspection, Unfiltered Q&A Reality Check, Resume & Portfolio Audit), 3-step workflow, verified practitioner cards with 1-click booking, custom host requests, and non-disclosure safety protocols.
-  4. **Skills & Roadmap:** Core technical skills, soft skills, tools stack, and multi-stage career progression roadmap.
-  5. **Compensation & Growth:** Entry, mid, and senior salary progression charts, 10-year projected demand growth, and international opportunities.
+  1. **Overview:** Summary, key metrics, required education, advantages & disadvantages.
+  2. **A Day in the Life:** Hour-by-hour chronological schedule, workload split (Execution, Collaboration, Triage, Strategy), and video documentaries.
+  3. **Job Shadowing:** 4 learning pillars (Observation, Tool Inspection, Q&A Reality Check, Resume Review), verified host cards with 1-click booking, and NDA protocols.
+  4. **Skills & Roadmap:** Essential technical skills, soft skills, tools stack, and career progression roadmap.
+  5. **Compensation & Growth:** Entry, mid, and senior salary bands, 10-year projected demand growth, and international opportunities.
+
+---
 
 ### MODULE 3: "A Day in the Life" Workday Documentary Library
 *Route: [`/videos`](http://localhost:3000/videos)*
-- Curated library of 25 authentic video documentaries powered by privacy-enhanced YouTube embeds (`youtube-nocookie.com`).
-- Features duration tags, seniority levels, location badges, and structured key takeaways checklist.
-- Filterable by career category and search keywords, with 1-click personal watchlist bookmarking.
+- 25 curated documentaries powered by privacy-enhanced YouTube embeds (`youtube-nocookie.com`).
+- Features duration tags, seniority levels, location badges, and structured key takeaways checklists.
+- Search and category filters with 1-click personal watchlist bookmarking.
+
+---
 
 ### MODULE 4: Job Shadowing Marketplace & Conflict-Free Booking
 *Route: [`/shadowing`](http://localhost:3000/shadowing)*
-- Connects students with 12 verified industry practitioners across tech, clean energy, culinary arts, brand management, screen acting, athletics, and Indian Railways/government.
-- Real-time availability slot selection for **Virtual** and **In-Person** sessions.
-- Interactive modal booking form requiring students to submit learning goals and background.
-- Protected by Prisma database transactions with slot collision detection to guarantee zero double-bookings.
+- Connects students with 12 verified industry practitioners across tech, clean energy, culinary arts, brand management, acting, athletics, and government.
+- Availability slot selection for **Virtual** and **In-Person** sessions.
+- Interactive modal booking form capturing learning goals and background.
+- Protected by Prisma database transactions with collision detection to prevent double-booking.
+
+---
 
 ### MODULE 5: Student Hub & Progress Dashboard
 *Route: [`/student/dashboard`](http://localhost:3000/student/dashboard)*
 - Centralized tracking interface for students.
 - Displays exploration progress percentage, latest assessment archetype, upcoming and completed shadowing sessions, and bookmarked careers and videos.
 
+---
+
 ### MODULE 6: Multi-Career Comparative Evaluation Tool
 *Route: [`/student/compare`](http://localhost:3000/student/compare)*
-- Compare 2 to 4 professions side by side across 8 normalized quantitative dimensions (Technical Complexity, Math Requirements, Learning Curve, Hiring Bar, Pressure, Work-Life Balance, Remote Flexibility, and Future Demand).
-- Qualitative comparison matrix covering work environment, degrees required, salary ranges, and international mobility.
+- Compare 2 to 4 professions side by side.
+- **Dedicated Salary Ranges on Profession Cards**:
+  - **Entry Level:** `$entrySalaryMin`k – `$entrySalaryMax`k
+  - **Mid Level:** `$midSalaryMin`k – `$midSalaryMax`k
+  - **Senior Level:** `$seniorSalaryMin`k – `$seniorSalaryMax`k+
+- **Dimension Breakdown**: 8 normalized quantitative dimensions plus **Career Growth Progression** timelines showing sequential promotions, years of experience, and role scopes.
+- **Salary Bands Comparison Chart**: Grouped bar chart comparing compensation across career stages side-by-side.
+- **Top Skills Needed (Technical + Interpersonal)**:
+  - Per-career skill cards with technical (cyan) and interpersonal (rose) badges.
+  - Cross-career skill frequency distribution bar charts highlighting shared requirements.
+- **Qualitative Matrix**: Work mode, required education, future demand outlook, and international mobility.
+
+---
 
 ### MODULE 7: Administration & Verification Cockpit
 *Route: [`/admin/dashboard`](http://localhost:3000/admin/dashboard)*
-- Executive KPI cards: Total registered users, verified mentors, active bookings, and platform reports.
-- Mentor verification queue: Review submitted credentials, corporate emails, and approve or reject applications with notes.
+- Platform KPIs: Total registered users, verified mentors, active bookings, and moderation reports.
+- Mentor verification queue: Review submitted credentials, corporate emails, and approve/reject applications with notes.
 - Moderation reports monitor with 1-click resolution.
 
 ---
 
 ## 📡 Verified API Route Specifications
 
-Every endpoint listed below is verified against the actual filesystem in [`src/app/api/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/app/api):
+Every endpoint is verified in [`src/app/api/`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/app/api):
 
 | Method | Endpoint | Description | Role / Auth |
 | :--- | :--- | :--- | :--- |
@@ -742,7 +507,7 @@ Every endpoint listed below is verified against the actual filesystem in [`src/a
 | `POST` | `/api/auth/register` | Create a new student or mentor account | Public |
 | `POST` | `/api/auth/logout` | Clear HTTP-only session cookie | Authenticated |
 | `POST` | `/api/auth/demo-switch` | Instant 1-click persona switch for evaluation | Public / Demo |
-| `POST` | `/api/assessment` | Score 20-question assessment and return ranked recommendations | Public / Student |
+| `POST` | `/api/assessment` | Score 21-question assessment and return recommendations & review | Public / Student |
 | `GET` | `/api/careers` | Filter, search, and list career profiles | Public |
 | `POST` | `/api/careers/save` | Toggle career bookmark in student profile | Student |
 | `GET` | `/api/videos` | Query curated Day-in-the-Life video library | Public |
@@ -763,19 +528,203 @@ Every endpoint listed below is verified against the actual filesystem in [`src/a
 
 ---
 
+## 📊 Observability, Telemetry & Structured Logging
+
+CareerFind features a unified observability architecture built for production debuggability, error tracking, and scale without external vendor lock-in.
+
+### Client-Side Telemetry Implementation (`src/lib/telemetry.ts`)
+
+Lightweight, browser-safe telemetry utility:
+```ts
+import { track, trackError, measure, measureSync } from '@/lib/telemetry';
+
+// 1. Track named events with custom metadata
+track('assessment_started', { totalSteps: 21 });
+track('compare_career_added', { slug: 'ai-ml-engineer' });
+
+// 2. Track errors with sanitized context
+trackError(err, { component: 'CareerComparisonVisualizer', action: 'render' });
+
+// 3. Measure async execution duration
+const data = await measure('fetch_recommendations', () => fetchRecommendations());
+```
+
+#### Event Catalog:
+- `assessment_started`: Triggered when question 1 is answered.
+- `assessment_completed`: Emitted with `archetypeTitle` and recommendations count.
+- `assessment_restarted`: User resets assessment.
+- `compare_viewed`: Compare page accessed.
+- `compare_career_added` / `compare_career_removed`: Careers modified in comparison tool.
+- `booking_submitted` / `booking_confirmed`: Shadowing reservations.
+- `error_encountered`: Centralized client-side error capture.
+
+### Server-Side Structured Leveled Logger (`src/lib/logger.ts`)
+
+- **Structured JSON-Ready Logging**: Emits timestamped, leveled logs (`debug`, `info`, `warn`, `error`) tagged by module name (e.g. `[API:Assessment]`, `[Prisma:SlowQuery]`, `[Auth]`).
+- **Configurable Severity**: Controlled via the `LOG_LEVEL` environment variable (`debug`, `info`, `warn`, `error`). In production, defaults to `info` and higher; in development, captures full `debug` traces.
+- **Safe Error Normalization**: The `formatError(err)` helper cleanly extracts error names, messages, and dev-only stack traces while preventing secret leaks.
+
+```ts
+import { logger, formatError } from '@/lib/logger';
+const log = logger('API:Assessment');
+
+log.info('Recommendation request received', { dimensionsCount: 21 });
+log.error('Assessment computation failed', { error: formatError(err) });
+```
+
+### Database Performance & Slow Query Detection (`src/lib/prisma.ts`)
+
+Integrated directly into the Prisma Client singleton:
+```ts
+// In development, automatically flags queries exceeding 200ms
+client.$on('query', (e: { query: string; duration: number }) => {
+  if (e.duration > 200) {
+    log.warn('Slow Prisma query detected', {
+      query: e.query,
+      duration_ms: e.duration,
+    });
+  }
+});
+```
+
+---
+
+## 🛠️ Debugging, Error Handling & Recovery Architecture
+
+### Automatic Chunk Load Error Recovery (`ChunkErrorRecovery.tsx`)
+
+Next.js single-page applications can experience `ChunkLoadError` when a new build is deployed or local cache is stale. CareerFind includes a global recovery listener in [`src/components/ChunkErrorRecovery.tsx`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/components/ChunkErrorRecovery.tsx):
+- Detects `ChunkLoadError` and script loading failures.
+- Logs the error via `trackError(err, { context: 'ChunkLoadErrorRecovery' })`.
+- Performs an automated session-debounced reload (max once per 10 seconds) to fetch updated chunks cleanly.
+
+### Global Next.js Error Boundary (`global-error.tsx`)
+
+A root error boundary in [`src/app/global-error.tsx`](file:///c:/Users/abhi%20vivobook/Desktop/CarrerFind/src/app/global-error.tsx) catches unhandled exceptions across server components:
+- Logs error digest and details to telemetry.
+- Renders an accessible fallback UI with **"Try Again"** (state reset) and **"Reload Page"** actions.
+
+### Database Diagnostics & Inspection Scripts
+
+CareerFind includes built-in scripts to inspect and repair database state:
+```bash
+# Verify SQLite table counts and database connectivity
+node check_db.js
+
+# Launch visual database browser
+npx prisma studio
+```
+
+### Common Debugging Scenarios & Resolution Workflows
+
+#### 1. Stale Git Index Lock on Windows
+- **Symptom:** `fatal: Unable to create '.git/index.lock': Permission denied`.
+- **Resolution:** Remove the stale lock file using PowerShell:
+  ```powershell
+  Remove-Item -Force .git/index.lock -ErrorAction SilentlyContinue
+  ```
+
+#### 2. Port Collision (`EADDRINUSE: 3000`)
+- **Symptom:** `Error: listen EADDRINUSE: address already in use :::3000`.
+- **Resolution:** Start Next.js on an alternate port:
+  ```bash
+  npx next dev -p 3001
+  ```
+
+#### 3. Database Schema Drift
+- **Symptom:** Missing columns or relation mismatch errors in Prisma queries.
+- **Resolution:**
+  ```bash
+  npx prisma db push
+  npx prisma generate
+  ```
+
+---
+
+## 🔌 Integrations Architecture
+
+### Recharts Visual Data Layer
+- **Responsive Design**: All visualizations wrap in `<ResponsiveContainer width="100%" height={...}>`.
+- **Custom Tooltips**: Styled tooltips with dark slate themes and formatted currency/percentages.
+- **Accessible Colors**: Color palette designed for contrast and readability across dark backgrounds.
+
+### Prisma ORM & Embedded SQLite
+- **Embedded Storage**: Stored at `prisma/dev.db`.
+- **Singleton Connection Pool**: Attached to `globalThis` in development to prevent connection exhaustion during hot module reloading.
+
+### Cookie-Based JWT Authentication
+- **HTTP-Only Cookies**: Tokens cannot be accessed via client-side JavaScript (`document.cookie`), mitigating XSS token theft.
+- **SameSite Protection**: Set to `Lax` to prevent Cross-Site Request Forgery (CSRF).
+
+### Privacy-Enhanced YouTube Video Embeds
+- Embeds load from `https://www.youtube-nocookie.com/embed/{id}`.
+- Prevents YouTube from setting tracking cookies until the user plays the video.
+
+### External Analytics & Observability Sinks
+Both `logger.ts` and `telemetry.ts` feature clean single-dispatch functions:
+- **Telemetry (`src/lib/telemetry.ts`)**: Replace `dispatch()` to route events to PostHog, Mixpanel, Datadog RUM, or Amplitude.
+- **Logging (`src/lib/logger.ts`)**: Replace `emit()` to forward structured logs to Datadog, Sentry, Axiom, or Logtail.
+
+---
+
+## 🔧 Maintenance Practices & Operational Guide
+
+### Adding & Modifying Career Profiles
+1. Open the relevant file in `prisma/data/` (e.g. `prisma/data/techCareers.js`).
+2. Define the new profile ensuring all 26 required fields are provided.
+3. Sync the database:
+   ```bash
+   node prisma/seed.js
+   ```
+
+### Database Schema Migrations & Seeding
+```bash
+# Push schema updates
+npx prisma db push
+
+# Re-seed test mentors, careers, and videos
+node prisma/seed.js
+```
+
+### Database Backups & Disaster Recovery
+Because CareerFind uses SQLite, backing up the database requires copying the single file:
+```bash
+# Windows PowerShell Backup
+Copy-Item "prisma\dev.db" "prisma\dev.db.backup"
+
+# Linux / macOS Backup
+cp prisma/dev.db prisma/dev.db.backup
+```
+
+### TypeScript Compile-Time Verification
+Run type analysis across all pages, components, and libraries:
+```bash
+npx tsc --noEmit
+```
+
+### Production Build Optimization & Cache Strategy
+```bash
+# Clean build and compile production bundle
+npm run build
+
+# Start production server
+npm run start
+```
+
+---
+
 ## 🛡️ Trust, Safety & In-Person Protocols
 
-To ensure physical and intellectual safety during job shadowing:
-1. **Host Verification Protocol:** Practitioners must provide corporate domain credentials or official professional registration before receiving the verified badge.
-2. **Approved Physical Environments Only:** In-person shadowing takes place exclusively in registered corporate offices, hospitals, studios, or authorized institutional facilities.
-3. **Confidentiality & Non-Disclosure (NDA):** Every booking incorporates a digital code of conduct committing students to safeguard proprietary code, client discussions, and unpublished designs.
-4. **Moderation & Incident Escalation:** Direct reporting channel with rapid administrative review and suspension workflows.
+1. **Host Verification Protocol**: Practitioners must verify professional identity and credentials before receiving verified status.
+2. **Approved Environments Only**: In-person shadowing occurs exclusively in authorized corporate or institutional workspaces.
+3. **Confidentiality & Non-Disclosure (NDA)**: Digital agreements prevent unauthorized disclosure of proprietary systems or client data.
+4. **Moderation & Incident Escalation**: Direct administrative review workflows for safety reports.
 
 ---
 
 ## 👥 Pre-Configured Demo Personas
 
-CareerFind includes a 1-Click Role Switcher in the top navigation bar. Clicking any persona instantly generates the authenticated session cookie and redirects you to the respective experience:
+CareerFind includes a 1-Click Role Switcher in the top navigation bar:
 
 | Persona | Name | Role & Title | Pre-Seeded Email | Password |
 | :--- | :--- | :--- | :--- | :--- |
@@ -792,12 +741,10 @@ CareerFind includes a 1-Click Role Switcher in the top navigation bar. Clicking 
 
 ## 💻 Complete Step-by-Step Local Setup & Execution Guide
 
-Follow these exact steps to run the complete application from scratch on any computer:
-
 ### Prerequisites
-- **Node.js**: `v18.17.0+`, `v20.x`, or `v22.x` ([Download Node.js](https://nodejs.org/))
-- **Package Manager**: `npm` (bundled with Node.js) or `pnpm`
-- **Git**: Installed and available on your PATH
+- **Node.js**: `v18.17.0+`, `v20.x`, or `v22.x`
+- **Package Manager**: `npm` or `pnpm`
+- **Git**: Installed and configured on your PATH
 
 ### Step 1: Clone the Repository
 ```bash
@@ -810,79 +757,30 @@ cd CarrerFind---Best-Carrer-for-You
 npm install
 ```
 
-### Step 3: Configure Environment Variables (Optional)
-The project comes with built-in defaults for SQLite and JWT. If you wish to set custom variables, create a `.env` file in the root directory:
-```bash
-# Windows PowerShell
-Set-Content -Path .env -Value 'DATABASE_URL="file:./dev.db"`nJWT_SECRET="careerfind-super-secret-jwt-key-production"`nPORT=3000'
-
-# macOS / Linux
-echo -e 'DATABASE_URL="file:./dev.db"\nJWT_SECRET="careerfind-super-secret-jwt-key-production"\nPORT=3000' > .env
-```
-
-### Step 4: Initialize SQLite Database & Push Prisma Schema
+### Step 3: Initialize SQLite Database & Push Prisma Schema
 ```bash
 npx prisma db push
 ```
-*This command creates the embedded SQLite database file at `prisma/dev.db` with all tables, constraints, and relations.*
 
-### Step 5: Seed Comprehensive Data (Careers, Mentors, Slots, Videos)
+### Step 4: Seed Comprehensive Data
 ```bash
 node prisma/seed.js
 ```
-*This populates the database with:*
-- *95 exhaustive career profiles across 13 industry domains.*
-- *12 verified industry mentors with pre-published virtual and on-site availability slots.*
-- *25 curated Day-in-the-Life video documentaries with key takeaways.*
-- *Pre-seeded admin, student, and mentor test accounts.*
 
-### Step 6: Start the Development Server
+### Step 5: Start the Development Server
 ```bash
 npm run dev
 ```
-Open your browser and navigate to:
-**[http://localhost:3000](http://localhost:3000)**
+Open **[http://localhost:3000](http://localhost:3000)** in your browser.
 
-### Step 7: Build for Production & Verify Types
-To verify static type checking and build the production bundle:
+### Step 6: Verify TypeScript & Build for Production
 ```bash
-# Run TypeScript static analysis with zero errors
+# Verify static typing
 npx tsc --noEmit
 
-# Compile the optimized production build
+# Compile production bundle
 npm run build
-
-# Start the optimized production server
-npm run start
 ```
-
-### Helpful Diagnostic & Inspection Commands
-```bash
-# Open Prisma Studio to browse and edit all SQLite tables visually
-npx prisma studio
-
-# Run Next.js on a custom port if port 3000 is occupied
-npx next dev -p 3001
-```
-
----
-
-## 📊 Observability, Telemetry & Structured Logging
-
-CareerFind features a unified observability architecture built for production debuggability, error tracking, and scale without external vendor lock-in.
-
-### 1. Server-Side Leveled Logger (`src/lib/logger.ts`)
-- **Structured JSON-Ready Logging**: Emits timestamped, leveled logs (`debug`, `info`, `warn`, `error`) tagged by module name (e.g. `[API:Assessment]`, `[Prisma:SlowQuery]`, `[Auth]`).
-- **Configurable Severity**: Controlled via the `LOG_LEVEL` environment variable (`debug`, `info`, `warn`, `error`). In production, defaults to `info` and higher; in development, captures full `debug` traces.
-- **Safe Error Normalization**: The `formatError(err)` helper cleanly extracts error names, messages, and dev-only stack traces while preventing secret leaks.
-- **Prisma Integration & Slow Query Detection**: Integrated directly into `src/lib/prisma.ts`. Automatically flags and logs any query taking longer than 200ms in development with a `[Prisma:SlowQuery]` warning.
-- **Pluggable Sinks**: Easily point `emit()` in `src/lib/logger.ts` to Datadog, Sentry, Axiom, or Logtail.
-
-### 2. Client-Side Telemetry & Metrics (`src/lib/telemetry.ts`)
-- **Event Tracking**: `track(eventName, properties)` captures user interactions (e.g. `assessment_started`, `booking_submitted`, `career_saved`, `video_opened`).
-- **Error Capturing**: `trackError(error, context)` captures client errors with component context, sanitized for production.
-- **Operation Duration Measurement**: `measure(label, fn)` and `measureSync(label, fn)` measure async and sync function execution times.
-- **Pluggable Analytics**: Pre-configured hooks for PostHog, Mixpanel, Amplitude, or Datadog RUM in `dispatch()`.
 
 ---
 
