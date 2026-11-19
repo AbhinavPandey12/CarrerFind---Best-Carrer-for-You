@@ -35,6 +35,24 @@ import {
   Target,
   Zap,
 } from 'lucide-react';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  Radar,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+} from 'recharts';
 
 export default function AssessmentPage() {
   const [currentStepIndex, setCurrentStepIndex] = useState<number>(0);
@@ -589,6 +607,253 @@ export default function AssessmentPage() {
               </div>
             </div>
           )}
+
+          {/* ═══════════════════════════════════════════════════════
+              SECTION 2.5: VISUAL ANALYTICS DASHBOARD
+          ═══════════════════════════════════════════════════════ */}
+          {resultData.topCareers?.length > 0 && (() => {
+            /* ---- Data prep ---- */
+            const top10 = resultData.topCareers.slice(0, 10);
+
+            // Bar chart: match scores
+            const barData = top10.map((c) => ({
+              name: c.title.length > 18 ? c.title.slice(0, 16) + '…' : c.title,
+              fullName: c.title,
+              score: c.compatibilityScore,
+            }));
+
+            // Radar chart: top 5 careers across 4 dimensions
+            const top5 = top10.slice(0, 5);
+            const radarDimensions = [
+              { key: 'compatibilityScore', label: 'Match', max: 100 },
+              { key: 'workLifeBalance', label: 'Work-Life', max: 10 },
+              { key: 'learningDifficulty', label: 'Learning', max: 10 },
+              { key: 'entrySalaryMin', label: 'Entry $', max: 150 },
+              { key: 'seniorSalaryMin', label: 'Senior $', max: 400 },
+            ];
+            const radarData = radarDimensions.map((dim) => {
+              const entry: any = { dimension: dim.label };
+              top5.forEach((c, i) => {
+                entry[`career${i}`] = Math.round(((c as any)[dim.key] || 0) / dim.max * 100);
+              });
+              return entry;
+            });
+
+            // Donut chart: skills possessed vs skills to develop
+            const totalPossessed = top10.reduce((sum, c) => sum + (c.possessedSkills?.length || 0), 0);
+            const totalMissing = top10.reduce((sum, c) => sum + (c.missingSkills?.length || 0), 0);
+            const donutData = [
+              { name: 'Skills You Have', value: totalPossessed, fill: '#10b981' },
+              { name: 'Skills to Develop', value: totalMissing, fill: '#6366f1' },
+            ];
+
+            // Salary trajectory grouped bar data (top 5 careers)
+            const salaryData = top5.map((c) => ({
+              name: c.title.length > 14 ? c.title.slice(0, 12) + '…' : c.title,
+              Entry: Math.round((c.entrySalaryMin + c.entrySalaryMax) / 2),
+              Mid: Math.round((c.midSalaryMin + c.midSalaryMax) / 2),
+              Senior: Math.round((c.seniorSalaryMin + c.seniorSalaryMax) / 2),
+            }));
+
+            const radarColors = ['#6366f1', '#ec4899', '#10b981', '#f59e0b', '#06b6d4'];
+
+            const CustomTooltip = ({ active, payload, label }: any) => {
+              if (active && payload && payload.length) {
+                return (
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs shadow-xl">
+                    <p className="text-white font-bold mb-1">{payload[0]?.payload?.fullName || label}</p>
+                    {payload.map((p: any, i: number) => (
+                      <p key={i} style={{ color: p.color }} className="font-semibold">
+                        {p.name}: {p.name === 'score' ? `${p.value}%` : `$${p.value}k`}
+                      </p>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            };
+
+            const SalaryTooltip = ({ active, payload, label }: any) => {
+              if (active && payload && payload.length) {
+                return (
+                  <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs shadow-xl">
+                    <p className="text-white font-bold mb-1">{label}</p>
+                    {payload.map((p: any, i: number) => (
+                      <p key={i} style={{ color: p.color }} className="font-semibold">
+                        {p.name}: ~${p.value}k/yr
+                      </p>
+                    ))}
+                  </div>
+                );
+              }
+              return null;
+            };
+
+            return (
+              <div className="space-y-6">
+                {/* Section Header */}
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-950/80 border border-indigo-500/30 flex items-center justify-center shrink-0">
+                    <BarChart2 className="w-4 h-4 text-indigo-300" />
+                  </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-bold text-white">Visual Analytics Dashboard</h3>
+                    <p className="text-[11px] text-slate-400">Charts and insights derived from your top career matches</p>
+                  </div>
+                </div>
+
+                {/* Row 1: Match Score Bar Chart + Skill Donut */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
+
+                  {/* Match Score Bar Chart */}
+                  <div className="lg:col-span-2 p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 space-y-3">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <TrendingUp className="w-3.5 h-3.5 text-indigo-400" /> Match Score — Top 10 Careers
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Your compatibility % across all recommended paths</p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={260}>
+                      <BarChart data={barData} margin={{ top: 4, right: 8, left: -20, bottom: 60 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fill: '#94a3b8', fontSize: 10 }}
+                          angle={-38}
+                          textAnchor="end"
+                          interval={0}
+                        />
+                        <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 10 }} unit="%" />
+                        <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99,102,241,0.08)' }} />
+                        <Bar dataKey="score" radius={[6, 6, 0, 0]} name="score">
+                          {barData.map((_, i) => (
+                            <Cell
+                              key={i}
+                              fill={i === 0 ? '#6366f1' : i <= 2 ? '#8b5cf6' : i <= 5 ? '#a78bfa' : '#c4b5fd'}
+                            />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Skill Profile Donut */}
+                  <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 space-y-3 flex flex-col">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Zap className="w-3.5 h-3.5 text-emerald-400" /> Your Skill Profile
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Across top 10 career matches combined</p>
+                    </div>
+                    <div className="flex-1 flex flex-col items-center justify-center">
+                      <ResponsiveContainer width="100%" height={180}>
+                        <PieChart>
+                          <Pie
+                            data={donutData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={52}
+                            outerRadius={72}
+                            paddingAngle={3}
+                            dataKey="value"
+                          >
+                            {donutData.map((entry, i) => (
+                              <Cell key={i} fill={entry.fill} />
+                            ))}
+                          </Pie>
+                          <Tooltip
+                            formatter={(val: any) => [`${val} skills`, '']}
+                            contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px' }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                      <div className="flex flex-col gap-1.5 w-full mt-2">
+                        {donutData.map((d, i) => (
+                          <div key={i} className="flex items-center justify-between text-[11px]">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: d.fill }} />
+                              <span className="text-slate-300">{d.name}</span>
+                            </div>
+                            <span className="font-bold text-white">{d.value}</span>
+                          </div>
+                        ))}
+                        <div className="pt-1.5 border-t border-slate-800 mt-1 text-[11px] text-center">
+                          <span className="text-slate-400">Readiness: </span>
+                          <span className="font-bold text-emerald-400">
+                            {Math.round((totalPossessed / (totalPossessed + totalMissing || 1)) * 100)}%
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Row 2: Salary Trajectory + Radar */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+
+                  {/* Salary Trajectory Bar Chart */}
+                  <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 space-y-3">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <DollarSign className="w-3.5 h-3.5 text-amber-400" /> Salary Trajectory — Top 5 Matches
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Average salary ($k/yr) at each career stage</p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={240}>
+                      <BarChart data={salaryData} margin={{ top: 4, right: 8, left: -16, bottom: 50 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                        <XAxis dataKey="name" tick={{ fill: '#94a3b8', fontSize: 10 }} angle={-30} textAnchor="end" interval={0} />
+                        <YAxis tick={{ fill: '#64748b', fontSize: 10 }} unit="k" />
+                        <Tooltip content={<SalaryTooltip />} cursor={{ fill: 'rgba(99,102,241,0.06)' }} />
+                        <Legend
+                          wrapperStyle={{ fontSize: '11px', paddingTop: '8px' }}
+                          formatter={(val) => <span style={{ color: '#94a3b8' }}>{val}</span>}
+                        />
+                        <Bar dataKey="Entry" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Mid" fill="#8b5cf6" radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="Senior" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Multi-career Radar Chart */}
+                  <div className="p-4 sm:p-5 rounded-2xl glass-panel border border-slate-800 space-y-3">
+                    <div>
+                      <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        <Brain className="w-3.5 h-3.5 text-purple-400" /> Multi-Dimension Radar — Top 5
+                      </h4>
+                      <p className="text-[11px] text-slate-400 mt-0.5">Normalised scores across key career dimensions</p>
+                    </div>
+                    <ResponsiveContainer width="100%" height={240}>
+                      <RadarChart cx="50%" cy="50%" outerRadius="68%" data={radarData}>
+                        <PolarGrid stroke="#1e293b" />
+                        <PolarAngleAxis dataKey="dimension" tick={{ fill: '#94a3b8', fontSize: 10 }} />
+                        <PolarRadiusAxis angle={30} domain={[0, 100]} tick={false} axisLine={false} />
+                        {top5.map((c, i) => (
+                          <Radar
+                            key={c.careerSlug}
+                            name={c.title.length > 20 ? c.title.slice(0, 18) + '…' : c.title}
+                            dataKey={`career${i}`}
+                            stroke={radarColors[i]}
+                            fill={radarColors[i]}
+                            fillOpacity={0.12}
+                            strokeWidth={1.5}
+                          />
+                        ))}
+                        <Legend
+                          wrapperStyle={{ fontSize: '10px' }}
+                          formatter={(val) => <span style={{ color: '#94a3b8' }}>{val}</span>}
+                        />
+                        <Tooltip
+                          contentStyle={{ background: '#0f172a', border: '1px solid #334155', borderRadius: '12px', fontSize: '11px' }}
+                        />
+                      </RadarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
 
           {/* ═══════════════════════════════════════════════════════
               SECTION 3: SUITABILITY ANALYSIS — ALL CAREERS
