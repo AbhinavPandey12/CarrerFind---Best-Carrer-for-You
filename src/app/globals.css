@@ -100,7 +100,7 @@ body {
 }
 
 /* ═══════════════════════════════════════════════════════
-   LIGHT THEME OVERRIDES
+   LIGHT THEME OVERRIDES (Comprehensive World-Class Styling)
 ═══════════════════════════════════════════════════════ */
 html.light {
   color-scheme: light;
@@ -108,10 +108,10 @@ html.light {
 
 html.light body {
   color: #0f172a !important;
-  background: radial-gradient(circle at 50% 0%, #e0e7ff 0%, #f8fafc 50%, #f1f5f9 100%) !important;
+  background: radial-gradient(circle at 50% 0%, #edf2f7 0%, #f8fafc 40%, #f1f5f9 100%) !important;
 }
 
-/* Background utilities */
+/* ── Base Surface & Background Utilities in Light Mode ── */
 html.light .bg-\[\#0b0f19\],
 html.light .bg-slate-950,
 html.light .bg-slate-950\/80,
@@ -129,6 +129,7 @@ html.light .bg-slate-900\/95 {
 }
 
 html.light .bg-slate-800,
+html.light .bg-slate-800\/60,
 html.light .bg-slate-800\/80 {
   background-color: #f1f5f9 !important;
 }
@@ -144,6 +145,7 @@ html.light .bg-indigo-950\/80 {
 }
 
 html.light .bg-purple-950,
+html.light .bg-purple-950\/15,
 html.light .bg-purple-950\/20,
 html.light .bg-purple-950\/30,
 html.light .bg-purple-950\/40,
@@ -152,26 +154,36 @@ html.light .bg-purple-950\/80 {
 }
 
 html.light .bg-emerald-950,
-html.light .bg-emerald-950\/60 {
+html.light .bg-emerald-950\/20,
+html.light .bg-emerald-950\/60,
+html.light .bg-emerald-950\/80 {
   background-color: #ecfdf5 !important;
 }
 
 html.light .bg-amber-950,
-html.light .bg-amber-950\/60 {
+html.light .bg-amber-950\/20,
+html.light .bg-amber-950\/60,
+html.light .bg-amber-950\/80 {
   background-color: #fffbeb !important;
 }
 
-/* Glassmorphism Classes in Light Mode */
+html.light .bg-rose-950,
+html.light .bg-rose-950\/20,
+html.light .bg-rose-950\/60 {
+  background-color: #fff1f2 !important;
+}
+
+/* ── Glassmorphism & Elevation in Light Mode ── */
 html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.82) !important;
-  border-color: rgba(226, 232, 240, 0.9) !important;
-  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05) !important;
+  background: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.05), 0 10px 25px -5px rgba(15, 23, 42, 0.04) !important;
 }
 
 html.light .glass-panel-hover:hover {
   background: #ffffff !important;
-  border-color: rgba(99, 102, 241, 0.45) !important;
-  box-shadow: 0 10px 25px -5px rgba(99, 102, 241, 0.12) !important;
+  border-color: #818cf8 !important;
+  box-shadow: 0 12px 30px -6px rgba(99, 102, 241, 0.14) !important;
 }
 
 html.light .glass-card-interactive {
@@ -180,20 +192,42 @@ html.light .glass-card-interactive {
   box-shadow: 0 4px 20px rgba(15, 23, 42, 0.05) !important;
 }
 
-/* Borders */
-html.light .border-slate-800,
-html.light .border-slate-800\/80,
-html.light .border-slate-700,
-html.light .border-slate-700\/80,
-html.light .border-white\/\[0\.08\],
-html.light .border-white\/\[0\.06\],
-html.light .border-white\/\[0\.07\],
-html.light .border-white\/\[0\.1\],
-html.light .border-white\/\[0\.15\] {
+/* Nested metric cards inside glass-panels have soft neutral contrast */
+html.light .glass-panel .bg-slate-900\/60,
+html.light .glass-panel .bg-slate-900\/70,
+html.light .glass-panel .bg-slate-900\/80,
+html.light .glass-panel .bg-slate-900,
+html.light .glass-panel .bg-slate-800\/60,
+html.light .glass-panel .bg-slate-800\/80 {
+  background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
 }
 
-/* Typography in Light Mode */
+/* ── Uniform Light Borders & Dividers ── */
+html.light .border-slate-800,
+html.light .border-slate-800\/60,
+html.light .border-slate-800\/80,
+html.light .border-slate-800\/90,
+html.light .border-slate-700,
+html.light .border-slate-700\/60,
+html.light .border-slate-700\/80,
+html.light .border-white\/\[0\.04\],
+html.light .border-white\/\[0\.06\],
+html.light .border-white\/\[0\.07\],
+html.light .border-white\/\[0\.08\],
+html.light .border-white\/\[0\.1\],
+html.light .border-white\/\[0\.15\],
+html.light .border-white\/\[0\.2\] {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .divide-slate-800,
+html.light .divide-slate-800\/60,
+html.light .divide-slate-800\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+/* ── Typography & Readability in Light Mode ── */
 html.light .text-white {
   color: #0f172a !important;
 }
@@ -218,19 +252,22 @@ html.light .text-slate-500 {
   color: #64748b !important;
 }
 
-/* Preserve bright white text on high-contrast solid buttons and badges */
+/* PRESERVE high-contrast crisp white text on colored solid buttons & badges */
 html.light .bg-indigo-600,
 html.light .bg-indigo-500,
 html.light .bg-emerald-600,
 html.light .bg-emerald-500,
 html.light .bg-rose-600,
 html.light .bg-purple-600,
-html.light .bg-slate-900 text,
 html.light button.bg-indigo-600,
 html.light a.bg-indigo-600,
 html.light button.bg-emerald-600,
 html.light a.bg-emerald-600,
-html.light .bg-gradient-to-r.from-indigo-600 {
+html.light button.bg-purple-600,
+html.light a.bg-purple-600,
+html.light .bg-gradient-to-r.from-indigo-600,
+html.light .bg-gradient-to-tr.from-indigo-500,
+html.light .bg-gradient-to-tr.from-indigo-600 {
   color: #ffffff !important;
 }
 
@@ -239,66 +276,140 @@ html.light .bg-indigo-500 .text-white,
 html.light .bg-emerald-600 .text-white,
 html.light .bg-emerald-500 .text-white,
 html.light .bg-rose-600 .text-white,
-html.light .bg-purple-600 .text-white {
+html.light .bg-purple-600 .text-white,
+html.light .bg-gradient-to-r.from-indigo-600 .text-white,
+html.light .bg-gradient-to-tr.from-indigo-600 .text-white {
   color: #ffffff !important;
 }
 
-/* Accent colors in light mode */
-html.light .text-indigo-300 {
-  color: #4f46e5 !important;
-}
+/* High-contrast accessible accent colors in Light Mode */
+html.light .text-indigo-300,
 html.light .text-indigo-400 {
   color: #4338ca !important;
 }
+html.light .text-purple-300,
+html.light .text-purple-400 {
+  color: #6b21a8 !important;
+}
 html.light .text-emerald-300,
 html.light .text-emerald-400 {
-  color: #059669 !important;
+  color: #047857 !important;
 }
 html.light .text-amber-300,
 html.light .text-amber-400 {
-  color: #d97706 !important;
+  color: #b45309 !important;
 }
-html.light .text-purple-300,
-html.light .text-purple-400 {
-  color: #7c3aed !important;
+html.light .text-rose-300,
+html.light .text-rose-400 {
+  color: #be123c !important;
+}
+html.light .text-cyan-300,
+html.light .text-cyan-400 {
+  color: #0e7490 !important;
+}
+html.light .text-sky-300,
+html.light .text-sky-400 {
+  color: #0369a1 !important;
+}
+html.light .text-teal-300,
+html.light .text-teal-400 {
+  color: #0f766e !important;
+}
+html.light .text-blue-300,
+html.light .text-blue-400 {
+  color: #1d4ed8 !important;
+}
+html.light .text-orange-300,
+html.light .text-orange-400 {
+  color: #c2410c !important;
 }
 
-/* Headings & Text Gradients */
+/* Headings & Text Gradients in Light Mode */
 html.light .gradient-heading {
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #4338ca 100%) !important;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 45%, #4338ca 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
 
 html.light .gradient-text {
-  background: linear-gradient(135deg, #4338ca 0%, #6366f1 40%, #9333ea 80%, #db2777 100%) !important;
+  background: linear-gradient(135deg, #4338ca 0%, #6366f1 40%, #8b5cf6 70%, #d946ef 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
 
-/* Glow Badges in Light Mode */
+/* ── Category Badges in Light Mode ── */
 html.light .badge-tech {
-  background: #eef2ff !important;
+  background-color: #eef2ff !important;
   color: #4338ca !important;
   border-color: #c7d2fe !important;
 }
 
 html.light .badge-business {
-  background: #fffbeb !important;
+  background-color: #fffbeb !important;
   color: #b45309 !important;
   border-color: #fde68a !important;
 }
 
 html.light .badge-emerging {
-  background: #ecfdf5 !important;
+  background-color: #ecfdf5 !important;
   color: #047857 !important;
   border-color: #a7f3d0 !important;
 }
 
-/* Header & Navigation in Light Mode */
+/* Dynamic category pills from CareerCard in Light Mode */
+html.light [class*="bg-emerald-500/15"] {
+  background-color: #ecfdf5 !important;
+  color: #047857 !important;
+  border-color: #a7f3d0 !important;
+}
+html.light [class*="bg-amber-500/15"] {
+  background-color: #fffbeb !important;
+  color: #b45309 !important;
+  border-color: #fde68a !important;
+}
+html.light [class*="bg-rose-500/15"] {
+  background-color: #fff1f2 !important;
+  color: #be123c !important;
+  border-color: #fecdd3 !important;
+}
+html.light [class*="bg-cyan-500/15"] {
+  background-color: #ecfeff !important;
+  color: #0e7490 !important;
+  border-color: #a5f3fc !important;
+}
+html.light [class*="bg-blue-500/15"] {
+  background-color: #eff6ff !important;
+  color: #1d4ed8 !important;
+  border-color: #bfdbfe !important;
+}
+html.light [class*="bg-purple-500/15"] {
+  background-color: #faf5ff !important;
+  color: #6b21a8 !important;
+  border-color: #e9d5ff !important;
+}
+html.light [class*="bg-sky-500/15"] {
+  background-color: #f0f9ff !important;
+  color: #0369a1 !important;
+  border-color: #bae6fd !important;
+}
+html.light [class*="bg-orange-500/15"] {
+  background-color: #fff7ed !important;
+  color: #c2410c !important;
+  border-color: #fed7aa !important;
+}
+html.light [class*="bg-teal-500/15"] {
+  background-color: #f0fdfa !important;
+  color: #0f766e !important;
+  border-color: #99f6e4 !important;
+}
+
+/* ── Header & Navigation in Light Mode ── */
 html.light header {
-  background-color: rgba(255, 255, 255, 0.88) !important;
+  background-color: rgba(255, 255, 255, 0.9) !important;
   border-color: #e2e8f0 !important;
+  backdrop-filter: blur(16px) !important;
+  -webkit-backdrop-filter: blur(16px) !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05) !important;
 }
 
 html.light header nav a {
@@ -315,31 +426,136 @@ html.light header nav a[aria-current="page"] {
   background-color: #eef2ff !important;
 }
 
-/* Dropdown Menu in Light Mode */
-html.light [role="menu"] {
+/* ── Dropdown Menus in Light Mode ── */
+html.light [role="menu"],
+html.light .glass-panel[role="menu"] {
   background-color: #ffffff !important;
   border-color: #e2e8f0 !important;
-  box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.12) !important;
+  box-shadow: 0 20px 40px -6px rgba(15, 23, 42, 0.15) !important;
 }
 
 html.light [role="menu"] a:hover,
 html.light [role="menu"] button:hover {
   background-color: #f1f5f9 !important;
+  color: #0f172a !important;
 }
 
-/* Mobile Drawer in Light Mode */
 html.light #mobile-menu {
   background-color: rgba(255, 255, 255, 0.98) !important;
   border-color: #e2e8f0 !important;
 }
 
-/* Form Controls in Light Mode */
+/* ── Banners & Feature Highlights in Light Mode ── */
+html.light .bg-gradient-to-r.from-indigo-950\/40,
+html.light .bg-gradient-to-r.from-indigo-950\/50 {
+  background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 50%, #ffffff 100%) !important;
+  border-color: #c7d2fe !important;
+}
+
+html.light .bg-indigo-600\/15 {
+  background-color: rgba(99, 102, 241, 0.08) !important;
+}
+html.light .bg-purple-600\/10 {
+  background-color: rgba(168, 85, 247, 0.06) !important;
+}
+
+/* ── Assessment Stepper & Results in Light Mode ── */
+html.light .bg-slate-900\/60 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+}
+html.light .bg-slate-900\/60:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Selected option card in assessment */
+html.light .bg-indigo-600\/15.border-indigo-500 {
+  background-color: #eef2ff !important;
+  border-color: #6366f1 !important;
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.14) !important;
+}
+
+/* Progress bar tracks */
+html.light .bg-slate-800 {
+  background-color: #e2e8f0 !important;
+}
+
+/* ── Recharts Chart Adaptations in Light Mode ── */
+html.light .recharts-polar-grid line,
+html.light .recharts-polar-grid path,
+html.light .recharts-polar-grid polygon {
+  stroke: #cbd5e1 !important;
+}
+
+html.light .recharts-polar-angle-axis text,
+html.light .recharts-polar-angle-axis tspan {
+  fill: #334155 !important;
+  font-weight: 600 !important;
+}
+
+html.light .recharts-polar-radius-axis text,
+html.light .recharts-polar-radius-axis tspan {
+  fill: #64748b !important;
+}
+
+html.light .recharts-radar-polygon {
+  fill: rgba(99, 102, 241, 0.22) !important;
+  stroke: #4f46e5 !important;
+  stroke-width: 2px !important;
+}
+
+html.light .recharts-cartesian-grid line {
+  stroke: #e2e8f0 !important;
+}
+
+html.light .recharts-cartesian-axis text {
+  fill: #475569 !important;
+}
+
+html.light .recharts-legend-item-text,
+html.light .recharts-legend-wrapper span {
+  color: #334155 !important;
+}
+
+html.light .recharts-default-tooltip {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* ── Modals & Overlays in Light Mode ── */
+html.light .bg-black\/80,
+html.light .bg-black\/85,
+html.light .bg-black\/60 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+html.light .glass-panel.bg-slate-900\/95 {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* ── Form Inputs & Select in Light Mode ── */
 html.light input,
 html.light select,
 html.light textarea {
   background-color: #ffffff !important;
   color: #0f172a !important;
   border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05) !important;
+}
+
+html.light input:focus,
+html.light select:focus,
+html.light textarea:focus {
+  border-color: #6366f1 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
 }
 
 html.light input::placeholder,
@@ -347,18 +563,45 @@ html.light textarea::placeholder {
   color: #94a3b8 !important;
 }
 
-/* Footer in Light Mode */
+html.light select option {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+/* ── Generic Hover States in Light Mode ── */
+html.light .hover\:bg-slate-800\/60:hover,
+html.light .hover\:bg-slate-800\/80:hover,
+html.light .hover\:bg-slate-800:hover,
+html.light .hover\:bg-slate-700:hover,
+html.light .hover\:bg-white\/\[0\.04\]:hover,
+html.light .hover\:bg-white\/\[0\.05\]:hover,
+html.light .hover\:bg-white\/\[0\.06\]:hover,
+html.light .hover\:bg-white\/\[0\.08\]:hover {
+  background-color: #f1f5f9 !important;
+  color: #0f172a !important;
+}
+
+html.light .hover\:border-slate-700:hover,
+html.light .hover\:border-slate-600:hover {
+  border-color: #cbd5e1 !important;
+}
+
+html.light .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+/* ── Footer & Scrollbars in Light Mode ── */
 html.light footer {
   background-color: #f8fafc !important;
   border-color: #e2e8f0 !important;
 }
 
-/* Scrollbar in Light Mode */
 html.light ::-webkit-scrollbar-track {
   background: #f1f5f9;
 }
 html.light ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
+  border-radius: 4px;
 }
 html.light ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
