@@ -64,6 +64,27 @@ export interface CareerSuitabilityEntry extends RecommendedCareerResult {
   fitExplanation: string;
 }
 
+export interface UserCharacteristicDimension {
+  dimension: string;
+  score: number; // 0 to 10
+  fullMark: number;
+  level: string; // 'Exceptional' | 'Strong' | 'Moderate' | 'Developing'
+  description: string;
+}
+
+export interface UserRadarDimensions {
+  technicalAptitude: number;
+  businessOrientation: number;
+  analyticalThinking: number;
+  creativity: number;
+  leadership: number;
+  communication: number;
+  problemSolving: number;
+  practicalOrientation: number;
+  riskTolerance: number;
+  peopleInteraction: number;
+}
+
 export interface PersonalCharacteristicsReview {
   summaryParagraph: string;
   keyStrengths: string[];
@@ -73,6 +94,8 @@ export interface PersonalCharacteristicsReview {
   workEnvironmentPreference: string;
   coreDrives: string[];
   thingsToAvoid: string[];
+  radarDimensions?: UserRadarDimensions;
+  characteristicsList?: UserCharacteristicDimension[];
 }
 
 function fitCategory(score: number): FitCategory {
@@ -656,6 +679,185 @@ function buildPersonalReview(answers: AssessmentAnswerState): PersonalCharacteri
 
   const summaryParagraph = `Your assessment profile reveals a ${techDesc} professional ${mathDesc}${helperDesc ? ' ' + helperDesc : ''}${industryRef}. ${ambiguityDesc} ${leadershipVal >= 7 ? 'Your strong leadership orientation suggests you are suited for roles that require directing teams, shaping strategy, or driving organizational outcomes.' : leadershipVal <= 3 ? 'You prefer individual contributor roles where you can focus deeply on specialized craft and technical excellence.' : 'You bring a collaborative, coaching mindset that works well in cross-functional teams.'} ${learningVal >= 7 ? 'You are highly adaptable and genuinely enjoy evolving your skill set in rapidly changing domains.' : learningVal <= 4 ? 'You value mastery of timeless skills and prefer careers with stable, long-term knowledge foundations.' : 'You balance skill depth with a willingness to continuously grow and adapt.'} ${userSkills.length > 0 ? `Your existing skills in ${userSkills.slice(0, 3).join(', ')} provide a meaningful head start in your strongest matching career areas.` : 'You bring strong foundational aptitudes that can be built upon across multiple career paths.'}`;
 
+  // --- Characteristics Visualization Data (0 to 10 scale across 10 key dimensions) ---
+  const clampScore = (val: number, min: number = 1, max: number = 10) =>
+    Math.min(max, Math.max(min, Math.round(val * 10) / 10));
+
+  const financialVal = extractNumericValue(answers.financialStrategy, 6);
+  const visibilityVal = extractNumericValue(answers.publicVisibility, 5);
+
+  const lowerSkills = userSkills.map((s) => s.toLowerCase());
+  const lowerIndustries = preferredIndustries.map((i) => i.toLowerCase());
+
+  // 1. Technical Aptitude: based on Q1, Q11, and technical skills
+  const hasTechSkills = lowerSkills.some(
+    (s) =>
+      s.includes('programming') ||
+      s.includes('software') ||
+      s.includes('circuit') ||
+      s.includes('electronics') ||
+      s.includes('cad') ||
+      s.includes('plc') ||
+      s.includes('robotics') ||
+      s.includes('app')
+  );
+  let techScoreCalc = ((techVal - 1) / 8) * 7;
+  if (tpVal !== null) {
+    techScoreCalc += ((tpVal - 1) / 8) * 2;
+  } else {
+    techScoreCalc += 1.0;
+  }
+  if (hasTechSkills) techScoreCalc += 1.0;
+  const technicalAptitude = clampScore(techScoreCalc);
+
+  // 2. Business Orientation: based on financial strategy, leadership, business skills
+  const hasBizSkills = lowerSkills.some(
+    (s) =>
+      s.includes('business') ||
+      s.includes('budget') ||
+      s.includes('sales') ||
+      s.includes('marketing') ||
+      s.includes('product management') ||
+      s.includes('planning') ||
+      s.includes('finance')
+  );
+  let bizScoreCalc = ((financialVal - 2) / 8) * 4.5 + ((leadershipVal - 1) / 8) * 3;
+  if (hasBizSkills) bizScoreCalc += 1.5;
+  if (
+    lowerIndustries.some(
+      (i) => i.includes('business') || i.includes('finance') || i.includes('management')
+    )
+  ) {
+    bizScoreCalc += 1.0;
+  }
+  const businessOrientation = clampScore(bizScoreCalc);
+
+  // 3. Analytical Thinking: based on math/quant rigor and data skills
+  const hasMathSkills = lowerSkills.some(
+    (s) =>
+      s.includes('math') ||
+      s.includes('statistics') ||
+      s.includes('data analysis') ||
+      s.includes('sql') ||
+      s.includes('accounting')
+  );
+  let analScoreCalc = ((mathVal - 1) / 8) * 8;
+  if (hasMathSkills) analScoreCalc += 2.0;
+  const analyticalThinking = clampScore(analScoreCalc);
+
+  // 4. Creativity: creative design aptitude, output medium, artistic skills
+  const hasCreativeSkills = lowerSkills.some(
+    (s) =>
+      s.includes('design') ||
+      s.includes('art') ||
+      s.includes('writing') ||
+      s.includes('acting') ||
+      s.includes('modeling') ||
+      s.includes('content')
+  );
+  let creatScoreCalc = ((creativeVal - 1) / 8) * 8;
+  if (hasCreativeSkills) creatScoreCalc += 2.0;
+  const creativity = clampScore(creatScoreCalc);
+
+  // 5. Leadership: leadership scope, executive strategy, team management
+  const hasLeadSkills = lowerSkills.some(
+    (s) =>
+      s.includes('leadership') ||
+      s.includes('project management') ||
+      s.includes('strategic') ||
+      s.includes('governance')
+  );
+  let leadScoreCalc = ((leadershipVal - 1) / 8) * 8;
+  if (hasLeadSkills) leadScoreCalc += 2.0;
+  const leadership = clampScore(leadScoreCalc);
+
+  // 6. Communication: visibility, helping, persuasion, and public speaking skills
+  const hasCommSkills = lowerSkills.some(
+    (s) =>
+      s.includes('sales') ||
+      s.includes('debating') ||
+      s.includes('law') ||
+      s.includes('content') ||
+      s.includes('acting') ||
+      s.includes('marketing')
+  );
+  let commScoreCalc =
+    ((visibilityVal - 1) / 8) * 4 +
+    ((helpingVal - 1) / 9) * 3 +
+    ((leadershipVal - 1) / 8) * 1.5;
+  if (hasCommSkills) commScoreCalc += 1.5;
+  const communication = clampScore(commScoreCalc);
+
+  // 7. Problem Solving: ambiguity tolerance, continuous learning, analytical logic
+  let probScoreCalc =
+    ((ambiguityVal - 1) / 8) * 4.5 +
+    ((learningVal - 1) / 8) * 3 +
+    ((mathVal - 1) / 8) * 2.5;
+  const problemSolving = clampScore(probScoreCalc);
+
+  // 8. Practical / Field Orientation: physical dexterity, field work mode, practical balance
+  const isField = workModes.includes('field');
+  let practScoreCalc = ((physicalVal - 1) / 8) * 6;
+  if (tpVal !== null) {
+    practScoreCalc += ((9 - tpVal) / 8) * 2.5;
+  }
+  if (isField) practScoreCalc += 1.5;
+  const practicalOrientation = clampScore(practScoreCalc);
+
+  // 9. Risk Tolerance: ambiguity freedom, financial risk strategy
+  let riskScoreCalc =
+    ((ambiguityVal - 1) / 8) * 5 +
+    ((financialVal - 2) / 8) * 5;
+  const riskTolerance = clampScore(riskScoreCalc);
+
+  // 10. People Interaction: clinical/helping impact, collaboration, people skills
+  const hasPeopleSkills = lowerSkills.some(
+    (s) =>
+      s.includes('patient') ||
+      s.includes('nursing') ||
+      s.includes('counseling') ||
+      s.includes('coaching') ||
+      s.includes('teaching')
+  );
+  let peopleScoreCalc =
+    ((helpingVal - 1) / 9) * 7 +
+    ((leadershipVal - 1) / 8) * 1.5;
+  if (hasPeopleSkills) peopleScoreCalc += 1.5;
+  const peopleInteraction = clampScore(peopleScoreCalc);
+
+  const getCharacteristicLevel = (score: number) => {
+    if (score >= 8.0) return 'Exceptional';
+    if (score >= 6.5) return 'Strong';
+    if (score >= 4.5) return 'Moderate';
+    return 'Developing';
+  };
+
+  const radarDimensions: UserRadarDimensions = {
+    technicalAptitude,
+    businessOrientation,
+    analyticalThinking,
+    creativity,
+    leadership,
+    communication,
+    problemSolving,
+    practicalOrientation,
+    riskTolerance,
+    peopleInteraction,
+  };
+
+  const characteristicsList: UserCharacteristicDimension[] = [
+    { dimension: 'Technical Aptitude', score: technicalAptitude, fullMark: 10, level: getCharacteristicLevel(technicalAptitude), description: 'Orientation toward software, engineering, and digital or hardware systems' },
+    { dimension: 'Business Orientation', score: businessOrientation, fullMark: 10, level: getCharacteristicLevel(businessOrientation), description: 'Drive toward commercial growth, financial strategy, and market impact' },
+    { dimension: 'Analytical Thinking', score: analyticalThinking, fullMark: 10, level: getCharacteristicLevel(analyticalThinking), description: 'Quantitative rigor, mathematical modeling, and structured data deduction' },
+    { dimension: 'Creativity', score: creativity, fullMark: 10, level: getCharacteristicLevel(creativity), description: 'Artistic expression, visual storytelling, and open-ended original ideation' },
+    { dimension: 'Leadership', score: leadership, fullMark: 10, level: getCharacteristicLevel(leadership), description: 'Ability and motivation to direct teams, shape strategy, and guide outcomes' },
+    { dimension: 'Communication', score: communication, fullMark: 10, level: getCharacteristicLevel(communication), description: 'Articulating ideas, interpersonal persuasion, and stakeholder alignment' },
+    { dimension: 'Problem Solving', score: problemSolving, fullMark: 10, level: getCharacteristicLevel(problemSolving), description: 'Navigating ambiguity, tackling novel challenges, and continuous adaptation' },
+    { dimension: 'Practical / Field Orientation', score: practicalOrientation, fullMark: 10, level: getCharacteristicLevel(practicalOrientation), description: 'Hands-on execution, physical dexterity, and active dynamic environments' },
+    { dimension: 'Risk Tolerance', score: riskTolerance, fullMark: 10, level: getCharacteristicLevel(riskTolerance), description: 'Appetite for bold experimentation, career uncertainty, and high-upside pursuits' },
+    { dimension: 'People Interaction', score: peopleInteraction, fullMark: 10, level: getCharacteristicLevel(peopleInteraction), description: 'Empathy, direct human care, collaboration, and community service' },
+  ];
+
   return {
     summaryParagraph,
     keyStrengths,
@@ -665,6 +867,8 @@ function buildPersonalReview(answers: AssessmentAnswerState): PersonalCharacteri
     workEnvironmentPreference: workModeLabel,
     coreDrives,
     thingsToAvoid,
+    radarDimensions,
+    characteristicsList,
   };
 }
 
@@ -830,113 +1034,174 @@ export function computeCareerRecommendations(
   const archetypeTitle = bestArchetype.score >= 36 ? bestArchetype.title : 'The Frontier Strategic Innovator';
   const archetypeSubtitle = bestArchetype.score >= 36 ? bestArchetype.subtitle : 'You excel at bridging systemic complexity with tangible real-world outcomes, driving high-impact initiatives across modern disciplines.';
 
-  // 3. Multi-Vector Scoring of Each Career
+  // 3. Fair, Multi-Factor Personalized Scoring of Each Career
   const scored = allCareers.map((career) => {
     const category = career.category || '';
     const industry = career.industry || '';
     const slug = career.slug || '';
+    const sLower = slug.toLowerCase();
+    const cLower = category.toLowerCase();
+    const indLower = industry.toLowerCase();
 
-    // --- Component 1: Industry & Domain Match (Weight: 35%) ---
-    let domainScore = 55;
-    const hasPreferred = preferredIndustries.length > 0;
-
-    if (hasPreferred) {
-      const isDomainMatch = preferredIndustries.some((pref: string) => {
+    // ─── Component 1: Industry & Domain Match (Weight: 25%) ───
+    let domainScore = 65; // neutral baseline when no industries specified
+    if (preferredIndustries.length > 0) {
+      let bestMatch = 25; // default when non-matching
+      for (const pref of preferredIndustries) {
         const p = pref.toLowerCase();
-        const c = category.toLowerCase();
-        const ind = industry.toLowerCase();
-        if (p === c || p === ind) return true;
-        if ((p.includes('industrial automation') || p.includes('controls') || p.includes('robotics') || p.includes('smart manufacturing')) &&
-            (ind.includes('automation') || ind.includes('robotics') || slug.includes('automation') || slug.includes('robotics'))) return true;
-        if ((p.includes('renewable') || p.includes('cleantech') || p.includes('sustainability') || p.includes('clean energy')) &&
-            (ind.includes('renewable') || ind.includes('clean') || ind.includes('energy') || slug.includes('renewable') || slug.includes('energy'))) return true;
-        if ((p.includes('medical technology') || p.includes('medical device') || p.includes('biomedical') || p.includes('healthcare tech')) &&
-            (ind.includes('medical') || ind.includes('device') || slug.includes('medical-tech') || slug.includes('medical-technology'))) return true;
-        if ((p.includes('smart buildings') || p.includes('building automation') || p.includes('energy management')) &&
-            (ind.includes('smart buildings') || ind.includes('building automation') || slug.includes('smart-buildings') || slug.includes('energy-automation'))) return true;
-        if ((p.includes('product management') || p.includes('technology strategy') || p.includes('business strategy')) &&
-            (slug.includes('product-manager') || ind.includes('product management') || ind.includes('technology strategy'))) return true;
-        if ((p.includes('enterprise software') || p.includes('customer engineering')) &&
-            (slug.includes('forward-deployed') || ind.includes('enterprise software'))) return true;
-        if (p.includes('fashion') && (ind.includes('fashion') || slug.includes('model'))) return true;
-        if ((p.includes('cinema') || p.includes('creative') || p.includes('entertainment')) && (c.includes('creative') || ind.includes('media') || ind.includes('entertainment') || slug.includes('actor') || slug.includes('film'))) return true;
-        if ((p.includes('public sector') || p.includes('government') || p.includes('railways') || p.includes('psu') || p.includes('civil services')) && (c.includes('government') || ind.includes('public') || ind.includes('railway') || slug.includes('psu') || slug.includes('railway') || slug.includes('upsc'))) return true;
-        if (p.includes('sports') && (c.includes('sports') || ind.includes('fitness') || slug.includes('athlete'))) return true;
-        if (p.includes('law') && (c.includes('law') || ind.includes('legal'))) return true;
-        if (p.includes('technology') && (c.includes('technology') || ind.includes('software'))) return true;
-        if (p.includes('business') && (c.includes('business') || ind.includes('management'))) return true;
-        if (p.includes('medicine') && (c.includes('medicine') || ind.includes('healthcare'))) return true;
-        if (p.includes('finance') && (c.includes('finance') || ind.includes('banking'))) return true;
-        if (p.includes('built environment') && (c.includes('built') || ind.includes('engineering') || ind.includes('construction'))) return true;
-        if (p.includes('aviation') && (c.includes('aviation') || ind.includes('maritime'))) return true;
-        if (p.includes('hospitality') && (c.includes('hospitality') || ind.includes('food'))) return true;
-        if (p.includes('education') && (c.includes('education') || ind.includes('research'))) return true;
-        return false;
-      });
 
-      if (isDomainMatch) {
-        domainScore = 100;
-      } else {
-        domainScore = 18;
+        // Exact category or industry containment
+        if (p.includes(cLower) || indLower.includes(p)) {
+          bestMatch = Math.max(bestMatch, 95);
+        }
+
+        // 1. Technology & Software Development
+        if (p.includes('technology & software') || p.includes('apps, cloud, ai') || p.includes('cybersecurity')) {
+          if (cLower === 'technology & engineering') {
+            if (sLower.includes('software') || sLower.includes('developer') || sLower.includes('ai-') || sLower.includes('ml-') || sLower.includes('data-') || sLower.includes('cloud') || sLower.includes('devops') || sLower.includes('full-stack') || sLower.includes('cybersecurity') || sLower.includes('generative-ai')) {
+              bestMatch = Math.max(bestMatch, 100);
+            } else {
+              bestMatch = Math.max(bestMatch, 85);
+            }
+          } else if (sLower === 'product-manager' || sLower === 'ai-product-manager') {
+            bestMatch = Math.max(bestMatch, 60); // adjacent tech-business, NOT top engineering
+          }
+        }
+
+        // 2. Industrial Automation, Controls & Robotics
+        if (p.includes('automation') || p.includes('controls') || p.includes('robotics')) {
+          if (sLower.includes('automation') || sLower.includes('robotics') || sLower.includes('controls') || indLower.includes('automation') || indLower.includes('robotics')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'technology & engineering' || cLower === 'engineering & built environment') {
+            bestMatch = Math.max(bestMatch, 75);
+          }
+        }
+
+        // 3. Renewable Energy & Sustainability
+        if (p.includes('renewable') || p.includes('cleantech') || p.includes('sustainability')) {
+          if (sLower.includes('renewable') || sLower.includes('climate') || sLower.includes('clean') || indLower.includes('renewable') || indLower.includes('energy') || indLower.includes('sustainability')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'engineering & built environment') {
+            bestMatch = Math.max(bestMatch, 75);
+          }
+        }
+
+        // 4. Medical Devices & Healthcare Tech
+        if (p.includes('medical device') || p.includes('biomedical') || p.includes('healthcare tech')) {
+          if (sLower.includes('medical-tech') || sLower.includes('biomedical') || indLower.includes('medical device') || indLower.includes('biomedical')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'medicine & healthcare' || cLower === 'technology & engineering') {
+            bestMatch = Math.max(bestMatch, 80);
+          }
+        }
+
+        // 5. Smart Buildings & Energy Automation
+        if (p.includes('smart buildings') || p.includes('building automation')) {
+          if (sLower.includes('smart-buildings') || sLower.includes('building') || indLower.includes('smart buildings')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'engineering & built environment') {
+            bestMatch = Math.max(bestMatch, 80);
+          }
+        }
+
+        // 6. Business Strategy, Product Management & Corporate Leadership
+        if (p.includes('business strategy') || p.includes('product management') || p.includes('corporate leadership')) {
+          if (sLower.includes('product-manager') || sLower.includes('strategy') || sLower.includes('management-consultant') || sLower.includes('corporate') || sLower.includes('entrepreneur')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'business & management') {
+            bestMatch = Math.max(bestMatch, 90);
+          } else if (cLower === 'finance & banking') {
+            bestMatch = Math.max(bestMatch, 70);
+          }
+        }
+
+        // 7. Indian Government & Public Sector
+        if (p.includes('government') || p.includes('public sector') || p.includes('psu') || p.includes('railways') || p.includes('civil services')) {
+          if (sLower.includes('upsc') || sLower.includes('psu') || sLower.includes('railways') || sLower.includes('police') || sLower.includes('armed-forces') || sLower.includes('diplomat')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'law & government') {
+            bestMatch = Math.max(bestMatch, 85);
+          }
+        }
+
+        // 8. Cinema, Entertainment & Creative Arts
+        if (p.includes('cinema') || p.includes('entertainment') || p.includes('creative arts')) {
+          if (sLower.includes('actor') || sLower.includes('filmmaker') || sLower.includes('musician') || sLower.includes('content-creator') || cLower === 'creative & media') {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 9. Fashion & Modeling
+        if (p.includes('fashion') || p.includes('modeling')) {
+          if (sLower.includes('model') || sLower.includes('fashion') || indLower.includes('fashion')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'creative & media') {
+            bestMatch = Math.max(bestMatch, 75);
+          }
+        }
+
+        // 10. Sports & Physical Fitness
+        if (p.includes('sports') || p.includes('athletics') || p.includes('fitness')) {
+          if (cLower === 'sports & fitness' || sLower.includes('athlete') || sLower.includes('coach') || sLower.includes('fitness')) {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 11. Medicine, Surgery & Clinical Healthcare
+        if (p.includes('medicine') || p.includes('surgery') || p.includes('clinical healthcare')) {
+          if (sLower.includes('doctor') || sLower.includes('surgeon') || sLower.includes('nurse') || sLower.includes('dentist') || sLower.includes('pharmacist') || sLower.includes('physiotherapist')) {
+            bestMatch = Math.max(bestMatch, 100);
+          } else if (cLower === 'medicine & healthcare') {
+            bestMatch = Math.max(bestMatch, 90);
+          }
+        }
+
+        // 12. Finance, Banking & Investment
+        if (p.includes('finance') || p.includes('banking') || p.includes('investment')) {
+          if (cLower === 'finance & banking') {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 13. Law, Judiciary & Legal Services
+        if (p.includes('law') || p.includes('judiciary') || p.includes('legal')) {
+          if (sLower.includes('lawyer') || sLower.includes('judge') || cLower === 'law & government') {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 14. Civil Engineering & Architecture
+        if (p.includes('civil engineering') || p.includes('architecture') || p.includes('built environment')) {
+          if (sLower.includes('civil') || sLower.includes('architect') || sLower.includes('construction') || cLower === 'engineering & built environment') {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 15. Aviation & Maritime Operations
+        if (p.includes('aviation') || p.includes('aerospace') || p.includes('maritime')) {
+          if (cLower === 'aviation & maritime operations' || sLower.includes('pilot') || sLower.includes('air-traffic') || sLower.includes('merchant-navy')) {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 16. Hospitality & Culinary Arts
+        if (p.includes('hospitality') || p.includes('culinary') || p.includes('food')) {
+          if (cLower === 'hospitality & food' || sLower.includes('chef') || sLower.includes('hotel')) {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
+
+        // 17. Education & Academic Research
+        if (p.includes('education') || p.includes('teaching') || p.includes('academic research')) {
+          if (cLower === 'education & research' || sLower.includes('teacher') || sLower.includes('professor') || sLower.includes('scientist')) {
+            bestMatch = Math.max(bestMatch, 100);
+          }
+        }
       }
+      domainScore = bestMatch;
     }
 
-    let categoryAffinity = 0;
-    if (category === 'Medicine & Healthcare') {
-      if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 8;
-      if (!physical.isNotClear && (slug.includes('surgeon') || slug.includes('dentist'))) categoryAffinity += (physical.value - 5) * 3;
-      if (!techPractical.isNotClear && slug === 'medical-technology-application-specialist') {
-        const tpBalance = techPractical.value;
-        if (tpBalance >= 5 && tpBalance <= 7) categoryAffinity += 12;
-      }
-    } else if (category === 'Technology & Engineering') {
-      if (!tech.isNotClear) categoryAffinity += (tech.value - 5) * 9;
-      if (!math.isNotClear) categoryAffinity += (math.value - 5) * 4;
-      if (!learning.isNotClear) categoryAffinity += (learning.value - 5) * 3;
-      if (!techPractical.isNotClear) categoryAffinity += (techPractical.value - 5) * 4;
-    } else if (category === 'Finance & Banking') {
-      if (!math.isNotClear) categoryAffinity += (math.value - 5) * 7;
-      if (!salary.isNotClear) categoryAffinity += (salary.value - 5) * 5;
-    } else if (category === 'Law & Government') {
-      if (!governance.isNotClear) categoryAffinity += (governance.value - 5) * 9;
-      if (!leadership.isNotClear) categoryAffinity += (leadership.value - 5) * 3;
-    } else if (category === 'Business & Management') {
-      if (!leadership.isNotClear) categoryAffinity += (leadership.value - 5) * 7;
-      if (!ambiguity.isNotClear) categoryAffinity += (ambiguity.value - 5) * 4;
-      if (!creative.isNotClear && (slug.includes('brand') || slug.includes('marketing') || slug.includes('digital-marketer'))) categoryAffinity += (creative.value - 5) * 5;
-      if (!salary.isNotClear) categoryAffinity += (salary.value - 5) * 2;
-    } else if (category === 'Creative & Media') {
-      if (!creative.isNotClear) categoryAffinity += (creative.value - 5) * 10;
-      if (!publicVisibility.isNotClear) categoryAffinity += (publicVisibility.value - 5) * 4;
-      if (!tech.isNotClear) categoryAffinity += (5 - tech.value) * 2;
-    } else if (category === 'Aviation & Maritime Operations') {
-      if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 9;
-      if (!ambiguity.isNotClear) categoryAffinity += (5 - ambiguity.value) * 3;
-    } else if (category === 'Engineering & Built Environment') {
-      if (!math.isNotClear) categoryAffinity += (math.value - 5) * 4;
-      if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 6;
-      if (!tech.isNotClear) categoryAffinity += (tech.value - 5) * 3;
-      if (!techPractical.isNotClear) {
-        const tpVal = techPractical.value;
-        if (tpVal >= 4 && tpVal <= 7) categoryAffinity += 10;
-        else if (tpVal === 1) categoryAffinity += 8;
-      }
-    } else if (category === 'Hospitality & Food') {
-      if (!creative.isNotClear) categoryAffinity += (creative.value - 5) * 7;
-      if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 7;
-      if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 4;
-      if (slug.includes('chef') || slug.includes('culinary') || slug.includes('hotel') || slug.includes('restaurant')) {
-        if (userSkills.some((s) => s.includes('cook') || s.includes('culinary') || s.includes('hospitality'))) categoryAffinity += 20;
-      }
-    } else if (category === 'Sports & Fitness') {
-      if (!physical.isNotClear) categoryAffinity += (physical.value - 5) * 9;
-      if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 3;
-    } else if (category === 'Education & Research') {
-      if (!helping.isNotClear) categoryAffinity += (helping.value - 5) * 5;
-      if (!learning.isNotClear) categoryAffinity += (learning.value - 5) * 5;
-    }
-
-    // --- Component 2: Core Aptitude & Difficulty Match (Weight: 30%) ---
+    // ─── Component 2: Core Aptitude & Rigor Match (Weight: 25%) ───
     const techSim = computeDimSimilarity(tech, career.technicalComplexity || 5);
     const mathSim = computeDimSimilarity(math, career.mathRequirements || 5);
     const wlbSim = computeDimSimilarity(wlb, career.workPressure || 7);
@@ -944,11 +1209,11 @@ export function computeCareerRecommendations(
 
     const aptitudeScore = (techSim * 0.35 + mathSim * 0.25 + wlbSim * 0.20 + learningSim * 0.20) * 100;
 
-    // --- Component 3: Work Environment & Physical Setting (Weight: 15%) ---
+    // ─── Component 3: Work Environment & Setting (Weight: 12%) ───
     const remoteOpp = career.remoteOpportunities || 5;
     let workModeScore = 70;
     if (!mode.isNotClear && mode.modes.length > 0) {
-      let bestModeMatch = 25;
+      let bestModeMatch = 30;
       if (mode.modes.includes('remote')) {
         if (remoteOpp >= 8) bestModeMatch = Math.max(bestModeMatch, 100);
         else if (remoteOpp >= 6) bestModeMatch = Math.max(bestModeMatch, 75);
@@ -959,57 +1224,57 @@ export function computeCareerRecommendations(
         else bestModeMatch = Math.max(bestModeMatch, 65);
       }
       if (mode.modes.includes('onsite')) {
-        if (remoteOpp <= 6 || category === 'Finance & Banking' || category === 'Law & Government' || category === 'Business & Management' || category === 'Education & Research') {
+        if (remoteOpp <= 6 || cLower === 'finance & banking' || cLower === 'law & government' || cLower === 'business & management' || cLower === 'education & research') {
           bestModeMatch = Math.max(bestModeMatch, 95);
         }
       }
       if (mode.modes.includes('field')) {
         const isFieldCareer =
-          category === 'Aviation & Maritime Operations' ||
-          category === 'Sports & Fitness' ||
-          category === 'Engineering & Built Environment' ||
-          category === 'Hospitality & Food' ||
-          category === 'Medicine & Healthcare' ||
-          category === 'Creative & Media' ||
-          slug.includes('forward-deployed') ||
-          slug.includes('automation') ||
+          cLower === 'aviation & maritime operations' ||
+          cLower === 'sports & fitness' ||
+          cLower === 'engineering & built environment' ||
+          cLower === 'hospitality & food' ||
+          cLower === 'medicine & healthcare' ||
+          sLower.includes('forward-deployed') ||
+          sLower.includes('controls') ||
+          sLower.includes('automation') ||
           remoteOpp <= 3;
         if (isFieldCareer) {
           bestModeMatch = Math.max(bestModeMatch, 100);
         } else if (remoteOpp <= 5) {
-          bestModeMatch = Math.max(bestModeMatch, 70);
+          bestModeMatch = Math.max(bestModeMatch, 65);
         } else {
-          bestModeMatch = Math.max(bestModeMatch, 40);
+          bestModeMatch = Math.max(bestModeMatch, 35);
         }
       }
       workModeScore = bestModeMatch;
     }
 
-    // --- Component 4: Salary Expectations & Ceiling (Weight: 10%) ---
+    // ─── Component 4: Salary Alignment (Weight: 8%) ───
     const seniorMax = career.seniorSalaryMax || 200;
     let salaryScore = 75;
     if (!salary.isNotClear) {
       if (salary.values.some((v) => v >= 9)) {
-        if (seniorMax >= 300) salaryScore = 100;
-        else if (seniorMax >= 220) salaryScore = 80;
+        if (seniorMax >= 280) salaryScore = 100;
+        else if (seniorMax >= 200) salaryScore = 80;
         else salaryScore = 40;
       } else if (salary.values.some((v) => v <= 4)) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || category === 'Law & Government' || category === 'Creative & Media') {
+        if (cLower === 'medicine & healthcare' || cLower === 'education & research' || cLower === 'law & government') {
           salaryScore = 95;
         } else {
-          salaryScore = 75;
+          salaryScore = 80;
         }
       } else {
-        if (seniorMax >= 180 && seniorMax <= 300) salaryScore = 95;
+        if (seniorMax >= 180) salaryScore = 95;
         else salaryScore = 80;
       }
     }
 
-    // --- Component 5: Skills Possessed & Gap Analysis (Weight: 10%) ---
+    // ─── Component 5: Dynamic Skill Matching Across All Careers (Weight: 10%) ───
     let essentialTech: string[] = [];
     try {
       essentialTech = JSON.parse(career.essentialTechSkills || '[]');
-    } catch (e) {
+    } catch {
       essentialTech = [];
     }
 
@@ -1030,227 +1295,278 @@ export function computeCareerRecommendations(
       }
     });
 
-    const skillRatio = essentialTech.length > 0 ? possessed.length / essentialTech.length : 0.4;
-    let skillBonus = possessed.length * 4;
+    const skillRatio = essentialTech.length > 0 ? possessed.length / essentialTech.length : 0.35;
+    let skillScore = skillRatio * 15;
+    if (possessed.length >= 3) skillScore += 5;
+    else if (possessed.length >= 1) skillScore += 2;
 
-    // Specialized domain skill bonuses
-    if (slug.includes('model') && userSkills.some((s) => s.includes('modeling') || s.includes('runway') || s.includes('editorial'))) skillBonus += 18;
-    if (slug.includes('athlete') && userSkills.some((s) => s.includes('athletic') || s.includes('sports training') || s.includes('conditioning'))) skillBonus += 18;
-    if (slug.includes('railways') && userSkills.some((s) => s.includes('rail') || s.includes('locomotive') || s.includes('transit'))) skillBonus += 20;
-    if (slug.includes('psu') && userSkills.some((s) => s.includes('refinery') || s.includes('petrochemical') || s.includes('industrial plant'))) skillBonus += 20;
-    if (slug.includes('brand-manager') && userSkills.some((s) => s.includes('brand strategy') || s.includes('consumer marketing'))) skillBonus += 20;
-    if (slug.includes('actor') && userSkills.some((s) => s.includes('acting') || s.includes('dramatic') || s.includes('voice artistry'))) skillBonus += 20;
-    if (slug.includes('upsc') && userSkills.some((s) => s.includes('civil governance') || s.includes('public administration') || s.includes('policy'))) skillBonus += 14;
-
-    // ─── 7 Roles Specialization Skill Bonuses ───
-    if (slug === 'industrial-automation-controls-engineer' && userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('scada') || s.includes('machinery'))) skillBonus += 24;
-    if (slug === 'forward-deployed-ai-robotics-engineer' && userSkills.some((s) => s.includes('robotics') || s.includes('ros') || s.includes('hardware integration'))) skillBonus += 24;
-    if (slug === 'renewable-energy-project-developer' && userSkills.some((s) => s.includes('clean energy') || s.includes('solar') || s.includes('environmental'))) skillBonus += 24;
-    if (slug === 'medical-technology-application-specialist' && userSkills.some((s) => s.includes('medical device') || s.includes('biomedical') || s.includes('hospital'))) skillBonus += 24;
-    if (slug === 'smart-buildings-energy-automation-consultant' && userSkills.some((s) => s.includes('smart buildings') || s.includes('building automation') || s.includes('hvac'))) skillBonus += 24;
-    if (slug === 'ai-product-manager' && userSkills.some((s) => s.includes('product management') || s.includes('roadmapping') || s.includes('user experience'))) skillBonus += 24;
-    if (slug === 'forward-deployed-engineer' && userSkills.some((s) => s.includes('enterprise client') || s.includes('technical integration') || s.includes('customer engineering'))) skillBonus += 24;
-
-    // General Tech subtypes
-    if ((slug.includes('ml-engineer') || slug.includes('ai-engineer') || slug.includes('ai-ml') || slug.includes('generative-ai') ||
-         slug.includes('mlops') || slug.includes('physical-ai')) &&
-        userSkills.some((s) => s.includes('algorithm') || s.includes('code') || s.includes('software'))) {
-      skillBonus += 14;
-    }
-    if ((slug.includes('cloud') || slug.includes('devops') || slug.includes('cybersecurity') || slug.includes('network-admin') ||
-         slug.includes('full-stack') || slug.includes('senior-software') || slug.includes('software-development')) &&
-        userSkills.some((s) => s.includes('code') || s.includes('web development') || s.includes('algorithm'))) {
-      skillBonus += 14;
-    }
-
-    // --- Component 6: Lifestyle Pain Points & Frustration Penalties/Bonuses ---
-    let painPointDelta = 0;
-    if (painPoints.length > 0) {
-      const wlbVal = career.workLifeBalance || 7;
-      const pressureVal = career.workPressure || 7;
-
-      if (painPoints.some((p) => p.includes('commuting') || p.includes('heavy traffic'))) {
-        if (remoteOpp >= 7) painPointDelta += 8;
-        if (remoteOpp <= 3 && category !== 'Aviation & Maritime Operations') painPointDelta -= 8;
-      }
-      if (painPoints.some((p) => p.includes('Sitting still') || p.includes('desk'))) {
-        if (category === 'Aviation & Maritime Operations' || category === 'Sports & Fitness' || category === 'Hospitality & Food' || category === 'Engineering & Built Environment' || slug.includes('automation') || slug.includes('robotics')) {
-          painPointDelta += 16;
-        } else if (category === 'Medicine & Healthcare' && (slug.includes('surgeon') || slug.includes('nurse') || slug.includes('specialist'))) {
-          painPointDelta += 12;
-        } else if (category === 'Technology & Engineering' || category === 'Finance & Banking' || slug.includes('lawyer') || slug.includes('accountant') || slug.includes('actuary')) {
-          painPointDelta -= 16;
+    // ─── Component 6: Technical Orientation Specificity (Q1) ───
+    let techOrientationDelta = 0;
+    if (!tech.isNotClear) {
+      const tv = tech.value;
+      if (tv >= 8) { // Software, Coding & AI
+        if (cLower === 'technology & engineering') {
+          if (sLower.includes('software') || sLower.includes('developer') || sLower.includes('ai-') || sLower.includes('ml-') || sLower.includes('data-') || sLower.includes('cloud') || sLower.includes('full-stack') || sLower.includes('generative-ai')) {
+            techOrientationDelta += 24;
+          } else {
+            techOrientationDelta += 14;
+          }
+        } else if (sLower.includes('product-manager')) {
+          techOrientationDelta -= 8; // User specifically wants coding, not coordination/PM
+        } else if (cLower === 'medicine & healthcare' || cLower === 'law & government' || cLower === 'creative & media' || cLower === 'sports & fitness') {
+          techOrientationDelta -= 14;
         }
-      }
-      if (painPoints.some((p) => p.includes('appreciation') || p.includes('credit') || p.includes('recognition'))) {
-        if (category === 'Medicine & Healthcare' || slug.includes('founder') || slug.includes('director') || slug.includes('lead') || slug.includes('pilot') || slug.includes('product-manager')) {
-          painPointDelta += 6;
+      } else if (tv >= 6) { // Physical Machines & Infrastructure
+        if (cLower === 'engineering & built environment' || sLower.includes('automation') || sLower.includes('robotics') || sLower.includes('controls') || sLower.includes('mechanical') || sLower.includes('electrical') || sLower.includes('civil') || sLower.includes('hardware')) {
+          techOrientationDelta += 22;
+        } else if (cLower === 'technology & engineering') {
+          techOrientationDelta += 10;
+        } else if (cLower === 'creative & media' || cLower === 'hospitality & food') {
+          techOrientationDelta -= 10;
         }
-      }
-      if (painPoints.some((p) => p.includes('repetitive tasks') || p.includes('variety') || p.includes('creative freedom'))) {
-        if (category === 'Creative & Media' || category === 'Hospitality & Food' ||
-            slug.includes('founder') || slug.includes('product') || slug.includes('architect') ||
-            slug.includes('forward-deployed') || slug.includes('automation') || slug.includes('developer')) {
-          painPointDelta += 8;
+      } else if (tv >= 4) { // Technology Planning & Product Management
+        if (sLower.includes('product-manager') || sLower.includes('technical-program-manager') || sLower.includes('solutions-consultant') || sLower.includes('digital-transformation')) {
+          techOrientationDelta += 26; // Exact target role for this response!
+        } else if (cLower === 'business & management' || cLower === 'technology & engineering') {
+          techOrientationDelta += 10;
         }
-        if (slug.includes('accountant') || slug.includes('actuary') || slug.includes('controller')) {
-          painPointDelta -= 8;
-        }
-      }
-      if (painPoints.some((p) => p.includes('isolation') || p.includes('little human contact') || p.includes('interaction'))) {
-        if (category === 'Education & Research' || category === 'Medicine & Healthcare' || category === 'Business & Management' || category === 'Hospitality & Food' || slug.includes('forward-deployed') || slug.includes('product-manager')) {
-          painPointDelta += 7;
-        }
-      }
-      if (painPoints.some((p) => p.includes('stress') || p.includes('emergencies') || p.includes('60+ hour'))) {
-        if (wlbVal >= 7 && pressureVal <= 6) painPointDelta += 10;
-        if (pressureVal >= 8 || wlbVal <= 4) painPointDelta -= 14;
-      }
-      if (painPoints.some((p) => p.includes('meaningful difference') || p.includes('no real difference'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || category === 'Law & Government' || slug.includes('renewable') || slug.includes('smart-buildings')) {
-          painPointDelta += 10;
-        }
-      }
-      if (painPoints.some((p) => p.includes('Low pay') || p.includes('Earning too little'))) {
-        if (seniorMax >= 250) painPointDelta += 8;
-        if (seniorMax < 130) painPointDelta -= 8;
-      }
-      if (painPoints.some((p) => p.includes('bureaucracy') || p.includes('red tape') || p.includes('rigid rules'))) {
-        if (slug.includes('founder') || category === 'Creative & Media' || category === 'Business & Management' || slug.includes('forward-deployed')) {
-          painPointDelta += 8;
-        }
-        if (category === 'Law & Government' || slug.includes('pilot') || slug.includes('controller') || slug.includes('actuary')) {
-          painPointDelta -= 10;
-        }
-      }
-      if (painPoints.some((p) => p.includes('travel') || p.includes('away from home'))) {
-        if (slug.includes('pilot') || slug.includes('merchant-navy') || slug.includes('forward-deployed') || slug.includes('offshore')) {
-          painPointDelta -= 18;
-        } else if (remoteOpp >= 6) {
-          painPointDelta += 6;
-        }
-      }
-      if (painPoints.some((p) => p.includes('Unstable income') || p.includes('layoffs') || p.includes('insecurity'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Law & Government' || (career.careerStability || 7) >= 8) {
-          painPointDelta += 8;
-        }
-        if (slug.includes('founder') || slug.includes('content-creator') || slug.includes('trader') || slug.includes('model')) {
-          painPointDelta -= 10;
+      } else { // People, Creative Arts & Public Service
+        if (cLower === 'medicine & healthcare' || cLower === 'law & government' || cLower === 'creative & media' || cLower === 'sports & fitness' || cLower === 'education & research') {
+          techOrientationDelta += 24;
+        } else if (cLower === 'technology & engineering') {
+          techOrientationDelta -= 18;
         }
       }
     }
 
-    // --- Ambiguity Preference Alignment ---
-    let ambiguityDelta = 0;
-    if (!ambiguity.isNotClear) {
-      if (ambiguity.values.some((v) => v >= 8)) {
-        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('forward-deployed') || slug.includes('ai-product-manager') || slug.includes('product-manager') || slug.includes('ai-builder')) ambiguityDelta += 8;
-      } else if (ambiguity.values.some((v) => v <= 4)) {
-        if (slug.includes('pilot') || slug.includes('judge') || slug.includes('actuary') || slug.includes('controller') || slug.includes('accountant') || slug.includes('upsc') || slug.includes('industrial-automation')) ambiguityDelta += 8;
-      }
-    }
-
-    // --- Financial Strategy Alignment ---
-    let financialStrategyDelta = 0;
-    if (!financialStrategy.isNotClear) {
-      const fsVal = financialStrategy.value;
-      if (fsVal >= 9) {
-        if (slug.includes('founder') || slug.includes('entrepreneur') || slug.includes('forward-deployed') || slug.includes('ai-product-manager') ||
-            slug.includes('model') || slug.includes('actor') || slug.includes('athlete') || slug.includes('ai-builder')) financialStrategyDelta += 14;
-        if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc') || slug.includes('teacher')) financialStrategyDelta -= 8;
-      } else if (fsVal >= 7) {
-        if (category === 'Technology & Engineering' || category === 'Finance & Banking' || category === 'Business & Management' ||
-            slug.includes('brand-manager') || slug.includes('investment-banker') || slug.includes('management-consultant') ||
-            slug.includes('lawyer') || slug.includes('surgeon') || slug.includes('pilot') || slug.includes('controls-engineer')) financialStrategyDelta += 12;
-        if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc')) financialStrategyDelta -= 4;
-      } else if (fsVal <= 5) {
-        if (slug.includes('psu') || slug.includes('railways') || slug.includes('upsc') || slug.includes('armed-forces') ||
-            slug.includes('police') || slug.includes('judge') || category === 'Education & Research') financialStrategyDelta += 18;
-        if (slug.includes('founder') || slug.includes('model') || slug.includes('trader')) financialStrategyDelta -= 12;
-      }
-    }
-
-    // --- Output Medium Alignment ---
-    let outputMediumDelta = 0;
-    if (!outputMedium.isNotClear) {
-      const omVal = outputMedium.value;
-      if (omVal >= 8) {
-        if (category === 'Technology & Engineering' || slug.includes('software') || slug.includes('ai')) outputMediumDelta += 14;
-        if (slug.includes('model') || slug.includes('railways') || slug.includes('actor')) outputMediumDelta -= 8;
-      } else if (omVal >= 6) {
-        if (slug.includes('psu') || slug.includes('automation') || slug.includes('renewable') || slug.includes('smart-buildings')) outputMediumDelta += 24;
-        else if (category === 'Engineering & Built Environment' || slug.includes('civil') || slug.includes('mechanical')) outputMediumDelta += 15;
-      } else if (omVal === 5) {
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || category === 'Creative & Media') outputMediumDelta += 18;
-      } else if (omVal <= 3) {
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || category === 'Law & Government') outputMediumDelta += 20;
-      }
-    }
-
-    // --- Public Visibility Alignment ---
-    let publicVisibilityDelta = 0;
-    if (!publicVisibility.isNotClear) {
-      const pvVal = publicVisibility.value;
-      if (pvVal >= 8) {
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || slug.includes('content-creator')) publicVisibilityDelta += 20;
-        if (slug.includes('actuary') || slug.includes('data-engineer') || slug.includes('controls-engineer')) publicVisibilityDelta -= 15;
-      } else if (pvVal >= 6) {
-        if (slug.includes('brand-manager') || slug.includes('upsc') || slug.includes('ai-product-manager') || slug.includes('forward-deployed') ||
-            slug.includes('lawyer') || slug.includes('management-consultant') || category === 'Business & Management') publicVisibilityDelta += 14;
-      } else if (pvVal <= 3) {
-        if (category === 'Technology & Engineering' || slug.includes('actuary') || slug.includes('data') ||
-            slug.includes('controls-engineer') || slug.includes('developer')) publicVisibilityDelta += 14;
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete')) publicVisibilityDelta -= 22;
-      }
-    }
-
-    // --- Feedback Horizon Alignment ---
-    let feedbackHorizonDelta = 0;
-    if (!feedbackHorizon.isNotClear) {
-      const fhVal = feedbackHorizon.value;
-      if (fhVal >= 8) {
-        if (slug.includes('athlete') || slug.includes('actor') || slug.includes('trader') || slug.includes('surgeon') ||
-            slug.includes('chef') || slug.includes('pilot')) feedbackHorizonDelta += 15;
-      } else if (fhVal >= 6) {
-        if (category === 'Technology & Engineering' || category === 'Business & Management' || slug.includes('forward-deployed') ||
-            slug.includes('ai-product-manager') || slug.includes('brand-manager')) feedbackHorizonDelta += 12;
-      } else if (fhVal <= 3) {
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('renewable') || slug.includes('smart-buildings') ||
-            category === 'Engineering & Built Environment') feedbackHorizonDelta += 16;
-      }
-    }
-
-    // --- Core Life Driver Alignment ---
-    let coreLifeDriverDelta = 0;
-    if (!coreLifeDriver.isNotClear) {
-      const cldVal = coreLifeDriver.value;
-      if (cldVal >= 9) {
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('armed-forces')) coreLifeDriverDelta += 22;
-      } else if (cldVal >= 7) {
-        if (slug.includes('brand-manager') || slug.includes('founder') || slug.includes('ai-product-manager') || slug.includes('forward-deployed') ||
-            category === 'Technology & Engineering' || category === 'Finance & Banking' || category === 'Business & Management') coreLifeDriverDelta += 16;
-      } else if (cldVal >= 5) {
-        if (slug.includes('actor') || slug.includes('model') || slug.includes('athlete') || category === 'Creative & Media') coreLifeDriverDelta += 20;
-      } else if (cldVal <= 4) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' ||
-            slug.includes('renewable') || slug.includes('medical-tech') || slug.includes('smart-buildings') || slug.includes('climate')) coreLifeDriverDelta += 18;
-      }
-    }
-
-    // --- Leadership Scope Alignment ---
+    // ─── Component 7: Leadership Scope & Contribution Style (Q7) ───
     let leadershipScopeDelta = 0;
     if (!leadership.isNotClear) {
-      const lsVal = leadership.value;
-      if (lsVal >= 8) {
-        if (slug.includes('railways') || slug.includes('psu') || slug.includes('upsc') || slug.includes('director') || slug.includes('ceo')) leadershipScopeDelta += 15;
-      } else if (lsVal >= 6) {
-        if (category === 'Business & Management' || slug.includes('ai-product-manager') || slug.includes('product-manager') || slug.includes('brand-manager')) leadershipScopeDelta += 14;
-      } else if (lsVal <= 3) {
-        if (slug.includes('developer') || slug.includes('engineer') || slug.includes('controls-engineer') || slug.includes('actor')) leadershipScopeDelta += 10;
+      const lv = leadership.value;
+      if (lv >= 8) { // Leading Large Teams & Departments
+        if (sLower.includes('director') || sLower.includes('upsc') || sLower.includes('psu') || sLower.includes('railways') || sLower.includes('entrepreneur') || sLower.includes('corporate-strategy') || sLower.includes('police')) {
+          leadershipScopeDelta += 20;
+        } else if (cLower === 'business & management' || cLower === 'law & government') {
+          leadershipScopeDelta += 12;
+        } else if (career.technicalComplexity >= 8) {
+          leadershipScopeDelta -= 8;
+        }
+      } else if (lv >= 6) { // Guiding Strategic, Brand or Product Direction
+        if (sLower.includes('product-manager') || sLower.includes('brand-manager') || sLower.includes('management-consultant') || sLower.includes('architect') || sLower.includes('strategy')) {
+          leadershipScopeDelta += 22;
+        } else if (cLower === 'business & management' || cLower === 'creative & media') {
+          leadershipScopeDelta += 10;
+        }
+      } else if (lv >= 4) { // Coaching, Teaching & Mentoring
+        if (cLower === 'education & research' || cLower === 'sports & fitness' || sLower.includes('psychologist') || sLower.includes('physiotherapist') || sLower.includes('coach') || sLower.includes('nurse') || sLower.includes('doctor')) {
+          leadershipScopeDelta += 22;
+        }
+      } else { // Independent Specialist Focus (lv <= 3)
+        // High boost for solo individual craft
+        if ((cLower === 'technology & engineering' && !sLower.includes('manager') && !sLower.includes('consultant')) ||
+            sLower.includes('data-scientist') || sLower.includes('senior-software') || sLower.includes('full-stack') ||
+            sLower.includes('ai-engineer') || sLower.includes('actuary') || sLower.includes('scientist') ||
+            sLower.includes('researcher') || sLower.includes('writer') || sLower.includes('artist')) {
+          leadershipScopeDelta += 22;
+        }
+        // Meaningful penalty for management/PM roles that require heavy coordination
+        if (sLower.includes('product-manager') || sLower.includes('director') || sLower.includes('manager') || sLower.includes('hr-')) {
+          leadershipScopeDelta -= 22;
+        }
       }
     }
 
-    // --- Non-Negotiables Alignment ---
+    // ─── Component 8: Helping & Human Impact (Q8) ───
+    let helpingDelta = 0;
+    if (!helping.isNotClear) {
+      const hv = helping.value;
+      if (hv >= 9) { // Direct clinical healing
+        if (cLower === 'medicine & healthcare' || sLower.includes('doctor') || sLower.includes('surgeon') || sLower.includes('nurse') || sLower.includes('physiotherapist') || sLower.includes('psychologist')) {
+          helpingDelta += 26;
+        } else if (cLower === 'technology & engineering' || cLower === 'finance & banking') {
+          helpingDelta -= 16;
+        }
+      } else if (hv >= 6) { // Teaching, counseling, personal development
+        if (cLower === 'education & research' || cLower === 'sports & fitness' || sLower.includes('psychologist') || sLower.includes('counsellor') || sLower.includes('coach')) {
+          helpingDelta += 22;
+        } else if (cLower === 'medicine & healthcare') {
+          helpingDelta += 14;
+        }
+      } else if (hv >= 4) { // Community welfare & public service
+        if (cLower === 'law & government' || sLower.includes('civil') || sLower.includes('railways') || sLower.includes('psu') || sLower.includes('renewable') || sLower.includes('smart-buildings')) {
+          helpingDelta += 18;
+        }
+      } else { // Indirect commercial / products
+        if (cLower === 'technology & engineering' || cLower === 'finance & banking' || cLower === 'business & management') {
+          helpingDelta += 12;
+        } else if (cLower === 'medicine & healthcare') {
+          helpingDelta -= 14;
+        }
+      }
+    }
+
+    // ─── Component 9: Creative Expression & Design (Q9) ───
+    let creativeDelta = 0;
+    if (!creative.isNotClear) {
+      const cv = creative.value;
+      if (cv >= 8) { // Screen, runway, performing arts
+        if (sLower.includes('actor') || sLower.includes('model') || sLower.includes('filmmaker') || sLower.includes('musician') || cLower === 'creative & media') {
+          creativeDelta += 26;
+        } else if (cLower === 'technology & engineering' || cLower === 'finance & banking' || cLower === 'law & government') {
+          creativeDelta -= 16;
+        }
+      } else if (cv >= 6) { // Brand storytelling & creative marketing
+        if (sLower.includes('brand-manager') || sLower.includes('marketing') || sLower.includes('content') || sLower.includes('journalist')) {
+          creativeDelta += 22;
+        } else if (cLower === 'business & management') {
+          creativeDelta += 8;
+        }
+      } else if (cv >= 4) { // Practical design & UX
+        if (sLower.includes('graphic') || sLower.includes('ux') || sLower.includes('architect') || sLower.includes('interior') || sLower.includes('product-manager')) {
+          creativeDelta += 14;
+        }
+      } else { // Objective facts, law, technical science
+        if (cLower === 'technology & engineering' || cLower === 'finance & banking' || cLower === 'law & government' || cLower === 'medicine & healthcare') {
+          creativeDelta += 12;
+        } else if (sLower.includes('actor') || sLower.includes('model')) {
+          creativeDelta -= 20;
+        }
+      }
+    }
+
+    // ─── Component 10: Physical Dexterity & Tactical Mastery (Q10) ───
+    let physicalDelta = 0;
+    if (!physical.isNotClear) {
+      const pv = physical.value;
+      if (pv >= 8) { // High athleticism & physical performance
+        if (cLower === 'sports & fitness' || sLower.includes('athlete') || sLower.includes('pilot') || sLower.includes('model')) {
+          physicalDelta += 26;
+        } else if (remoteOpp >= 7) {
+          physicalDelta -= 16;
+        }
+      } else if (pv >= 6) { // Hands-on technical & industrial operations
+        if (cLower === 'aviation & maritime operations' || sLower.includes('controls') || sLower.includes('electrician') || sLower.includes('surgeon') || sLower.includes('chef') || sLower.includes('mechanical') || sLower.includes('robotics')) {
+          physicalDelta += 20;
+        }
+      } else if (pv >= 4) { // Active movement across locations
+        if (cLower === 'medicine & healthcare' || cLower === 'engineering & built environment' || sLower.includes('forward-deployed')) {
+          physicalDelta += 10;
+        }
+      } else { // Desk-based mental & software work (pv <= 3)
+        if (remoteOpp >= 7 || cLower === 'technology & engineering' || cLower === 'finance & banking') {
+          physicalDelta += 14;
+        } else if (cLower === 'sports & fitness' || sLower.includes('pilot') || sLower.includes('chef')) {
+          physicalDelta -= 20;
+        }
+      }
+    }
+
+    // ─── Component 11: Sovereign Service vs Private Sector (Q12) ───
+    let governanceDelta = 0;
+    if (!governance.isNotClear) {
+      const gv = governance.value;
+      if (gv >= 9) { // Civil services, police & armed forces
+        if (sLower.includes('upsc') || sLower.includes('police') || sLower.includes('armed-forces') || sLower.includes('diplomat')) {
+          governanceDelta += 30;
+        } else if (cLower === 'law & government') {
+          governanceDelta += 16;
+        } else if (cLower === 'business & management' || cLower === 'technology & engineering') {
+          governanceDelta -= 10;
+        }
+      } else if (gv >= 7) { // PSUs & Indian Railways
+        if (sLower.includes('psu') || sLower.includes('railways')) {
+          governanceDelta += 30;
+        } else if (cLower === 'engineering & built environment') {
+          governanceDelta += 12;
+        }
+      } else if (gv >= 5) { // Legal practice & judiciary
+        if (sLower.includes('lawyer') || sLower.includes('judge') || cLower === 'law & government') {
+          governanceDelta += 26;
+        }
+      } else { // Private industry & startups
+        if (cLower === 'technology & engineering' || cLower === 'business & management' || cLower === 'finance & banking') {
+          governanceDelta += 14;
+        } else if (sLower.includes('upsc') || sLower.includes('psu') || sLower.includes('railways')) {
+          governanceDelta -= 18;
+        }
+      }
+    }
+
+    // ─── Component 12: Technical vs. Practical Balance (Q11) ───
+    let tpDelta = 0;
+    if (!techPractical.isNotClear) {
+      let careerTP = 5;
+      if (cLower === 'technology & engineering') {
+        if (sLower.includes('software') || sLower.includes('developer') || sLower.includes('data-') || sLower.includes('ai-') || sLower.includes('ml-') || sLower.includes('cloud') || sLower.includes('cybersecurity')) {
+          careerTP = 9; // 100% technical
+        } else if (sLower.includes('controls') || sLower.includes('robotics') || sLower.includes('automation') || sLower.includes('hardware')) {
+          careerTP = 6.5; // balanced technical + practical
+        } else {
+          careerTP = 7.5;
+        }
+      } else if (cLower === 'engineering & built environment') {
+        if (sLower.includes('renewable') || sLower.includes('smart-buildings') || sLower.includes('civil') || sLower.includes('mechanical')) {
+          careerTP = 6;
+        } else {
+          careerTP = 3.5;
+        }
+      } else if (cLower === 'medicine & healthcare') {
+        careerTP = sLower.includes('surgeon') || sLower.includes('nurse') ? 3 : 4.5;
+      } else if (cLower === 'business & management') {
+        careerTP = sLower.includes('product-manager') ? 5.5 : 4;
+      } else if (cLower === 'aviation & maritime operations' || cLower === 'sports & fitness' || cLower === 'hospitality & food') {
+        careerTP = 2; // hands-on practical
+      } else if (cLower === 'finance & banking') {
+        careerTP = 7.5; // analytical
+      } else if (cLower === 'creative & media') {
+        careerTP = sLower.includes('graphic') ? 6 : 3;
+      }
+
+      const diff = Math.abs(techPractical.value - careerTP);
+      if (diff <= 1.0) tpDelta += 16;
+      else if (diff <= 2.5) tpDelta += 8;
+      else if (diff >= 5.0) tpDelta -= 16;
+    }
+
+    // ─── Component 13: Financial Strategy & Career Drive (Q4 & Q20) ───
+    let financialDelta = 0;
+    if (!financialStrategy.isNotClear) {
+      const fv = financialStrategy.value;
+      if (fv >= 9) { // High risk / high upside (equity/royalties)
+        if (sLower.includes('entrepreneur') || sLower.includes('founder') || sLower.includes('trader') || sLower.includes('model') || sLower.includes('actor') || sLower.includes('venture-capital')) {
+          financialDelta += 16;
+        } else if (sLower.includes('upsc') || sLower.includes('psu') || sLower.includes('railways')) {
+          financialDelta -= 10;
+        }
+      } else if (fv <= 4) { // Sovereign pension / stable pay
+        if (sLower.includes('upsc') || sLower.includes('psu') || sLower.includes('railways') || sLower.includes('armed-forces') || sLower.includes('police') || sLower.includes('judge') || cLower === 'education & research') {
+          financialDelta += 18;
+        } else if (sLower.includes('entrepreneur') || sLower.includes('trader')) {
+          financialDelta -= 14;
+        }
+      }
+    }
+
+    // ─── Component 14: Ambiguity & Structure (Q6) ───
+    let ambiguityDelta = 0;
+    if (!ambiguity.isNotClear) {
+      const av = ambiguity.value;
+      if (av >= 8) { // High freedom / invent from scratch
+        if (sLower.includes('entrepreneur') || sLower.includes('founder') || sLower.includes('researcher') || sLower.includes('ai-builder') || sLower.includes('product-manager')) {
+          ambiguityDelta += 10;
+        } else if (sLower.includes('pilot') || sLower.includes('air-traffic') || sLower.includes('railways')) {
+          ambiguityDelta -= 10;
+        }
+      } else if (av <= 3) { // Strict safety checklists & protocols
+        if (sLower.includes('pilot') || sLower.includes('air-traffic') || sLower.includes('surgeon') || sLower.includes('railways') || sLower.includes('actuary') || sLower.includes('judge')) {
+          ambiguityDelta += 14;
+        } else if (sLower.includes('entrepreneur') || sLower.includes('founder')) {
+          ambiguityDelta -= 14;
+        }
+      }
+    }
+
+    // ─── Component 15: Non-Negotiables & Lifestyle Pain Points (Q17 & Q21) ───
     let nonNegotiablesDelta = 0;
     const fulfilledNonNegotiables: string[] = [];
 
@@ -1262,275 +1578,154 @@ export function computeCareerRecommendations(
 
       if (nonNegotiables.some((n) => n.includes('Health') || n.includes('Fitness'))) {
         if (wlbVal >= 6 && pressureVal <= 7) {
-          nonNegotiablesDelta += 16;
-          fulfilledNonNegotiables.push('daily fitness & health routines');
-        } else if (category === 'Sports & Fitness') {
-          nonNegotiablesDelta += 20;
+          nonNegotiablesDelta += 14;
+          fulfilledNonNegotiables.push('daily health & wellness balance');
+        } else if (cLower === 'sports & fitness') {
+          nonNegotiablesDelta += 18;
           fulfilledNonNegotiables.push('active physical movement');
         } else if (wlbVal <= 4 || pressureVal >= 9) {
-          nonNegotiablesDelta -= 26;
+          nonNegotiablesDelta -= 22;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Scheduled') || n.includes('Predictable Hours'))) {
         if (wlbVal >= 7 && pressureVal <= 6) {
-          nonNegotiablesDelta += 18;
+          nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('predictable scheduled hours');
-        } else if (slug.includes('surgeon') || slug.includes('forward-deployed') || slug.includes('investment-banker')) {
-          nonNegotiablesDelta -= 30;
+        } else if (sLower.includes('surgeon') || sLower.includes('forward-deployed') || sLower.includes('investment-banker')) {
+          nonNegotiablesDelta -= 26;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Earning Potential') || n.includes('High Earning') || n.includes('Money'))) {
         if (seniorMaxVal >= 250) {
-          nonNegotiablesDelta += 22;
+          nonNegotiablesDelta += 18;
           fulfilledNonNegotiables.push('top-tier compensation upside');
-        } else if (seniorMaxVal >= 190) {
-          nonNegotiablesDelta += 10;
-        } else if (seniorMaxVal <= 130) {
-          nonNegotiablesDelta -= 25;
+        } else if (seniorMaxVal <= 120) {
+          nonNegotiablesDelta -= 20;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Family') || n.includes('Personal Time'))) {
         if (wlbVal >= 7 && pressureVal <= 6) {
-          nonNegotiablesDelta += 18;
+          nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('family & personal time');
-        } else if (slug.includes('pilot') || slug.includes('forward-deployed') || pressureVal >= 9 || wlbVal <= 4) {
-          nonNegotiablesDelta -= 30;
+        } else if (sLower.includes('pilot') || sLower.includes('forward-deployed') || pressureVal >= 9 || wlbVal <= 4) {
+          nonNegotiablesDelta -= 26;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Remote') || n.includes('Location Freedom'))) {
         if (remoteOppVal >= 8) {
-          nonNegotiablesDelta += 22;
+          nonNegotiablesDelta += 20;
           fulfilledNonNegotiables.push('location freedom & remote work');
         } else if (remoteOppVal >= 6) {
-          nonNegotiablesDelta += 12;
+          nonNegotiablesDelta += 10;
           fulfilledNonNegotiables.push('hybrid flexibility');
         } else if (remoteOppVal <= 2) {
-          nonNegotiablesDelta -= 32;
+          nonNegotiablesDelta -= 28;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Job Security') || n.includes('Stability'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Law & Government' || (career.careerStability || 7) >= 8) {
+        if (cLower === 'medicine & healthcare' || cLower === 'law & government' || (career.careerStability || 7) >= 8) {
           nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('strong career stability');
-        } else if (slug.includes('founder') || slug.includes('trader')) {
-          nonNegotiablesDelta -= 22;
+        } else if (sLower.includes('entrepreneur') || sLower.includes('founder') || sLower.includes('trader')) {
+          nonNegotiablesDelta -= 20;
         }
       }
       if (nonNegotiables.some((n) => n.includes('Ethical') || n.includes('Social Impact'))) {
-        if (category === 'Medicine & Healthcare' || category === 'Education & Research' || slug.includes('renewable') || slug.includes('smart-buildings')) {
-          nonNegotiablesDelta += 18;
+        if (cLower === 'medicine & healthcare' || cLower === 'education & research' || sLower.includes('renewable') || sLower.includes('smart-buildings')) {
+          nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('ethical social impact');
         }
       }
       if (nonNegotiables.some((n) => n.includes('Creative Freedom') || n.includes('Autonomy'))) {
-        if (category === 'Creative & Media' || slug.includes('founder') || slug.includes('product') || slug.includes('ai-builder')) {
-          nonNegotiablesDelta += 15;
+        if (cLower === 'creative & media' || sLower.includes('entrepreneur') || sLower.includes('architect') || sLower.includes('product')) {
+          nonNegotiablesDelta += 14;
           fulfilledNonNegotiables.push('creative problem-solving autonomy');
         }
       }
       if (nonNegotiables.some((n) => n.includes('Low Stress') || n.includes('Calm'))) {
         if (wlbVal >= 7 && pressureVal <= 5) {
-          nonNegotiablesDelta += 18;
+          nonNegotiablesDelta += 16;
           fulfilledNonNegotiables.push('calm workplace culture');
         } else if (pressureVal >= 8 || wlbVal <= 4) {
-          nonNegotiablesDelta -= 26;
+          nonNegotiablesDelta -= 22;
         }
       }
     }
 
-    // --- Component: Technical vs. Practical Balance Alignment (Q11) ---
-    let techPracticalDelta = 0;
-    if (!techPractical.isNotClear) {
-      let careerTP = 5; // Default balanced
-      
-      if (slug === 'industrial-automation-controls-engineer') careerTP = 6; // 60% Tech, 40% Practical
-      else if (slug === 'forward-deployed-ai-robotics-engineer') careerTP = 7; // 70% Tech, 30% Practical
-      else if (slug === 'forward-deployed-engineer') careerTP = 7; // 70% Tech, 30% Practical
-      else if (slug === 'renewable-energy-project-developer') careerTP = 6; // 60% Tech, 40% Practical
-      else if (slug === 'medical-technology-application-specialist') careerTP = 6; // 60% Tech, 40% Practical
-      else if (slug === 'smart-buildings-energy-automation-consultant') careerTP = 6; // 60% Tech, 40% Practical
-      else if (slug === 'ai-product-manager' || slug === 'product-manager') careerTP = 7; // 70% Tech, 30% Practical
-      else if (category === 'Technology & Engineering') {
-        if (slug.includes('hardware') || slug.includes('vlsi') || slug.includes('robotics') || slug.includes('embedded')) careerTP = 7;
-        else careerTP = 9; // 100% Technical pure software / algorithms / cloud
-      } else if (category === 'Engineering & Built Environment') {
-        careerTP = 6;
-      } else if (category === 'Medicine & Healthcare') {
-        if (slug.includes('surgeon') || slug.includes('nurse') || slug.includes('dentist') || slug.includes('paramedic')) careerTP = 3;
-        else if (slug.includes('specialist') || slug.includes('biomedical')) careerTP = 6;
-        else careerTP = 5;
-      } else if (category === 'Aviation & Maritime Operations' || category === 'Sports & Fitness' || category === 'Hospitality & Food') {
-        careerTP = 2; // Predominantly hands-on/practical
-      } else if (category === 'Finance & Banking') {
-        careerTP = 8;
-      } else if (category === 'Creative & Media') {
-        if (slug.includes('animator') || slug.includes('video-editor') || slug.includes('sound-designer')) careerTP = 7;
-        else careerTP = 3;
-      } else if (category === 'Law & Government') {
-        careerTP = 5;
-      }
-
-      const tpDiff = Math.abs(techPractical.value - careerTP);
-      if (tpDiff <= 1) {
-        techPracticalDelta = 16;
-      } else if (tpDiff <= 2.5) {
-        techPracticalDelta = 8;
-      } else if (tpDiff >= 5) {
-        techPracticalDelta = -14;
-      }
-    }
-
-    const weightedComposite =
-      domainScore * 0.35 +
-      aptitudeScore * 0.30 +
-      workModeScore * 0.15 +
-      salaryScore * 0.10 +
-      skillRatio * 100 * 0.10;
-
-    // --- Career Sub-specialization Differentiator ---
-    let subSpecDelta = 0;
-    if (category === 'Technology & Engineering') {
-      const hasMath = userSkills.some((s) => s.includes('mathematics') || s.includes('statistics'));
-      const hasAlgorithms = userSkills.some((s) => s.includes('algorithm'));
-      const hasWeb = userSkills.some((s) => s.includes('web development') || s.includes('app design'));
-      const hasElectronics = userSkills.some((s) => s.includes('electrical') || s.includes('wiring') || s.includes('electronics'));
-      const hasSales = userSkills.some((s) => s.includes('sales') || s.includes('negotiation') || s.includes('client'));
-      const hasProjectPlanning = userSkills.some((s) => s.includes('project planning') || s.includes('leadership'));
-
-      if ((slug === 'data-scientist' || slug === 'data-scientist-data-engineer') && hasMath && hasAlgorithms) subSpecDelta += 24;
-      if (slug === 'technical-program-manager' && hasProjectPlanning) subSpecDelta += 24;
-      if (slug === 'full-stack-developer' && hasWeb) subSpecDelta += 24;
-      if (slug === 'senior-software-developer' && hasAlgorithms) subSpecDelta += 22;
-      if (slug === 'vlsi-physical-design-engineer' && hasElectronics) subSpecDelta += 24;
-
-      // New 7 Roles Sub-Specializations in Technology & Engineering:
-      if (slug === 'industrial-automation-controls-engineer') {
-        const hasAutomation = userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('scada') || s.includes('control') || s.includes('industrial'));
-        const hasElec = userSkills.some((s) => s.includes('electronics') || s.includes('circuits') || s.includes('electrical'));
-        const hasMech = userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('machinery'));
-        if (hasAutomation) subSpecDelta += 30;
-        else if (hasElec || hasMech) subSpecDelta += 18;
-        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 12;
-      }
-      if (slug === 'forward-deployed-ai-robotics-engineer') {
-        const hasRobotics = userSkills.some((s) => s.includes('robotics') || s.includes('ros') || s.includes('automation') || s.includes('electronics'));
-        const hasCode = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('algorithm'));
-        if (hasRobotics && hasCode) subSpecDelta += 32;
-        else if (hasRobotics || hasCode) subSpecDelta += 18;
-        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 12;
-      }
-      if (slug === 'forward-deployed-engineer') {
-        const hasFDE = userSkills.some((s) => s.includes('enterprise client') || s.includes('technical integration') || s.includes('customer engineering'));
-        const hasCode = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('sql') || s.includes('data analysis'));
-        if (hasFDE) subSpecDelta += 30;
-        else if (hasCode && hasSales) subSpecDelta += 26;
-        else if (hasCode) subSpecDelta += 18;
-        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 12;
-      }
-    }
-
-    if (category === 'Engineering & Built Environment') {
-      if (slug === 'renewable-energy-project-developer') {
-        const hasCleanEnergy = userSkills.some((s) => s.includes('clean energy') || s.includes('solar') || s.includes('wind') || s.includes('environmental'));
-        const hasEng = userSkills.some((s) => s.includes('cad') || s.includes('mechanical') || s.includes('civil') || s.includes('finance') || s.includes('budgeting'));
-        if (hasCleanEnergy) subSpecDelta += 30;
-        else if (hasEng) subSpecDelta += 18;
-        if (preferredIndustries.some((i) => i.toLowerCase().includes('renewable') || i.toLowerCase().includes('clean') || i.toLowerCase().includes('sustainability'))) subSpecDelta += 24;
-        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 10;
-      }
-      if (slug === 'smart-buildings-energy-automation-consultant') {
-        const hasSmartBuildings = userSkills.some((s) => s.includes('smart buildings') || s.includes('building automation') || s.includes('bas') || s.includes('bms') || s.includes('hvac'));
-        const hasAutomation = userSkills.some((s) => s.includes('plc') || s.includes('automation') || s.includes('electronics') || s.includes('electrical'));
-        if (hasSmartBuildings) subSpecDelta += 30;
-        else if (hasAutomation) subSpecDelta += 18;
-        if (preferredIndustries.some((i) => i.toLowerCase().includes('smart buildings') || i.toLowerCase().includes('building automation') || i.toLowerCase().includes('energy management'))) subSpecDelta += 24;
-        if (!techPractical.isNotClear && (techPractical.value >= 5 && techPractical.value <= 7)) subSpecDelta += 10;
-      }
-    }
-
-    if (category === 'Medicine & Healthcare') {
-      if (slug === 'medical-technology-application-specialist') {
-        const hasMedTech = userSkills.some((s) => s.includes('medical device') || s.includes('biomedical') || s.includes('hospital'));
-        const hasBio = userSkills.some((s) => s.includes('biology') || s.includes('anatomy') || s.includes('patient') || s.includes('medical') || s.includes('healthcare'));
-        if (hasMedTech) subSpecDelta += 30;
-        else if (hasBio) subSpecDelta += 18;
-        if (preferredIndustries.some((i) => i.toLowerCase().includes('medical technology') || i.toLowerCase().includes('devices') || i.toLowerCase().includes('healthcare tech'))) subSpecDelta += 24;
-        if (!techPractical.isNotClear && (techPractical.value >= 4 && techPractical.value <= 7)) subSpecDelta += 12;
-      }
-    }
-
-    if (category === 'Business & Management') {
-      if (slug === 'ai-product-manager') {
-        const hasPM = userSkills.some((s) => s.includes('product management') || s.includes('roadmapping') || s.includes('user experience') || s.includes('agile'));
-        const hasTech = userSkills.some((s) => s.includes('code') || s.includes('software') || s.includes('programming') || s.includes('data analysis'));
-        if (hasPM) subSpecDelta += 30;
-        else if (hasTech) subSpecDelta += 20;
-        if (preferredIndustries.some((i) => i.toLowerCase().includes('product management') || i.toLowerCase().includes('technology strategy') || i.toLowerCase().includes('software'))) subSpecDelta += 22;
-        if (!techPractical.isNotClear && (techPractical.value >= 6 && techPractical.value <= 8)) subSpecDelta += 10;
-      }
-      if (slug === 'brand-manager' && userSkills.some((s) => s.includes('brand strategy') || s.includes('marketing') || s.includes('advertising'))) subSpecDelta += 24;
-      if (slug === 'management-consultant' && userSkills.some((s) => s.includes('finance') || s.includes('project planning'))) subSpecDelta += 20;
-    }
+    // ─── Total Composite Raw Score ───
+    const weightedBase =
+      domainScore * 0.30 +
+      aptitudeScore * 0.25 +
+      workModeScore * 0.12 +
+      salaryScore * 0.08 +
+      skillScore;
 
     const totalRawScore =
-      weightedComposite +
-      categoryAffinity * 0.9 +
-      painPointDelta +
-      ambiguityDelta +
-      skillBonus +
-      financialStrategyDelta +
-      outputMediumDelta +
-      publicVisibilityDelta +
-      feedbackHorizonDelta +
-      coreLifeDriverDelta +
+      weightedBase +
+      techOrientationDelta +
       leadershipScopeDelta +
-      nonNegotiablesDelta +
-      techPracticalDelta +
-      subSpecDelta;
+      helpingDelta +
+      creativeDelta +
+      physicalDelta +
+      governanceDelta +
+      tpDelta +
+      financialDelta +
+      ambiguityDelta +
+      nonNegotiablesDelta;
 
-    // Tailored, Explainable whyMatch Rationale
-    let whyMatch = `Strong overall match based on your domain preferences for ${category.toLowerCase()} and strategic career goals.`;
+    // ─── Tailored, Explainable whyMatch Rationale ───
+    let whyMatch = '';
+    if (sLower === 'doctor-physician' || sLower === 'surgeon' || sLower === 'nurse' || sLower === 'dentist') {
+      whyMatch = `Directly fulfills your deep passion for clinical human healing, patient care, and frontline healthcare impact.`;
+    } else if (sLower.includes('software') || sLower.includes('full-stack') || sLower.includes('developer')) {
+      whyMatch = `Leverages your passion for deep coding, software architecture, and building powerful digital platforms.`;
+    } else if (sLower.includes('ai-engineer') || sLower.includes('ml-engineer') || sLower.includes('generative-ai')) {
+      whyMatch = `Aligns with your excitement for cutting-edge artificial intelligence, mathematical algorithms, and frontier intelligent systems.`;
+    } else if (sLower.includes('data-scientist')) {
+      whyMatch = `Harmonizes your analytical rigor, statistical modeling aptitude, and passion for turning complex data into actionable insight.`;
+    } else if (sLower === 'product-manager' || sLower === 'ai-product-manager') {
+      whyMatch = `Empowers your product vision, cross-functional leadership, and tech strategy to drive transformative applications.`;
+    } else if (sLower === 'industrial-automation-controls-engineer') {
+      whyMatch = `Combines your passion for automated control systems, PLC programming, robotics, and smart manufacturing operations.`;
+    } else if (sLower === 'renewable-energy-project-developer') {
+      whyMatch = `Channels your dedication to clean energy infrastructure, sustainability, and large-scale renewable project development.`;
+    } else if (sLower === 'upsc-civil-services' || sLower.includes('diplomat')) {
+      whyMatch = `Directly reflects your commitment to sovereign governance, public policy, and national civic leadership.`;
+    } else if (sLower.includes('psu') || sLower.includes('railways')) {
+      whyMatch = `Channels your dedication to national engineering and sovereign public infrastructure within prestigious state enterprises.`;
+    } else if (sLower.includes('actor') || sLower.includes('film')) {
+      whyMatch = `Directly reflects your passion for dramatic screen performance, emotional embodiment, and cinematic storytelling.`;
+    } else if (sLower.includes('model')) {
+      whyMatch = `Matches your physical presence, visual aesthetic intuition, and excitement for high-visibility fashion and media.`;
+    } else if (sLower.includes('banker') || sLower.includes('trader') || sLower.includes('quant')) {
+      whyMatch = `Leverages your sharp numeric intuition, financial modeling skills, and appetite for high-stakes capital allocation.`;
+    } else if (sLower.includes('pilot')) {
+      whyMatch = `Fulfills your ambition for high-precision physical command, aeronautical navigation, and real-time operational mastery.`;
+    } else if (cLower === 'technology & engineering') {
+      whyMatch = `Directly leverages your appetite for technological problem-solving, engineering systems, and digital innovation.`;
+    } else if (cLower === 'medicine & healthcare') {
+      whyMatch = `Harmonizes with your calling for direct human care, medical science, and personal patient wellbeing.`;
+    } else if (cLower === 'law & government') {
+      whyMatch = `Aligns with your dedication to legal advocacy, institutional integrity, and public service.`;
+    } else if (cLower === 'business & management') {
+      whyMatch = `Empowers your commercial acumen, strategic decision-making, and cross-functional leadership.`;
+    } else if (cLower === 'creative & media') {
+      whyMatch = `Gives full expression to your creative storytelling, aesthetic vision, and audience engagement.`;
+    } else if (cLower === 'engineering & built environment') {
+      whyMatch = `Channels your engineering and spatial problem-solving to create enduring physical infrastructure.`;
+    } else {
+      whyMatch = `Strong overall alignment with your assessed working preferences, aptitudes, and career goals.`;
+    }
+
     if (fulfilledNonNegotiables.length > 0) {
       const topFulfilled = fulfilledNonNegotiables.slice(0, 2).join(' and ');
-      whyMatch = `Protects your non-negotiables (${topFulfilled}) while aligning with your ${category.toLowerCase()} aptitudes.`;
-    } else if (slug === 'industrial-automation-controls-engineer') {
-      whyMatch = 'Combines your passion for automated control systems, PLC programming, robotics, and smart manufacturing operations.';
-    } else if (slug === 'forward-deployed-ai-robotics-engineer') {
-      whyMatch = 'Directly aligns with your desire to deploy cutting-edge AI perception and physical robotics directly at high-impact client sites.';
-    } else if (slug === 'renewable-energy-project-developer') {
-      whyMatch = 'Channels your dedication to clean energy infrastructure, sustainability, and large-scale renewable project development.';
-    } else if (slug === 'medical-technology-application-specialist') {
-      whyMatch = 'Harmonizes your interest in advanced medical devices, surgical technology, and clinical healthcare partnership.';
-    } else if (slug === 'smart-buildings-energy-automation-consultant') {
-      whyMatch = 'Bridges your enthusiasm for building automation, energy efficiency, IoT sensor systems, and sustainable architecture.';
-    } else if (slug === 'ai-product-manager') {
-      whyMatch = 'Empowers your product vision, technical strategy, and leadership to shape transformative AI applications people love.';
-    } else if (slug === 'forward-deployed-engineer') {
-      whyMatch = 'Leverages your full-stack engineering chops, client problem-solving skills, and mission-driven deployment impact.';
-    } else if (slug === 'brand-manager') {
-      whyMatch = 'Harmonizes with your creative brand vision, consumer marketing acumen, and commercial leadership strengths.';
-    } else if (slug === 'fashion-commercial-model') {
-      whyMatch = 'Matches your physical presence, visual aesthetic intuition, and excitement for high-visibility fashion and media.';
-    } else if (slug === 'film-artist-actor') {
-      whyMatch = 'Directly reflects your passion for dramatic screen performance, emotional embodiment, and cinematic storytelling.';
-    } else if (slug === 'indian-psu-officer') {
-      whyMatch = 'Channels your dedication to national energy and industrial engineering within India\'s prestigious Maharatna/Navratna public sector.';
-    } else if (slug === 'indian-railways-officer') {
-      whyMatch = 'Aligns with your commitment to sovereign governance, large-scale transportation logistics, and commanding Indian Railways infrastructure.';
-    } else if (category === 'Medicine & Healthcare' && (!helping.isNotClear || userSkills.some((s) => s.includes('biology')))) {
-      whyMatch = 'Directly harmonizes with your calling for direct human care, medical diagnostics, and personal patient impact.';
-    } else if (category === 'Technology & Engineering' && (!tech.isNotClear || userSkills.some((s) => s.includes('code')))) {
-      whyMatch = 'Directly leverages your appetite for deep software systems, technological problem solving, and modern digital platforms.';
-    } else if (category === 'Engineering & Built Environment') {
-      whyMatch = 'Leverages your mathematical and spatial abilities to leave an enduring physical mark through structural design and infrastructure.';
-    } else if (category === 'Business & Management' && !leadership.isNotClear) {
-      whyMatch = 'Empowers your executive communication, team leadership, cross-functional diplomacy, and commercial execution.';
+      whyMatch += ` Perfectly protects your priority for ${topFulfilled}.`;
     }
 
     let disadvantages: string[] = [];
     try {
       disadvantages = JSON.parse(career.disadvantages || '[]');
-    } catch (e) {
+    } catch {
       disadvantages = ['High continuous learning requirements', 'Competitive hiring landscape'];
     }
 
@@ -1539,7 +1734,7 @@ export function computeCareerRecommendations(
       careerSlug: slug,
       title: career.title,
       category,
-      compatibilityScore: 85,
+      compatibilityScore: 0, // replaced during calibration
       whyMatch,
       possessedSkills: possessed.length > 0 ? possessed : ['Critical Thinking', 'Analytical Foundation'],
       missingSkills: missing.slice(0, 4),

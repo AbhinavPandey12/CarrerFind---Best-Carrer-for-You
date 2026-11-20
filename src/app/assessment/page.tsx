@@ -34,7 +34,11 @@ import {
   Layers,
   Target,
   Zap,
+  Download,
+  FileText,
+  Check,
 } from 'lucide-react';
+import { downloadAssessmentReportPdf } from '@/lib/pdfReportGenerator';
 import {
   BarChart,
   Bar,
@@ -83,6 +87,8 @@ export default function AssessmentPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [showAllCareers, setShowAllCareers] = useState<boolean>(false);
+  const [isDownloading, setIsDownloading] = useState<boolean>(false);
+  const [downloadSuccess, setDownloadSuccess] = useState<boolean>(false);
   const [resultData, setResultData] = useState<{
     archetypeTitle: string;
     archetypeSubtitle: string;
@@ -203,6 +209,27 @@ export default function AssessmentPage() {
       trackError(e, { component: 'AssessmentPage' });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDownloadReport = async () => {
+    if (!resultData) return;
+    try {
+      setIsDownloading(true);
+      track('assessment_report_download_clicked', {
+        archetypeTitle: resultData.archetypeTitle,
+        topCareer: resultData.topCareers[0]?.careerSlug,
+      });
+      const ok = await downloadAssessmentReportPdf(resultData);
+      if (ok) {
+        setDownloadSuccess(true);
+        setTimeout(() => setDownloadSuccess(false), 4000);
+      }
+    } catch (e: any) {
+      console.error('Download report error:', e);
+      trackError(e, { component: 'AssessmentPage.handleDownloadReport' });
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -393,6 +420,28 @@ export default function AssessmentPage() {
                   <RefreshCw className="w-3.5 h-3.5" />
                   <span>Retake Assessment</span>
                 </button>
+                <button
+                  onClick={handleDownloadReport}
+                  disabled={isDownloading}
+                  className="px-4 py-2.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed text-white shadow-md shadow-emerald-600/25 flex items-center gap-1.5 transition-all hover:scale-[1.02]"
+                >
+                  {isDownloading ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                      <span>Generating Report...</span>
+                    </>
+                  ) : downloadSuccess ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-200" />
+                      <span>Report Ready</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Download Report</span>
+                    </>
+                  )}
+                </button>
                 <Link
                   href="/student/compare"
                   className="px-5 py-2.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/20 flex items-center gap-1.5 transition-all"
@@ -431,6 +480,136 @@ export default function AssessmentPage() {
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed border-l-2 border-indigo-500/40 pl-4">
                 {resultData.personalReview.summaryParagraph}
               </p>
+
+              {/* User Characteristics Radar / Spider Chart Visualization */}
+              {resultData.personalReview.characteristicsList && resultData.personalReview.characteristicsList.length > 0 && (() => {
+                const characteristics = resultData.personalReview.characteristicsList;
+                const radarChartData = characteristics.map((c) => ({
+                  dimension: c.dimension
+                    .replace('Orientation', 'Orient.')
+                    .replace('Interaction', 'Interact.'),
+                  fullDimension: c.dimension,
+                  score: c.score,
+                  level: c.level,
+                  description: c.description,
+                  fullMark: 10,
+                }));
+
+                const CustomCharacteristicsTooltip = ({ active, payload }: any) => {
+                  if (active && payload && payload.length) {
+                    const data = payload[0].payload;
+                    return (
+                      <div className="bg-slate-900 border border-slate-700 rounded-xl p-3 text-xs shadow-xl space-y-1">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="font-bold text-white">{data.fullDimension}</span>
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-950/80 border border-indigo-500/30 text-indigo-300">
+                            {data.level}
+                          </span>
+                        </div>
+                        <p className="text-indigo-400 font-extrabold text-sm">{data.score} / 10</p>
+                        <p className="text-[11px] text-slate-400">{data.description}</p>
+                      </div>
+                    );
+                  }
+                  return null;
+                };
+
+                return (
+                  <div className="p-4 sm:p-6 rounded-2xl bg-slate-900/70 border border-slate-800 space-y-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                      <div>
+                        <h4 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                          <Brain className="w-4 h-4 text-indigo-400" />
+                          User Characteristics Profile Across 10 Key Dimensions
+                        </h4>
+                        <p className="text-[11px] text-slate-400">
+                          Interactive spider/radar chart computed directly from your 21 assessment responses
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 text-[10px]">
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-950/60 border border-emerald-500/30 text-emerald-300 font-semibold">≥8.0 Exceptional</span>
+                        <span className="px-2 py-0.5 rounded-full bg-indigo-950/60 border border-indigo-500/30 text-indigo-300 font-semibold">≥6.5 Strong</span>
+                        <span className="px-2 py-0.5 rounded-full bg-amber-950/60 border border-amber-500/30 text-amber-300 font-semibold">≥4.5 Moderate</span>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                      {/* Radar / Spider Chart */}
+                      <div className="lg:col-span-5 flex flex-col items-center justify-center">
+                        <ResponsiveContainer width="100%" height={290}>
+                          <RadarChart cx="50%" cy="50%" outerRadius="70%" data={radarChartData}>
+                            <PolarGrid stroke="#334155" strokeDasharray="3 3" />
+                            <PolarAngleAxis
+                              dataKey="dimension"
+                              tick={{ fill: '#cbd5e1', fontSize: 10, fontWeight: 600 }}
+                            />
+                            <PolarRadiusAxis
+                              angle={90}
+                              domain={[0, 10]}
+                              tick={{ fill: '#64748b', fontSize: 9 }}
+                              tickCount={6}
+                              axisLine={false}
+                            />
+                            <Radar
+                              name="Your Profile"
+                              dataKey="score"
+                              stroke="#818cf8"
+                              fill="#6366f1"
+                              fillOpacity={0.28}
+                              strokeWidth={2}
+                            />
+                            <Tooltip content={<CustomCharacteristicsTooltip />} />
+                          </RadarChart>
+                        </ResponsiveContainer>
+                        <span className="text-[10px] text-slate-500 mt-1">Hover over vertices to view exact dimension ratings</span>
+                      </div>
+
+                      {/* Interactive Dimension Metric Bars */}
+                      <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {characteristics.map((c) => {
+                          const pct = Math.round((c.score / (c.fullMark || 10)) * 100);
+                          const barColor =
+                            pct >= 75 ? 'bg-emerald-500' : pct >= 55 ? 'bg-indigo-500' : pct >= 40 ? 'bg-amber-500' : 'bg-slate-500';
+                          const textColor =
+                            pct >= 75 ? 'text-emerald-400' : pct >= 55 ? 'text-indigo-400' : pct >= 40 ? 'text-amber-400' : 'text-slate-400';
+                          const badgeBg =
+                            pct >= 75 ? 'bg-emerald-950/60 border-emerald-500/30 text-emerald-300' : pct >= 55 ? 'bg-indigo-950/60 border-indigo-500/30 text-indigo-300' : pct >= 40 ? 'bg-amber-950/60 border-amber-500/30 text-amber-300' : 'bg-slate-900 border-slate-700 text-slate-400';
+
+                          return (
+                            <div
+                              key={c.dimension}
+                              className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 hover:border-slate-700 transition-all space-y-1.5"
+                            >
+                              <div className="flex items-center justify-between">
+                                <span className="text-xs font-semibold text-slate-200 truncate pr-2">{c.dimension}</span>
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${badgeBg}`}>
+                                    {c.level}
+                                  </span>
+                                  <span className={`text-xs font-black ${textColor}`}>
+                                    {c.score}<span className="text-[10px] text-slate-500 font-normal">/10</span>
+                                  </span>
+                                </div>
+                              </div>
+
+                              <div className="w-full h-1.5 rounded-full bg-slate-800 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                                  style={{ width: `${pct}%` }}
+                                />
+                              </div>
+
+                              <p className="text-[10px] text-slate-400 leading-tight line-clamp-1">
+                                {c.description}
+                              </p>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })()}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {/* Key Strengths */}
@@ -1072,6 +1251,54 @@ export default function AssessmentPage() {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Bottom Download Report & Actions Banner */}
+          <div className="p-6 sm:p-8 rounded-2xl sm:rounded-3xl glass-panel border border-indigo-500/30 bg-gradient-to-r from-indigo-950/50 via-slate-900 to-purple-950/40 flex flex-col md:flex-row items-center justify-between gap-6 shadow-xl">
+            <div className="space-y-1.5 text-center md:text-left">
+              <div className="flex items-center justify-center md:justify-start gap-2 text-indigo-400 text-xs font-bold uppercase tracking-wider">
+                <FileText className="w-4 h-4" />
+                <span>Official Assessment Documentation</span>
+              </div>
+              <h4 className="text-xl sm:text-2xl font-extrabold text-white">
+                Save Your Complete Career Assessment Report
+              </h4>
+              <p className="text-xs sm:text-sm text-slate-300 max-w-xl">
+                Download a professionally formatted PDF containing your full 10-dimension personality chart, top career rankings, suitability analysis, and personalized development recommendations.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center gap-3 shrink-0">
+              <button
+                onClick={handleDownloadReport}
+                disabled={isDownloading}
+                className="px-6 py-3 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-60 disabled:cursor-not-allowed text-white shadow-lg shadow-emerald-600/30 flex items-center gap-2 transition-all hover:scale-[1.02]"
+              >
+                {isDownloading ? (
+                  <>
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    <span>Generating Report...</span>
+                  </>
+                ) : downloadSuccess ? (
+                  <>
+                    <Check className="w-4 h-4 text-emerald-200" />
+                    <span>Report Ready!</span>
+                  </>
+                ) : (
+                  <>
+                    <Download className="w-4 h-4" />
+                    <span>Download Report (PDF)</span>
+                  </>
+                )}
+              </button>
+              <button
+                onClick={handleRestart}
+                className="px-4 py-3 rounded-xl text-xs font-semibold glass-panel text-slate-300 hover:text-white border border-slate-700 flex items-center gap-1.5 transition-all"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Retake Assessment</span>
+              </button>
             </div>
           </div>
         </div>
