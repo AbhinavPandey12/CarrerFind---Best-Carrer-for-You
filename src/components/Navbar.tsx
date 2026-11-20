@@ -12,6 +12,8 @@ import {
   Bookmark,
   ChevronDown,
   LayoutDashboard,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import DemoSwitcher from './DemoSwitcher';
 
@@ -21,6 +23,45 @@ export default function Navbar() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  /* ─── Initialize Theme ──────────────────────────────────────── */
+  useEffect(() => {
+    try {
+      const isLight = document.documentElement.classList.contains('light');
+      const stored = localStorage.getItem('careerfind-theme');
+      if (stored === 'light' || (!stored && isLight)) {
+        setTheme('light');
+        document.documentElement.classList.add('light');
+        document.documentElement.classList.remove('dark');
+      } else {
+        setTheme('dark');
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+      }
+    } catch {
+      // Ignore localStorage restrictions
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const nextTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(nextTheme);
+    try {
+      if (nextTheme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        localStorage.setItem('careerfind-theme', 'light');
+      } else {
+        document.documentElement.classList.add('dark');
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('careerfind-theme', 'dark');
+      }
+    } catch {
+      // Ignore localStorage restrictions
+    }
+    track('theme_toggled', { theme: nextTheme });
+  };
 
   const dropdownRef = useRef<HTMLDivElement>(null);
   const avatarBtnRef = useRef<HTMLButtonElement>(null);
@@ -274,6 +315,38 @@ export default function Navbar() {
                           )}
                         </div>
 
+                        {/* Theme Toggle in Profile Menu */}
+                        <div className="border-t border-white/[0.06] py-1 px-1">
+                          <button
+                            role="menuitem"
+                            type="button"
+                            onClick={toggleTheme}
+                            className="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs text-slate-300 hover:text-white hover:bg-white/[0.05] transition-colors group cursor-pointer"
+                            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                          >
+                            <div className="flex items-center gap-2">
+                              {theme === 'dark' ? (
+                                <Moon className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                              ) : (
+                                <Sun className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                              )}
+                              <span>Theme</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] text-slate-400 font-medium capitalize">
+                                {theme === 'dark' ? 'Dark' : 'Light'}
+                              </span>
+                              <div
+                                className={`w-7 h-4 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex items-center ${
+                                  theme === 'dark' ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'
+                                }`}
+                              >
+                                <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
+                              </div>
+                            </div>
+                          </button>
+                        </div>
+
                         {/* Sign Out Action */}
                         <div className="border-t border-white/[0.06] pt-1">
                           <button
@@ -292,6 +365,15 @@ export default function Navbar() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                  title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                >
+                  {theme === 'dark' ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-indigo-400" />}
+                </button>
                 <NextLink
                   href="/auth/login"
                   className="px-3 py-1.5 text-xs font-medium text-slate-300 hover:text-white transition-colors rounded-lg hover:bg-white/[0.05]"
@@ -392,6 +474,36 @@ export default function Navbar() {
                 >
                   About & Safety Policies
                 </NextLink>
+              </div>
+
+              {/* Mobile Drawer Theme Toggle */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={toggleTheme}
+                  className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-xs text-slate-300 hover:text-white transition-colors"
+                >
+                  <div className="flex items-center gap-2">
+                    {theme === 'dark' ? (
+                      <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
+                    ) : (
+                      <Sun className="w-4 h-4 text-amber-500 shrink-0" />
+                    )}
+                    <span>Theme</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-slate-400 font-medium capitalize">
+                      {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                    </span>
+                    <div
+                      className={`w-7 h-4 rounded-full p-0.5 transition-colors duration-200 ease-in-out flex items-center ${
+                        theme === 'dark' ? 'bg-indigo-600 justify-end' : 'bg-slate-300 justify-start'
+                      }`}
+                    >
+                      <div className="w-3 h-3 rounded-full bg-white shadow-sm" />
+                    </div>
+                  </div>
+                </button>
               </div>
 
               {/* Mobile Drawer Auth Footer */}
