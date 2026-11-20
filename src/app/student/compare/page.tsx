@@ -53,9 +53,17 @@ function CompareContent() {
   };
 
   const handleRemoveCareer = (slug: string) => {
-    if (comparedCareers.length <= 2) return;
     track('compare_career_removed', { slug });
-    setComparedCareers(comparedCareers.filter((c) => c.slug !== slug));
+    setComparedCareers((prev) => prev.filter((c) => c.slug !== slug));
+  };
+
+  const handleReplaceCareer = (oldSlug: string, newSlug: string) => {
+    const target = allCareers.find((c) => c.slug === newSlug);
+    if (!target) return;
+    track('compare_career_replaced', { oldSlug, newSlug });
+    setComparedCareers((prev) =>
+      prev.map((c) => (c.slug === oldSlug ? target : c))
+    );
   };
 
   return (
@@ -92,6 +100,7 @@ function CompareContent() {
           allAvailableCareers={allCareers}
           onAddCareer={handleAddCareer}
           onRemoveCareer={handleRemoveCareer}
+          onReplaceCareer={handleReplaceCareer}
         />
       )}
     </div>

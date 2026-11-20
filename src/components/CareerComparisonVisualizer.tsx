@@ -11,6 +11,8 @@ import {
   DollarSign,
   Code2,
   Users,
+  ArrowLeftRight,
+  ChevronDown,
 } from 'lucide-react';
 import {
   BarChart,
@@ -29,6 +31,7 @@ interface CareerComparisonVisualizerProps {
   allAvailableCareers?: any[];
   onRemoveCareer?: (slug: string) => void;
   onAddCareer?: (slug: string) => void;
+  onReplaceCareer?: (oldSlug: string, newSlug: string) => void;
 }
 
 export default function CareerComparisonVisualizer({
@@ -36,6 +39,7 @@ export default function CareerComparisonVisualizer({
   allAvailableCareers = [],
   onRemoveCareer,
   onAddCareer,
+  onReplaceCareer,
 }: CareerComparisonVisualizerProps) {
   const [selectedToAdd, setSelectedToAdd] = React.useState('');
 
@@ -69,6 +73,69 @@ export default function CareerComparisonVisualizer({
     3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
     4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
   }[Math.min(careers.length, 4)] || 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3';
+
+  if (careers.length === 0) {
+    return (
+      <div className="space-y-6 sm:space-y-8">
+        {/* Selector Header Bar */}
+        <div className="p-4 sm:p-6 rounded-2xl sm:rounded-3xl glass-panel border border-slate-800 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+          <div>
+            <h3 className="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <TrendingUp className="w-4 h-4 text-indigo-400" />
+              <span>Side-by-Side Comparison</span>
+            </h3>
+            <p className="text-xs text-slate-400 mt-0.5">
+              Select 2 to 4 professions from the selector to begin comparing.
+            </p>
+          </div>
+
+          {remainingCareers.length > 0 && onAddCareer && (
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <select
+                value={selectedToAdd}
+                onChange={(e) => setSelectedToAdd(e.target.value)}
+                className="flex-1 sm:w-60 px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-xs text-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">+ Add profession to compare...</option>
+                {remainingCareers.map((c) => (
+                  <option key={c.slug} value={c.slug}>
+                    {c.title} ({c.category})
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleAdd}
+                disabled={!selectedToAdd}
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white disabled:opacity-50 transition-all flex items-center gap-1 shrink-0"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>Add</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="p-8 sm:p-12 rounded-3xl glass-panel border border-slate-800 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-center mx-auto text-indigo-400">
+            <TrendingUp className="w-7 h-7" />
+          </div>
+          <h4 className="text-lg font-bold text-white">No Professions Currently Selected</h4>
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
+            Choose careers from the selector above or browse our career library to begin comparing.
+          </p>
+          <div className="pt-2">
+            <Link
+              href="/careers"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm transition-all"
+            >
+              <span>Explore All Careers</span>
+              <span>→</span>
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -118,19 +185,10 @@ export default function CareerComparisonVisualizer({
             className="rounded-2xl sm:rounded-3xl glass-panel p-4 sm:p-5 border border-slate-800 relative hover:border-slate-700 transition-all flex flex-col justify-between"
             style={{ borderTop: `4px solid ${colors[idx % colors.length]}` }}
           >
-            {onRemoveCareer && careers.length > 2 && (
-              <button
-                onClick={() => onRemoveCareer(career.slug)}
-                className="absolute top-3 right-3 p-1.5 rounded-lg bg-slate-800/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
-                title="Remove from comparison"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-            )}
-
-            <div>
+            {/* Top row: Profession badge + Replace dropdown + Remove button */}
+            <div className="flex items-center justify-between gap-2 mb-3">
               <span
-                className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block mb-2"
+                className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full inline-block"
                 style={{
                   backgroundColor: `${colors[idx % colors.length]}20`,
                   color: colors[idx % colors.length],
@@ -138,6 +196,49 @@ export default function CareerComparisonVisualizer({
               >
                 Profession {idx + 1}
               </span>
+
+              <div className="flex items-center gap-1.5">
+                {/* Replace selector — works on Profession 1, 2, 3, and 4 */}
+                {onReplaceCareer && remainingCareers.length > 0 && (
+                  <div className="relative inline-flex items-center" title={`Replace ${career.title} with another profession`}>
+                    <select
+                      aria-label={`Replace ${career.title}`}
+                      value=""
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          onReplaceCareer(career.slug, e.target.value);
+                        }
+                      }}
+                      className="appearance-none pl-6 pr-5 py-1 rounded-lg text-[10px] font-semibold glass-panel border border-slate-700/80 hover:border-indigo-500/50 text-slate-300 hover:text-white bg-slate-800/80 cursor-pointer focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all max-w-[105px] truncate"
+                    >
+                      <option value="" disabled>Replace...</option>
+                      {remainingCareers.map((c) => (
+                        <option key={c.slug} value={c.slug} className="bg-slate-900 text-white">
+                          {c.title} ({c.category})
+                        </option>
+                      ))}
+                    </select>
+                    <ArrowLeftRight className="w-3 h-3 text-indigo-400 absolute left-2 pointer-events-none" />
+                    <ChevronDown className="w-2.5 h-2.5 text-slate-400 absolute right-1.5 pointer-events-none" />
+                  </div>
+                )}
+
+                {/* Remove button — works on Profession 1, 2, 3, and 4 */}
+                {onRemoveCareer && (
+                  <button
+                    type="button"
+                    onClick={() => onRemoveCareer(career.slug)}
+                    className="p-1 sm:p-1.5 rounded-lg bg-slate-800/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 transition-colors"
+                    title={`Remove ${career.title} from comparison`}
+                    aria-label={`Remove ${career.title}`}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div>
               <h4 className="text-sm sm:text-base font-bold text-white leading-tight">{career.title}</h4>
               <p className="text-xs text-slate-400 mt-1">{career.industry}</p>
 
